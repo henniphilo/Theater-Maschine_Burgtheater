@@ -12,6 +12,7 @@ Zwei KIs (GPT und Claude) diskutieren live über ein Thema. Während sie spreche
 
 - [Was macht das Projekt?](#was-macht-das-projekt)
 - [Architektur](#architektur)
+- [Architektur & Bühnen-Setup (Diagramme)](docs/architektur.md)
 - [Voraussetzungen](#voraussetzungen)
 - [Schnellstart (Docker)](#schnellstart-docker)
 - [Konfiguration](#konfiguration)
@@ -46,7 +47,8 @@ Bei jedem Debatten-Beitrag (wenn `DIRECTOR_ENABLED=true`):
 
 Der Operator steuert alles über **http://localhost:3003/director** (Autopilot, Visuals/Sound/Licht, Aufnahme, Emergency Stop).
 
-Ausführlicher Entwicklungsplan: [`PLAN.md`](PLAN.md)
+Ausführlicher Entwicklungsplan: [`PLAN.md`](PLAN.md)  
+Architektur, Signale, Kamera/Ton/Licht-Setup: [`docs/architektur.md`](docs/architektur.md)
 
 ---
 
