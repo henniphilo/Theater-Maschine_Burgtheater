@@ -16,6 +16,8 @@ def director_test_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(settings, "director_data_dir", str(repo_data))
     monkeypatch.setattr(settings, "director_log_path", str(tmp_path / "director.log"))
     monkeypatch.setattr(settings, "director_autopilot_default", True)
+    monkeypatch.setattr(settings, "director_execute_mode", "sequenced")
+    monkeypatch.setattr(settings, "director_dramaturgy_mode", "rules")
 
     import app.director.pipeline as pipeline_mod
     import app.api.routes.director as director_routes

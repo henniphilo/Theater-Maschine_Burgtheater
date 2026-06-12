@@ -27,7 +27,7 @@ class DebateResponse(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str = Field(min_length=1, max_length=8000)
-    speaker: str = Field(pattern="^(openai|anthropic)$")
+    speaker: str = Field(pattern="^(openai|anthropic|AI_A|AI_B|narrator)$")
 
 
 class TTSStatusResponse(BaseModel):
@@ -37,3 +37,4 @@ class TTSStatusResponse(BaseModel):
     hint: str
     openai_voice: str
     anthropic_voice: str
+    narrator_voice: str = ""

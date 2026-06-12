@@ -41,6 +41,8 @@ app/director/outputs/__init__.py
 app/director/outputs/artnet.py
 app/director/outputs/lighting.py
 app/director/outputs/logger.py
+app/director/outputs/osc_commands.py
+app/director/outputs/osc_log.py
 app/director/outputs/sound.py
 app/director/outputs/touchdesigner.py
 app/models/__init__.py
@@ -63,6 +65,7 @@ app/services/tts/edge_provider.py
 app/services/tts/mac_say.py
 tests/test_cue_scheduler.py
 tests/test_director_api.py
+tests/test_director_pipeline.py
 tests/test_dramaturgy.py
 tests/test_health.py
 tests/test_media_selector.py

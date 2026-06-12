@@ -251,13 +251,14 @@ async def start_debate(payload: DebateRequest, db: Session = Depends(get_db)) ->
 def tts_status() -> TTSStatusResponse:
     try:
         provider = tts_service.resolve_provider()
-        openai_voice, anthropic_voice = tts_service.voice_labels()
+        openai_voice, anthropic_voice, narrator_voice = tts_service.voice_labels()
         available = True
         hint = tts_service.status_hint()
     except RuntimeError as exc:
         provider = "none"
         openai_voice = ""
         anthropic_voice = ""
+        narrator_voice = ""
         available = False
         hint = str(exc)
 
@@ -268,6 +269,7 @@ def tts_status() -> TTSStatusResponse:
         hint=hint,
         openai_voice=openai_voice,
         anthropic_voice=anthropic_voice,
+        narrator_voice=narrator_voice,
     )
 
 

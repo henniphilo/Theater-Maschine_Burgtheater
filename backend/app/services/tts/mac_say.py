@@ -5,7 +5,7 @@ import subprocess
 import uuid
 from pathlib import Path
 
-from app.core.config import settings
+from app.services.tts.voice_map import voice_for_speaker as map_voice
 
 VOICE_CACHE = Path(__file__).resolve().parents[3] / "data" / "tts"
 
@@ -17,9 +17,7 @@ class MacSayProvider:
 
     @staticmethod
     def voice_for_speaker(speaker: str) -> str:
-        if speaker == "openai":
-            return settings.tts_voice_openai
-        return settings.tts_voice_anthropic
+        return map_voice(speaker, provider="say")
 
     @staticmethod
     def list_voices() -> list[str]:
@@ -34,10 +32,10 @@ class MacSayProvider:
         return voices
 
     @staticmethod
-    def synthesize(text: str, speaker: str) -> Path:
+    def synthesize(text: str, speaker: str, *, voice: str | None = None) -> Path:
         if not MacSayProvider.is_available():
             raise RuntimeError("macOS say ist nicht verfügbar.")
-        voice = MacSayProvider.voice_for_speaker(speaker)
+        voice = voice or MacSayProvider.voice_for_speaker(speaker)
         VOICE_CACHE.mkdir(parents=True, exist_ok=True)
         aiff = VOICE_CACHE / f"{uuid.uuid4()}.aiff"
         subprocess.run(

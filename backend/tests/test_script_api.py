@@ -1,0 +1,37 @@
+from fastapi.testclient import TestClient
+
+from app.main import app
+
+client = TestClient(app)
+
+SAMPLE_TEXT = (
+    "Vielleicht ist Erinnerung nur eine technische Störung.\n\n"
+    "---\n\n"
+    "Der Körper erinnert sich anders als der Geist."
+)
+
+
+def test_create_script_splits_beats() -> None:
+    res = client.post(
+        "/api/v1/scripts",
+        json={"title": "Teststück", "source_text": SAMPLE_TEXT},
+    )
+    assert res.status_code == 201
+    body = res.json()
+    assert body["title"] == "Teststück"
+    assert len(body["beats"]) == 2
+    assert body["status"] == "draft"
+
+
+def test_get_and_patch_beat_speaker() -> None:
+    created = client.post(
+        "/api/v1/scripts",
+        json={"title": "Patch", "source_text": "Ein Abschnitt."},
+    ).json()
+    beat_id = created["beats"][0]["id"]
+    patched = client.patch(
+        f"/api/v1/scripts/{created['id']}/beats/{beat_id}",
+        json={"speaker": "narrator"},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["beats"][0]["speaker"] == "narrator"

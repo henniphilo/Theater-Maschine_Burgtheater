@@ -20,8 +20,36 @@ def test_director_dialogue_event_returns_decision() -> None:
     )
     assert res.status_code == 200
     body = res.json()
-    assert body["executed"] is True
+    assert body["executed"] is False
     assert body["decision"]["visual"]["clip_id"] == "memory_noise_03"
+    assert body["planned_commands"]
+    assert body["osc_commands"] == []
+
+
+def test_director_execute_returns_osc_commands() -> None:
+    planned = client.post(
+        "/api/v1/director/dialogue-event",
+        json={
+            "speaker": "AI_A",
+            "text": "Erinnerung ist vielleicht nur eine technische Störung.",
+            "topic": "Erinnerung",
+            "mood": "melancholisch",
+            "intensity": 0.72,
+            "tags": ["memory", "erinnerung"],
+        },
+    ).json()
+
+    res = client.post(
+        "/api/v1/director/execute",
+        json={"decision": planned["decision"], "stagger": False},
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["executed"] is True
+    assert body["osc_commands"]
+
+    status = client.get("/api/v1/director/status").json()
+    assert status["last_osc_commands"]
 
 
 def test_director_status_and_safety_patch() -> None:

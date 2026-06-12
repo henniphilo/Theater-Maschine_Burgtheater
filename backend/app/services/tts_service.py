@@ -4,6 +4,7 @@ from pathlib import Path
 from app.core.config import settings
 from app.services.tts.edge_provider import EdgeTTSProvider
 from app.services.tts.mac_say import MacSayProvider
+from app.services.tts.voice_map import voice_for_speaker
 
 
 class TTSService:
@@ -41,11 +42,19 @@ class TTSService:
             "Funktioniert in Docker — Internetverbindung nötig."
         )
 
-    def voice_labels(self) -> tuple[str, str]:
+    def voice_labels(self) -> tuple[str, str, str]:
         provider = self.resolve_provider()
         if provider == "say":
-            return MacSayProvider.voice_for_speaker("openai"), MacSayProvider.voice_for_speaker("anthropic")
-        return EdgeTTSProvider.voice_for_speaker("openai"), EdgeTTSProvider.voice_for_speaker("anthropic")
+            return (
+                MacSayProvider.voice_for_speaker("AI_A"),
+                MacSayProvider.voice_for_speaker("AI_B"),
+                MacSayProvider.voice_for_speaker("narrator"),
+            )
+        return (
+            EdgeTTSProvider.voice_for_speaker("AI_A"),
+            EdgeTTSProvider.voice_for_speaker("AI_B"),
+            EdgeTTSProvider.voice_for_speaker("narrator"),
+        )
 
     async def list_voices(self) -> list[str]:
         provider = self.resolve_provider()
@@ -55,9 +64,10 @@ class TTSService:
 
     async def synthesize(self, text: str, speaker: str) -> Path:
         provider = self.resolve_provider()
+        voice = voice_for_speaker(speaker, provider=provider)
         if provider == "say":
-            return MacSayProvider.synthesize(text, speaker)
-        return await EdgeTTSProvider.synthesize(text, speaker)
+            return MacSayProvider.synthesize(text, speaker, voice=voice)
+        return await EdgeTTSProvider.synthesize(text, speaker, voice=voice)
 
     @property
     def platform(self) -> str:
