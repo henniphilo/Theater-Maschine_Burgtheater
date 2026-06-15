@@ -76,35 +76,11 @@ def scan_visual_assets(media_root: Path) -> list[VideoAsset]:
 
 
 def load_sound_assets(media_root: Path, repo_root: Path, media_json_sounds: list[dict]) -> list[SoundAsset]:
-    sounds: list[SoundAsset] = []
-    for entry in media_json_sounds:
-        asset = SoundAsset.model_validate(entry)
-        file_path = repo_root / asset.path
-        if file_path.is_file():
-            sounds.append(asset)
+    """Deprecated: sounds come from data/sound_cues.json (MIDI cues, no WAV playback)."""
+    del media_root, repo_root, media_json_sounds
+    from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 
-    audio_dir = media_root / "audio"
-    if audio_dir.is_dir():
-        known_paths = {s.path for s in sounds}
-        for path in sorted(audio_dir.iterdir()):
-            if not path.is_file() or path.suffix.lower() not in AUDIO_EXTENSIONS:
-                continue
-            rel = f"media/audio/{path.name}"
-            if rel in known_paths:
-                continue
-            asset_id = _slug_id(path.stem)
-            sounds.append(
-                SoundAsset(
-                    id=asset_id,
-                    type="sound",
-                    path=rel,
-                    tags=[asset_id, "audio", "dummy"],
-                    moods=["neutral"],
-                    intensity_min=0.0,
-                    intensity_max=1.0,
-                )
-            )
-    return sounds
+    return get_sound_cue_catalog_service().to_sound_assets()
 
 
 def partition_visual_assets(assets: list[VideoAsset]) -> tuple[list[VideoAsset], list[VideoAsset]]:

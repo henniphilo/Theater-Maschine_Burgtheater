@@ -52,7 +52,7 @@ export async function streamDramaturgyWorkshop(
     body: JSON.stringify({
       openai_model: options.openai_model ?? "gpt-4o",
       anthropic_model: options.anthropic_model ?? "claude-sonnet-4-6",
-      discussion_rounds: options.discussion_rounds ?? 3
+      discussion_rounds: options.discussion_rounds ?? 1
     })
   });
   if (!res.ok || !res.body) {

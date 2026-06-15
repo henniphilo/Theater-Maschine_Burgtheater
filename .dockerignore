@@ -1,0 +1,14 @@
+.git
+.github
+.cursor
+README.md
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+backend/.venv
+backend/build
+frontend/node_modules
+frontend/.next
+logs

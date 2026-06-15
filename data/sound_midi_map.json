@@ -1,0 +1,5 @@
+{
+  "_note": "Legacy-Fallback. Primärquelle: media/sound/Sound Übersicht.csv",
+  "defaults": { "channel": 1, "velocity": 100 },
+  "cues": {}
+}

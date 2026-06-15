@@ -46,13 +46,13 @@ class TTSService:
         provider = self.resolve_provider()
         if provider == "say":
             return (
-                MacSayProvider.voice_for_speaker("AI_A"),
-                MacSayProvider.voice_for_speaker("AI_B"),
+                MacSayProvider.voice_for_speaker("openai"),
+                MacSayProvider.voice_for_speaker("anthropic"),
                 MacSayProvider.voice_for_speaker("narrator"),
             )
         return (
-            EdgeTTSProvider.voice_for_speaker("AI_A"),
-            EdgeTTSProvider.voice_for_speaker("AI_B"),
+            EdgeTTSProvider.voice_for_speaker("openai"),
+            EdgeTTSProvider.voice_for_speaker("anthropic"),
             EdgeTTSProvider.voice_for_speaker("narrator"),
         )
 

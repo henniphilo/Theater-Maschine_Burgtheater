@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
@@ -10,11 +10,14 @@ import { MachineStage } from "@/components/show/MachineStage";
 import { StagePreview } from "@/components/stage/StagePreview";
 import { fetchTTSStatus } from "@/lib/api/client";
 import { fetchMediaCatalog } from "@/lib/api/media";
+import { downloadBlob, exportPerformance, importPerformance } from "@/lib/api/performance";
 import { fetchScript } from "@/lib/api/script";
 import {
   INITIAL_PLAYBACK_STATE,
+  prefetchBeatStart,
   runScriptPlayback,
   stopScriptPlayback,
+  type PlaybackAudioOptions,
   type PlaybackState
 } from "@/features/show/scriptPlayback";
 import { buildMediaLookup, type MediaCatalog, type MediaLookup } from "@/lib/types/media";
@@ -22,8 +25,10 @@ import type { ProductionScript } from "@/lib/types/script";
 import type { DirectorPayload } from "@/lib/types/director";
 
 function AuffuehrungContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const scriptId = searchParams.get("id") ?? sessionStorage.getItem("currentScriptId") ?? "";
+  const importInputRef = useRef<HTMLInputElement>(null);
   const [script, setScript] = useState<ProductionScript | null>(null);
   const [playback, setPlayback] = useState<PlaybackState>(INITIAL_PLAYBACK_STATE);
   const [mediaCatalog, setMediaCatalog] = useState<MediaCatalog | null>(null);
@@ -31,6 +36,8 @@ function AuffuehrungContent() {
   const [ttsAvailable, setTtsAvailable] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
   const abortRef = useRef(false);
   const playbackGenRef = useRef(0);
 
@@ -64,23 +71,46 @@ function AuffuehrungContent() {
   }, [load]);
 
   const ready = script?.status === "ready";
+  const canPlay = ready || Boolean(script?.has_rendered_audio);
+
+  const playbackAudio: PlaybackAudioOptions = useMemo(
+    () => ({
+      ttsAvailable,
+      scriptId: script?.id,
+      hasRenderedAudio: Boolean(script?.has_rendered_audio)
+    }),
+    [ttsAvailable, script?.id, script?.has_rendered_audio]
+  );
+
+  useEffect(() => {
+    if (!script || !canPlay) return;
+    const beat = script.beats[playback.beatIndex];
+    if (beat) prefetchBeatStart(beat, playbackAudio);
+  }, [script, canPlay, playback.beatIndex, playbackAudio]);
+
   const currentBeat = playback.beatIndex >= 0 ? script?.beats[playback.beatIndex] : undefined;
   const canResume = playback.paused && !playback.completed && playback.beatIndex >= 0;
+  const inDiscussion = playback.segmentPhase === "discussion";
+  const discussionTurn =
+    inDiscussion && currentBeat?.discussion_turns && playback.discussionTurnIndex !== undefined
+      ? currentBeat.discussion_turns[playback.discussionTurnIndex]
+      : undefined;
 
-  const directorPayload: DirectorPayload | undefined = currentBeat?.dramaturgy
-    ? {
-        event: {},
-        decision: currentBeat.dramaturgy,
-        executed: playback.showPhase === "sent",
-        blocked_reason: null,
-        planned_commands: currentBeat.planned_commands,
-        osc_commands: []
-      }
-    : undefined;
+  const directorPayload: DirectorPayload | undefined =
+    currentBeat?.dramaturgy && !inDiscussion
+      ? {
+          event: {},
+          decision: currentBeat.dramaturgy,
+          executed: playback.showPhase === "sent",
+          blocked_reason: null,
+          planned_commands: currentBeat.planned_commands,
+          osc_commands: []
+        }
+      : undefined;
 
   const playFrom = useCallback(
     async (startIndex: number) => {
-      if (!script || !ready) return;
+      if (!script || !canPlay) return;
       const gen = ++playbackGenRef.current;
       setError("");
       abortRef.current = false;
@@ -88,7 +118,7 @@ function AuffuehrungContent() {
 
       await runScriptPlayback(
         script.beats,
-        ttsAvailable,
+        playbackAudio,
         startIndex,
         (update) => {
           if (gen === playbackGenRef.current) {
@@ -98,11 +128,15 @@ function AuffuehrungContent() {
         () => abortRef.current
       );
     },
-    [script, ready, ttsAvailable]
+    [script, canPlay, playbackAudio]
   );
 
   function handleStart() {
     const from = canResume ? playback.beatIndex : playback.beatIndex >= 0 ? playback.beatIndex : 0;
+    if (script) {
+      const beat = script.beats[from];
+      if (beat) prefetchBeatStart(beat, playbackAudio);
+    }
     void playFrom(from);
   }
 
@@ -121,6 +155,7 @@ function AuffuehrungContent() {
 
   function handleJumpToBeat(index: number) {
     if (!script || index < 0 || index >= script.beats.length) return;
+    prefetchBeatStart(script.beats[index], playbackAudio);
     setPlayback((prev) => ({ ...prev, beatIndex: index, paused: true, completed: false }));
 
     if (playback.running) {
@@ -131,6 +166,38 @@ function AuffuehrungContent() {
     }
   }
 
+  async function handleExport() {
+    if (!script || !ready) return;
+    setExporting(true);
+    setError("");
+    try {
+      const { blob, filename } = await exportPerformance(script.id);
+      downloadBlob(blob, filename);
+      const updated = await fetchScript(script.id);
+      setScript(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Export fehlgeschlagen");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleImportFile(file: File | null) {
+    if (!file) return;
+    setImporting(true);
+    setError("");
+    try {
+      const imported = (await importPerformance(file)) as ProductionScript;
+      sessionStorage.setItem("currentScriptId", imported.id);
+      router.push(`/auffuehrung?id=${imported.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Import fehlgeschlagen");
+    } finally {
+      setImporting(false);
+      if (importInputRef.current) importInputRef.current.value = "";
+    }
+  }
+
   return (
     <main className="container col">
       <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -138,14 +205,49 @@ function AuffuehrungContent() {
         <AppNav />
       </div>
       <p className="textMuted">
-        Timeline oder Textabschnitt anklicken zum Springen. Stoppen und an derselben Stelle fortsetzen.
+        Pro Abschnitt: Dramaturgen-Gespräch, dann Stücktext mit Cues. Aufführung als{" "}
+        <code>.tmshow.zip</code> exportieren (Text, Stimmen, Cues) und später ohne Dramaturgie importieren.
       </p>
+
+      <section className="card col">
+        <h2>Aufführung laden / speichern</h2>
+        <p className="textMuted" style={{ fontSize: "0.9rem" }}>
+          Import: ZIP mit Stücktext, Regie-Cues und vorgerenderten Stimmen. Export: rendert alle Stimmen und lädt
+          ein portables Paket herunter.
+        </p>
+        <div className="row">
+          <button
+            type="button"
+            onClick={() => importInputRef.current?.click()}
+            disabled={importing}
+          >
+            {importing ? "Import läuft …" : "Aufführung importieren (.zip)"}
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            hidden
+            onChange={(e) => void handleImportFile(e.target.files?.[0] ?? null)}
+          />
+          {script && ready ? (
+            <button type="button" onClick={() => void handleExport()} disabled={exporting || playback.running}>
+              {exporting ? "Export rendert Stimmen …" : "Aufführung exportieren"}
+            </button>
+          ) : null}
+        </div>
+        {script?.has_rendered_audio ? (
+          <p className="textMuted" style={{ fontSize: "0.85rem" }}>
+            Vorgespeicherte Stimmen aktiv — Wiedergabe ohne Live-TTS.
+          </p>
+        ) : null}
+      </section>
 
       {loading ? <p className="textFaint">Lade Stück …</p> : null}
       {error ? <div className="textError" role="alert">{error}</div> : null}
       {!scriptId && !loading ? (
         <p className="textFaint">
-          Kein Stück. <Link href="/dramaturgie">Dramaturgie</Link> oder <Link href="/stueck">Stücktext</Link>
+          Kein Stück geladen — oben importieren oder <Link href="/dramaturgie">Dramaturgie</Link> starten.
         </p>
       ) : null}
 
@@ -166,9 +268,10 @@ function AuffuehrungContent() {
               beats={script.beats}
               activeBeatIndex={playback.beatIndex}
               activeOscBridge={playback.activeOscBridge}
+              segmentPhase={playback.segmentPhase}
               running={playback.running}
               paused={playback.paused}
-              onBeatSelect={ready ? handleJumpToBeat : undefined}
+              onBeatSelect={canPlay ? handleJumpToBeat : undefined}
               media={media}
             />
             <div className="row">
@@ -176,7 +279,7 @@ function AuffuehrungContent() {
                 type="button"
                 className="machineStartBtn"
                 onClick={handleStart}
-                disabled={!ready || playback.running}
+                disabled={!canPlay || playback.running}
               >
                 {playback.running
                   ? "Läuft …"
@@ -192,8 +295,10 @@ function AuffuehrungContent() {
                 </button>
               ) : null}
             </div>
-            {!ready ? (
-              <p className="textFaint">Stück noch nicht bereit — zuerst Dramaturgie abschließen.</p>
+            {!canPlay ? (
+              <p className="textFaint">
+                Stück noch nicht bereit — Dramaturgie abschließen oder gespeicherte Aufführung importieren.
+              </p>
             ) : null}
             {playback.completed ? (
               <p className="textMuted">Aufführung beendet. Erneut starten oder Abschnitt wählen.</p>
@@ -204,15 +309,11 @@ function AuffuehrungContent() {
             running={playback.running}
             beatIndex={Math.max(playback.beatIndex, 0)}
             beatTotal={script.beats.length}
-            speaker={
-              currentBeat?.speaker === "AI_A"
-                ? "openai"
-                : currentBeat?.speaker === "AI_B"
-                  ? "anthropic"
-                  : currentBeat?.speaker === "narrator"
-                    ? "narrator"
-                    : undefined
-            }
+            segmentPhase={playback.segmentPhase}
+            discussionTurnIndex={playback.discussionTurnIndex}
+            discussionText={discussionTurn?.content}
+            dramaturgSpeaker={playback.dramaturgSpeaker}
+            performanceSpeaker={playback.performanceSpeaker}
             director={directorPayload}
             showPhase={playback.showPhase}
             activeOscBridge={playback.activeOscBridge}
@@ -223,7 +324,8 @@ function AuffuehrungContent() {
           <section className="card col scriptDocument">
             <h2>Stücktext (klickbar)</h2>
             <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-              Klick auf einen Abschnitt springt dorthin{playback.running ? " und setzt die Wiedergabe fort" : ""}.
+              Klick startet ab Dramaturgen-Gespräch des Abschnitts
+              {playback.running ? " und setzt die Wiedergabe fort" : ""}.
             </p>
             {script.beats.map((beat, index) => (
               <ScriptBeatBlock
@@ -231,8 +333,12 @@ function AuffuehrungContent() {
                 beat={beat}
                 media={media}
                 highlight={index === playback.beatIndex && (playback.running || playback.paused)}
+                segmentPhase={index === playback.beatIndex ? playback.segmentPhase : undefined}
+                discussionTurnIndex={
+                  index === playback.beatIndex ? playback.discussionTurnIndex : undefined
+                }
                 sentenceIndex={index === playback.beatIndex ? playback.sentenceIndex : undefined}
-                clickable={ready}
+                clickable={canPlay}
                 onSelect={() => handleJumpToBeat(index)}
               />
             ))}

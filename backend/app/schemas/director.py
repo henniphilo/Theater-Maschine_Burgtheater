@@ -67,7 +67,7 @@ class DirectorStatusResponse(BaseModel):
 
 class OscTestRequest(BaseModel):
     clip_id: str = "kuh"
-    sound_cue_id: str = "dummy_drone"
+    sound_cue_id: str = "maschinen_grundader"
     light_scene_id: str = "vorbuehnenzug"
     send_visual: bool = True
     send_sound: bool = True

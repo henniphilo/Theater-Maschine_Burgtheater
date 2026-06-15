@@ -1,0 +1,17 @@
+{
+  "id": "acd835d6-60e5-4645-9af6-71f8ad379e27",
+  "title": "Patch",
+  "source_text": "Ein Abschnitt.",
+  "beats": [
+    {
+      "id": "90eae74a-1603-4261-985e-1b98da9ef493",
+      "order": 0,
+      "text": "Ein Abschnitt.",
+      "speaker": "narrator",
+      "dramaturgy": null,
+      "planned_commands": [],
+      "discussion_summary": null
+    }
+  ],
+  "status": "draft"
+}

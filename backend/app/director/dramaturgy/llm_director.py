@@ -26,7 +26,28 @@ class LLMDirector:
         self.ai = ai_service or AIService()
         self.rule_engine = DramaturgyEngine(self.media_db)
 
-    def catalog_allowlist(self) -> dict[str, Any]:
+    def catalog_allowlist(self, *, compact: bool = False) -> dict[str, Any]:
+        if compact:
+            return {
+                "videos": [{"id": v.id, "tags": v.tags[:4], "moods": v.moods[:3]} for v in self.media_db.videos],
+                "recordings": [{"id": r.id, "tags": r.tags[:4]} for r in self.media_db.recordings],
+                "sounds": [
+                    {
+                        "id": s.id,
+                        "soundname": s.soundname or s.label,
+                        "action": s.action,
+                        "tags": s.tags[:4],
+                        "moods": s.moods[:3],
+                        "midi_note": s.midi_note,
+                    }
+                    for s in self.media_db.sounds
+                ],
+                "lights": [
+                    {"id": s.id, "moods": s.moods[:3], "channels": s.channels[:6]}
+                    for s in self.media_db.light_scenes
+                    if s.id != "blackout"
+                ],
+            }
         return {
             "videos": [
                 {"id": v.id, "path": v.path, "tags": v.tags, "moods": v.moods}
@@ -37,7 +58,17 @@ class LLMDirector:
                 for r in self.media_db.recordings
             ],
             "sounds": [
-                {"id": s.id, "path": s.path, "tags": s.tags, "moods": s.moods, "dummy": True}
+                {
+                    "id": s.id,
+                    "soundname": s.soundname or s.label,
+                    "action": s.action,
+                    "description": s.description,
+                    "midi_note": s.midi_note,
+                    "channel": s.channel,
+                    "ableton_hint": s.ableton_hint,
+                    "tags": s.tags,
+                    "moods": s.moods,
+                }
                 for s in self.media_db.sounds
             ],
             "lights": [
@@ -62,7 +93,7 @@ class LLMDirector:
                 "Vollständiges Regelwerk: docs/dramaturgy_rules.md",
                 "Nur clip_id aus videos[] oder recording_id aus recordings[] — keine erfundenen IDs.",
                 "Licht: nur scene_id aus lights[] — Kanäle laut Kanal-Übersicht.",
-                "Sound: nur dummy_* Cues bis echte Audiofiles vorliegen.",
+                "Sound: nur cue_id aus sounds[] (play / fade_in / fade_out) — MIDI an Ableton.",
             ],
             "rules_digest": load_dramaturgy_rules()[:500],
         }
@@ -92,8 +123,8 @@ class LLMDirector:
         model: str,
         discussion_context: str,
     ) -> str:
-        catalog = json.dumps(self.catalog_allowlist(), ensure_ascii=False)
-        rules = dramaturgy_rules_excerpt()
+        catalog = json.dumps(self.catalog_allowlist(compact=True), ensure_ascii=False)
+        rules = dramaturgy_rules_excerpt(max_chars=settings.dramaturgy_rules_excerpt_chars)
         min_points = min_cue_points_for_text(event.text)
         system = (
             "Du bist eine Theater-Regisseurin für die Bühne Unter Tieren. "
@@ -131,7 +162,7 @@ class LLMDirector:
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            max_tokens=2000,
+            max_tokens=settings.dramaturgy_decision_max_tokens,
         )
 
     def _parse_decision(self, raw: str, event: DialogueEvent) -> DramaturgyDecision:

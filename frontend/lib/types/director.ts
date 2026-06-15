@@ -57,7 +57,13 @@ export type DirectorPayload = {
   osc_commands: OscCommand[];
 };
 
-export type ShowPhase = "planned" | "speaking" | "cues_active" | "sent" | "blocked";
+export type ShowPhase =
+  | "planned"
+  | "dramaturg_discussion"
+  | "speaking"
+  | "cues_active"
+  | "sent"
+  | "blocked";
 
 export function formatOscCommand(cmd: OscCommand): string {
   const args = cmd.args.length ? ` ${cmd.args.map((a) => JSON.stringify(a)).join(" ")}` : "";

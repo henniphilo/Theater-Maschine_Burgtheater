@@ -22,9 +22,13 @@ class Settings(BaseSettings):
     tts_provider: str = "auto"
     tts_voice_openai: str = "Samantha"
     tts_voice_anthropic: str = "Flo"
+    tts_voice_ai_a: str = "Anna"
+    tts_voice_ai_b: str = "Martin"
     tts_voice_narrator: str = "Alex"
     tts_edge_voice_openai: str = "de-DE-ConradNeural"
     tts_edge_voice_anthropic: str = "de-DE-KatjaNeural"
+    tts_edge_voice_ai_a: str = "de-DE-KillianNeural"
+    tts_edge_voice_ai_b: str = "de-DE-SeraphinaMultilingualNeural"
     tts_edge_voice_narrator: str = "de-DE-AmalaNeural"
 
     director_enabled: bool = True
@@ -54,6 +58,22 @@ class Settings(BaseSettings):
     light_osc_tcp_format: Literal["json", "binary"] = "binary"
     light_osc_tcp_framing: Literal["length_prefix", "raw", "slip"] = "length_prefix"
     technik_hold_interval_seconds: float = 2.0
+    dramaturgy_discussion_rounds_default: int = 1
+    dramaturgy_discussion_rounds_max: int = 2
+    dramaturgy_discussion_max_tokens: int = 400
+    dramaturgy_decision_max_tokens: int = 1200
+    dramaturgy_rules_excerpt_chars: int = 3500
+    dramaturgy_statements_per_dramaturg: int = 2
+    dramaturgy_statement_max_chars: int = 450
+    sound_output: Literal["osc", "midi", "both"] = "midi"
+    sound_osc_mirror: bool = False
+    sound_midi_port: str | None = None
+    sound_midi_channel: int = 1
+    sound_midi_note_base: int = 36
+    sound_midi_default_velocity: int = 100
+    sound_midi_auto_note: bool = False
+    sound_midi_map_path: str = "data/sound_midi_map.json"
+    sound_cues_path: str = "data/sound_cues.json"
 
 
 settings = Settings()

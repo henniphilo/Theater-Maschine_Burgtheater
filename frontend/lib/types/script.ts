@@ -2,6 +2,12 @@ import type { DramaturgyDecision, OscCommand } from "@/lib/types/director";
 
 export type ScriptSpeaker = "AI_A" | "AI_B" | "narrator";
 export type ScriptStatus = "draft" | "review" | "ready";
+export type DramaturgSpeaker = "openai" | "anthropic";
+
+export type DiscussionTurn = {
+  speaker: DramaturgSpeaker;
+  content: string;
+};
 
 export type ScriptBeat = {
   id: string;
@@ -10,6 +16,7 @@ export type ScriptBeat = {
   speaker: ScriptSpeaker;
   dramaturgy: DramaturgyDecision | null;
   planned_commands: OscCommand[];
+  discussion_turns?: DiscussionTurn[];
   discussion_summary: string | null;
 };
 
@@ -19,6 +26,7 @@ export type ProductionScript = {
   source_text: string;
   beats: ScriptBeat[];
   status: ScriptStatus;
+  has_rendered_audio?: boolean;
 };
 
 export type WorkshopStreamEvent = {
@@ -32,10 +40,11 @@ export type WorkshopStreamEvent = {
     | "script_updated";
   beat_id?: string;
   beat_order?: number;
-  speaker?: "openai" | "anthropic";
+  speaker?: DramaturgSpeaker;
   content?: string;
   dramaturgy?: DramaturgyDecision;
   planned_commands?: OscCommand[];
+  discussion_turns?: DiscussionTurn[];
   discussion_summary?: string;
   detail?: string;
   script?: ProductionScript;
@@ -45,4 +54,9 @@ export function speakerLabel(speaker: ScriptSpeaker): string {
   if (speaker === "AI_A") return "Stimme A";
   if (speaker === "AI_B") return "Stimme B";
   return "Erzähler";
+}
+
+export function dramaturgSpeakerLabel(speaker: DramaturgSpeaker): string {
+  if (speaker === "openai") return "Dramaturg A (GPT)";
+  return "Dramaturg B (Claude)";
 }

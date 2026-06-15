@@ -6,6 +6,12 @@ from app.director.cues.cue_models import DramaturgyDecision, OscCommand
 
 ScriptSpeaker = Literal["AI_A", "AI_B", "narrator"]
 ScriptStatus = Literal["draft", "review", "ready"]
+DramaturgSpeaker = Literal["openai", "anthropic"]
+
+
+class DiscussionTurn(BaseModel):
+    speaker: DramaturgSpeaker
+    content: str = Field(min_length=1)
 
 
 class ScriptBeat(BaseModel):
@@ -15,6 +21,7 @@ class ScriptBeat(BaseModel):
     speaker: ScriptSpeaker = "AI_A"
     dramaturgy: DramaturgyDecision | None = None
     planned_commands: list[OscCommand] = Field(default_factory=list)
+    discussion_turns: list[DiscussionTurn] = Field(default_factory=list)
     discussion_summary: str | None = None
 
 
@@ -24,6 +31,7 @@ class ProductionScript(BaseModel):
     source_text: str
     beats: list[ScriptBeat] = Field(default_factory=list)
     status: ScriptStatus = "draft"
+    has_rendered_audio: bool = False
 
 
 class CreateScriptRequest(BaseModel):
@@ -39,4 +47,4 @@ class PatchScriptBeatRequest(BaseModel):
 class DramaturgyStreamRequest(BaseModel):
     openai_model: str = Field(default="gpt-4o", min_length=3, max_length=80)
     anthropic_model: str = Field(default="claude-sonnet-4-6", min_length=3, max_length=80)
-    discussion_rounds: int = Field(default=3, ge=1, le=6)
+    discussion_rounds: int = Field(default=1, ge=0, le=3)

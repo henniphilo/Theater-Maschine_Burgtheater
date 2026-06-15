@@ -120,8 +120,37 @@ docker stop aidebatte-backend-1 aidebatte-frontend-1 aidebatte-postgres-1 aideba
 
 ### 3. Starten
 
+**Im Projektroot** (nicht in `backend/`):
+
 ```bash
-docker compose up --build
+cd Theatermaschine
+docker compose up -d --build
+```
+
+Läuft im Hintergrund — Terminal bleibt frei. Logs nur bei Bedarf:
+
+```bash
+docker compose logs -f backend    # live mitverfolgen (Ctrl+C beendet nur die Anzeige)
+docker compose logs -f frontend
+docker compose logs --tail 50   # letzte Zeilen aller Services
+```
+
+Stoppen: `docker compose down`
+
+**Alternativ** mit Logs im Vordergrund: `docker compose up --build` — mit `d` abkoppeln (Container laufen weiter) oder Ctrl+C zum Stoppen.
+
+Nach Änderungen an `pyproject.toml` / `package.json` oder wenn etwas „hängen bleibt“:
+
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up
+```
+
+Nur `.env` geändert → Container neu starten (kein Rebuild nötig):
+
+```bash
+docker compose up --force-recreate backend
 ```
 
 ### 4. Öffnen
@@ -159,7 +188,7 @@ docker compose down
 | 5432 | TCP | PostgreSQL | nein (nur Docker-intern) |
 | 6379 | TCP | Redis | nein (nur Docker-intern) |
 
-Docker: Frontend **3003**, Backend **8000**. Lokal ohne Docker (`npm run dev`): Frontend **3000**. Postgres/Redis nur intern in Docker.
+Docker: Frontend **3003**, Backend **8000**. Postgres/Redis nur intern in Docker. (Ohne Docker: Frontend **3000** — siehe unten.)
 
 ---
 
@@ -169,11 +198,26 @@ Alle Einstellungen in `backend/.env` (nicht committen).
 
 ### KI & TTS
 
+In **Docker** nutzt das Backend automatisch **edge-tts** (kein macOS `say`). Dramaturgen- und Aufführungsstimmen sind getrennt konfigurierbar:
+
 ```env
 OPENAI_API_KEY="sk-..."
 ANTHROPIC_API_KEY="sk-ant-..."
 TTS_PROVIDER="auto"
+
+# Dramaturgen (Workshop / Phase 1)
+TTS_EDGE_VOICE_OPENAI="de-DE-ConradNeural"
+TTS_EDGE_VOICE_ANTHROPIC="de-DE-KatjaNeural"
+
+# Aufführung Stücktext (Phase 2) — rotiert satzweise AI_A / AI_B / narrator
+TTS_EDGE_VOICE_AI_A="de-DE-KillianNeural"
+TTS_EDGE_VOICE_AI_B="de-DE-SeraphinaMultilingualNeural"
+TTS_EDGE_VOICE_NARRATOR="de-DE-AmalaNeural"
 ```
+
+Nach Änderungen an Code oder `.env`: `docker compose up --build`
+
+Stimmenliste: `docker compose exec backend edge-tts --list-voices | grep de-DE`
 
 ### Live-Regie / Director
 
@@ -214,11 +258,17 @@ In `docker-compose.yml` ist `OSC_DRY_RUN=false` gesetzt, damit OSC an TouchDesig
 
 ### 3-Phasen-Workflow
 
-1. **`/dramaturgie`** — Stücktext einfügen, KIs diskutieren Regie (LLM wählt Cues aus `media.json`)
-2. **`/stueck`** — Stücktext mit Video/Sound/Licht-Markierungen prüfen, Sprecher anpassen
-3. **`/auffuehrung`** — Bühnen-Vorschau, Timeline/Text klickbar, **Start/Stop/Fortsetzen** (TTS + OSC)
+1. **`/dramaturgie`** — Stücktext einfügen; Dramaturg A (GPT) und Dramaturg B (Claude) diskutieren abwechselnd die Regie (max. 2 Beiträge je Dramaturg). Das Gespräch wird gespeichert und in der Aufführung vertont.
+2. **`/stueck`** — Stücktext mit Dramaturgen-Gespräch, Video/Sound/Licht-Markierungen prüfen, Sprecher anpassen
+3. **`/auffuehrung`** — Pro Abschnitt: **Phase 1** vertontes Dramaturgen-Gespräch, **Phase 2** Stücktext mit TTS + OSC-Cues. **Export** als `.tmshow.zip` (Text, Cues, vorgerenderte Stimmen); **Import** startet die Maschine ohne erneute Dramaturgie.
 
-**Medien-Datenbank:** Videos/Recordings werden aus `media/video/` und `media/recordings/` gescannt (nur existierende Dateien). Sounds: Dummy-WAVs in `media/audio/`. Licht: `data/light_scenes.json` aus [`media/light/Kanal Übersicht.xlsx`](media/light/Kanal%20Übersicht.xlsx). API: `GET /api/v1/media/catalog`. TouchDesigner: [`touchdesigner/README_touchdesigner_setup.md`](touchdesigner/README_touchdesigner_setup.md).
+**Aufführungs-Paket (`.tmshow.zip`):** `manifest.json` + `audio/` — enthält Stücktext, `discussion_turns`, Regieentscheidungen und alle Stimmen. Auf einem anderen Rechner importieren und direkt abspielen.
+
+**Stimmen:** Dramaturgen = GPT (`openai`) / Claude (`anthropic`) — eigene TTS-Stimmen (`TTS_VOICE_OPENAI` / `TTS_VOICE_ANTHROPIC` bzw. `TTS_EDGE_VOICE_*`). Stücktext = **Stimme A / B / Erzähler** (`AI_A` / `AI_B` / `narrator`) — eigene Stimmen (`TTS_VOICE_AI_A` / `TTS_VOICE_AI_B` / `TTS_VOICE_NARRATOR`); im Ablauf wechseln die Sätze rotierend zwischen diesen drei Stimmen, nie die Dramaturgen-Stimmen.
+
+**Konfiguration:** `DRAMATURGY_STATEMENTS_PER_DRAMATURG=2` (Default) begrenzt Beiträge pro Dramaturg im Workshop.
+
+**Medien-Datenbank:** Videos/Recordings aus `media/video/` und `media/recordings/`. **Sound:** `media/sound/Sound Übersicht.csv` (MIDI-Cues → Ableton, keine WAVs in der Maschine). Licht: `data/light_scenes.json` aus `media/light/Kanal Übersicht.xlsx`. API: `GET /api/v1/media/catalog`.
 
 `DIRECTOR_DRAMATURGY_MODE=llm` (Standard) oder `rules` für regelbasierte Cues.
 
@@ -447,6 +497,28 @@ Theatermaschine/
 
 ## Entwicklung & Tests
 
+## Tests & Entwicklung
+
+### Backend-Tests (Docker — empfohlen)
+
+```bash
+docker compose run --rm --no-deps backend sh -c \
+  "pip install pytest pytest-asyncio -q && PYTHONPATH=/app pytest -q"
+```
+
+Einzelne Tests, z. B. Stimmen:
+
+```bash
+docker compose run --rm --no-deps backend sh -c \
+  "pip install pytest pytest-asyncio -q && PYTHONPATH=/app pytest tests/test_voice_map.py -q"
+```
+
+### Frontend-Tests (Docker)
+
+```bash
+docker compose run --rm --no-deps frontend npm test -- --run
+```
+
 ### Backend-Tests (lokal, Python 3.11+)
 
 ```bash
@@ -456,35 +528,21 @@ pip install -e ".[dev]"
 pytest
 ```
 
-### Backend-Tests (Docker)
+### Lokal ohne Docker (optional)
+
+Nur falls du Frontend/Backend nativ starten willst (z. B. macOS Siri-TTS):
 
 ```bash
-docker compose run --rm --no-deps backend sh -c \
-  "pip install pytest pytest-asyncio -q && PYTHONPATH=/app pytest -q"
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run lint
-npm run dev    # → http://localhost:3000
-```
-
-### Lokal ohne Docker (Mac, mit Siri-TTS)
-
-```bash
-# Terminal 1 — Infrastruktur
+# Infrastruktur in Docker
 docker compose up -d postgres redis
 
-# Terminal 1 — Backend
+# Backend nativ
 cd backend && source .venv/bin/activate
 python3 -m app.db.init_db
 uvicorn app.main:app --reload --port 8000
 
-# Terminal 2 — Frontend
-cd frontend && npm run dev
+# Frontend nativ
+cd frontend && npm install && npm run dev   # → http://localhost:3000
 ```
 
 ---
@@ -493,6 +551,8 @@ cd frontend && npm run dev
 
 | Problem | Lösung |
 |---------|--------|
+| Änderungen wirken nicht | Im **Projektroot** starten (`cd Theatermaschine`), nicht in `backend/`. Dann `docker compose up --build`. Bei hartnäckigem Cache: `docker compose build --no-cache` |
+| Stücke / Exporte weg nach Rebuild | `data/` ist jetzt gemountet — alte Container ohne Volume hatten Daten nur im Image |
 | Port 8000 belegt | Alten Stack stoppen: `docker stop aidebatte-backend-1 …` oder `docker compose down` im anderen Projekt |
 | Port 3003 oder 8000 belegt | Alten Docker-Stack stoppen: `docker ps` → `docker stop …` |
 | Postgres/Redis-Konflikt | In Docker nicht mehr nach außen gemappt — nur intern |

@@ -11,7 +11,14 @@ export type MediaVideo = {
 export type MediaSound = {
   id: string;
   type: string;
+  label?: string;
+  soundname?: string;
+  action?: string;
+  description?: string;
   path: string;
+  midi_note?: number | null;
+  channel?: number;
+  ableton_hint?: string;
   tags: string[];
   moods: string[];
 };
@@ -48,6 +55,15 @@ export type MediaCatalog = {
     tcp_protocol: string;
     osc_host: string;
     osc_port: number;
+  };
+  sound?: {
+    output: string;
+    osc_mirror: boolean;
+    osc_host: string;
+    osc_port: number;
+    midi_port: string | null;
+    midi_channel: number;
+    midi_map: string;
   };
   data_dir: string;
 };

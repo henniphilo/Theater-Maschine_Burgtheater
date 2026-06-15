@@ -1,42 +1,5 @@
 {
   "videos": [],
-  "sounds": [
-    {
-      "id": "dummy_drone",
-      "type": "sound",
-      "path": "media/audio/dummy_drone.wav",
-      "tags": ["drone", "ambient", "dummy"],
-      "moods": ["melancholisch", "unheimlich", "neutral"],
-      "intensity_min": 0.0,
-      "intensity_max": 1.0
-    },
-    {
-      "id": "dummy_ambient",
-      "type": "sound",
-      "path": "media/audio/dummy_ambient.wav",
-      "tags": ["ambient", "raum", "dummy"],
-      "moods": ["neutral", "leer", "melancholisch"],
-      "intensity_min": 0.0,
-      "intensity_max": 0.6
-    },
-    {
-      "id": "dummy_stinger",
-      "type": "sound",
-      "path": "media/audio/dummy_stinger.wav",
-      "tags": ["stinger", "akzent", "dummy"],
-      "moods": ["spannung", "unheimlich"],
-      "intensity_min": 0.5,
-      "intensity_max": 1.0
-    },
-    {
-      "id": "dummy_room",
-      "type": "sound",
-      "path": "media/audio/dummy_room.wav",
-      "tags": ["room", "stille", "dummy"],
-      "moods": ["leer", "melancholisch"],
-      "intensity_min": 0.0,
-      "intensity_max": 0.4
-    }
-  ],
-  "_note": "Videos und Recordings werden aus media/video und media/recordings auf der Festplatte geladen — nur existierende Dateien."
+  "sounds": [],
+  "_note": "Sounds: media/sound/Sound Übersicht.csv (MIDI → Ableton). Keine WAV-Dateien in der Maschinen-Datenbank."
 }

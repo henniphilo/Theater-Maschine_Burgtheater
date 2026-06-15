@@ -13,7 +13,7 @@ from app.director.pipeline import DirectorPipeline
 @dataclass
 class TechnikHoldState:
     clip_id: str = "kuh"
-    sound_cue_id: str = "dummy_drone"
+    sound_cue_id: str = "maschinen_grundader"
     light_scene_id: str = "vorbuehnenzug"
     send_visual: bool = False
     send_sound: bool = False

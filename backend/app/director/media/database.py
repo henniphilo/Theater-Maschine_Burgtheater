@@ -22,8 +22,15 @@ class VideoAsset(BaseModel):
 
 class SoundAsset(BaseModel):
     id: str
-    type: str = "sound"
-    path: str
+    type: str = "midi_cue"
+    label: str = ""
+    soundname: str = ""
+    action: str = "play"
+    description: str = ""
+    path: str = ""
+    midi_note: int | None = None
+    channel: int = 1
+    ableton_hint: str = ""
     tags: list[str] = Field(default_factory=list)
     moods: list[str] = Field(default_factory=list)
     intensity_min: float = 0.0
@@ -111,7 +118,9 @@ class MediaDatabase:
 
         visual_assets = scan_visual_assets(self.media_root)
         self.videos, self.recordings = partition_visual_assets(visual_assets)
-        self.sounds = load_sound_assets(self.media_root, self.repo_root, media_data.get("sounds", []))
+        from app.services.sound_cue_catalog import get_sound_cue_catalog_service
+
+        self.sounds = get_sound_cue_catalog_service().to_sound_assets()
         self.light_scenes = [LightScene.model_validate(s) for s in light_data.get("scenes", [])]
         self.rules = DramaturgyRules(
             keyword_tags=rules_data.get("keyword_tags", {}),

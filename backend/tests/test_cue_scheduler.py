@@ -9,7 +9,7 @@ from app.director.pipeline import DirectorPipeline
 def _sample_decision() -> DramaturgyDecision:
     return DramaturgyDecision(
         visual=VisualCue(action=VisualAction.PLAY_CLIP, clip_id="kuh"),
-        sound=SoundCue(cue_id="dummy_drone"),
+        sound=SoundCue(cue_id="maschinen_grundader"),
         light=LightCue(scene_id="vorbuehnenzug"),
         reason="test",
         tags=["memory"],

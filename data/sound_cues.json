@@ -1,0 +1,654 @@
+{
+  "version": 1,
+  "_source": "/app/media/sound/Sound Übersicht.csv",
+  "_note": "Abgeleitet aus Sound Übersicht.csv — bitte CSV bearbeiten, nicht diese Datei.",
+  "defaults": {
+    "channel": 1,
+    "velocity": 100
+  },
+  "cues": [
+    {
+      "id": "maschinen_grundader",
+      "label": "Maschinen-Grundader",
+      "soundname": "Maschinen-Grundader",
+      "action": "play",
+      "description": "Leiser Dauer-Drone — Grundstimmung der Bühne",
+      "ableton_hint": "Maschinen-Grundader — play (Note 36)",
+      "midi_note": 36,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "drone",
+        "grundton",
+        "dauer"
+      ],
+      "moods": [
+        "melancholisch",
+        "neutral",
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "maschinen_grundader_fade_in",
+      "label": "Maschinen-Grundader",
+      "soundname": "Maschinen-Grundader",
+      "action": "fade_in",
+      "description": "Einblenden der Maschinen-Grundader",
+      "ableton_hint": "Maschinen-Grundader — fade_in (Note 52)",
+      "midi_note": 52,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "drone",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "melancholisch",
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "maschinen_grundader_fade_out",
+      "label": "Maschinen-Grundader",
+      "soundname": "Maschinen-Grundader",
+      "action": "fade_out",
+      "description": "Ausblenden der Maschinen-Grundader",
+      "ableton_hint": "Maschinen-Grundader — fade_out (Note 53)",
+      "midi_note": 53,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "drone",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "melancholisch",
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "kaefigecho",
+      "label": "Käfigecho",
+      "soundname": "Käfigecho",
+      "action": "play",
+      "description": "Metallisches Nachhallen — Enge, Käfig, Erinnerung",
+      "ableton_hint": "Käfigecho — play (Note 37)",
+      "midi_note": 37,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "raum",
+        "metall",
+        "echo"
+      ],
+      "moods": [
+        "unheimlich",
+        "leer"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "kaefigecho_fade_in",
+      "label": "Käfigecho",
+      "soundname": "Käfigecho",
+      "action": "fade_in",
+      "description": "Einblenden Käfigecho",
+      "ableton_hint": "Käfigecho — fade_in (Note 54)",
+      "midi_note": 54,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "raum",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "kaefigecho_fade_out",
+      "label": "Käfigecho",
+      "soundname": "Käfigecho",
+      "action": "fade_out",
+      "description": "Ausblenden Käfigecho",
+      "ableton_hint": "Käfigecho — fade_out (Note 55)",
+      "midi_note": 55,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "raum",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "erinnerungsglitch",
+      "label": "Erinnerungsglitch",
+      "soundname": "Erinnerungsglitch",
+      "action": "play",
+      "description": "Kurzer digitaler Bruch — Erinnerung stottert",
+      "ableton_hint": "Erinnerungsglitch — play (Note 38)",
+      "midi_note": 38,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "glitch",
+        "störung",
+        "akzent"
+      ],
+      "moods": [
+        "spannung",
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "erinnerungsglitch_fade_in",
+      "label": "Erinnerungsglitch",
+      "soundname": "Erinnerungsglitch",
+      "action": "fade_in",
+      "description": "Einblenden Erinnerungsglitch",
+      "ableton_hint": "Erinnerungsglitch — fade_in (Note 56)",
+      "midi_note": 56,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "glitch",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "erinnerungsglitch_fade_out",
+      "label": "Erinnerungsglitch",
+      "soundname": "Erinnerungsglitch",
+      "action": "fade_out",
+      "description": "Ausblenden Erinnerungsglitch",
+      "ableton_hint": "Erinnerungsglitch — fade_out (Note 57)",
+      "midi_note": 57,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "glitch",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "herz_unter_glas",
+      "label": "Herz unter Glas",
+      "soundname": "Herz unter Glas",
+      "action": "play",
+      "description": "Gedämpfter Puls — Körper, Angst, Nähe",
+      "ableton_hint": "Herz unter Glas — play (Note 39)",
+      "midi_note": 39,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "puls",
+        "herz",
+        "sub"
+      ],
+      "moods": [
+        "spannung",
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "herz_unter_glas_fade_in",
+      "label": "Herz unter Glas",
+      "soundname": "Herz unter Glas",
+      "action": "fade_in",
+      "description": "Einblenden Herz unter Glas",
+      "ableton_hint": "Herz unter Glas — fade_in (Note 58)",
+      "midi_note": 58,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "puls",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "herz_unter_glas_fade_out",
+      "label": "Herz unter Glas",
+      "soundname": "Herz unter Glas",
+      "action": "fade_out",
+      "description": "Ausblenden Herz unter Glas",
+      "ableton_hint": "Herz unter Glas — fade_out (Note 59)",
+      "midi_note": 59,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "puls",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "stallluft_digital",
+      "label": "Stallluft digital",
+      "soundname": "Stallluft digital",
+      "action": "play",
+      "description": "Raumton Stall — Tier, Staub, Wärme",
+      "ableton_hint": "Stallluft digital — play (Note 40)",
+      "midi_note": 40,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "ambient",
+        "raum",
+        "stall"
+      ],
+      "moods": [
+        "neutral",
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "stallluft_digital_fade_in",
+      "label": "Stallluft digital",
+      "soundname": "Stallluft digital",
+      "action": "fade_in",
+      "description": "Einblenden Stallluft digital",
+      "ableton_hint": "Stallluft digital — fade_in (Note 60)",
+      "midi_note": 60,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "ambient",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "stallluft_digital_fade_out",
+      "label": "Stallluft digital",
+      "soundname": "Stallluft digital",
+      "action": "fade_out",
+      "description": "Ausblenden Stallluft digital",
+      "ableton_hint": "Stallluft digital — fade_out (Note 61)",
+      "midi_note": 61,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "ambient",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "tierstimme_verzerrt",
+      "label": "Tierstimme verzerrt",
+      "soundname": "Tierstimme verzerrt",
+      "action": "play",
+      "description": "Verfremdete Tierlaute — Bedrohung, Komik, Traum",
+      "ableton_hint": "Tierstimme verzerrt — play (Note 41)",
+      "midi_note": 41,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "tier",
+        "stimme",
+        "verzerrt"
+      ],
+      "moods": [
+        "unheimlich",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "tierstimme_verzerrt_fade_in",
+      "label": "Tierstimme verzerrt",
+      "soundname": "Tierstimme verzerrt",
+      "action": "fade_in",
+      "description": "Einblenden Tierstimme verzerrt",
+      "ableton_hint": "Tierstimme verzerrt — fade_in (Note 62)",
+      "midi_note": 62,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "tier",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "tierstimme_verzerrt_fade_out",
+      "label": "Tierstimme verzerrt",
+      "soundname": "Tierstimme verzerrt",
+      "action": "fade_out",
+      "description": "Ausblenden Tierstimme verzerrt",
+      "ableton_hint": "Tierstimme verzerrt — fade_out (Note 63)",
+      "midi_note": 63,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "tier",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "metallseufzer",
+      "label": "Metallseufzer",
+      "soundname": "Metallseufzer",
+      "action": "play",
+      "description": "Einmaliger metallischer Seufzer — Maschine atmet",
+      "ableton_hint": "Metallseufzer — play (Note 42)",
+      "midi_note": 42,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "stinger",
+        "metall",
+        "akzent"
+      ],
+      "moods": [
+        "spannung",
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "metallseufzer_fade_in",
+      "label": "Metallseufzer",
+      "soundname": "Metallseufzer",
+      "action": "fade_in",
+      "description": "Einblenden Metallseufzer (selten)",
+      "ableton_hint": "Metallseufzer — fade_in (Note 64)",
+      "midi_note": 64,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "metall",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "metallseufzer_fade_out",
+      "label": "Metallseufzer",
+      "soundname": "Metallseufzer",
+      "action": "fade_out",
+      "description": "Ausblenden Metallseufzer",
+      "ableton_hint": "Metallseufzer — fade_out (Note 65)",
+      "midi_note": 65,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "metall",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "leere_zwischen_saetzen",
+      "label": "Leere zwischen Sätzen",
+      "soundname": "Leere zwischen Sätzen",
+      "action": "play",
+      "description": "Fast Stille — Pause, Nachhall der Abwesenheit",
+      "ableton_hint": "Leere zwischen Sätzen — play (Note 43)",
+      "midi_note": 43,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "stille",
+        "raum",
+        "leise"
+      ],
+      "moods": [
+        "leer",
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "leere_zwischen_saetzen_fade_in",
+      "label": "Leere zwischen Sätzen",
+      "soundname": "Leere zwischen Sätzen",
+      "action": "fade_in",
+      "description": "Einblenden Leere zwischen Sätzen",
+      "ableton_hint": "Leere zwischen Sätzen — fade_in (Note 66)",
+      "midi_note": 66,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "stille",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "leer"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "leere_zwischen_saetzen_fade_out",
+      "label": "Leere zwischen Sätzen",
+      "soundname": "Leere zwischen Sätzen",
+      "action": "fade_out",
+      "description": "Ausblenden Leere zwischen Sätzen",
+      "ableton_hint": "Leere zwischen Sätzen — fade_out (Note 67)",
+      "midi_note": 67,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "stille",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "leer"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "unter_tiere_chor",
+      "label": "Unter-Tiere-Chor",
+      "soundname": "Unter-Tiere-Chor",
+      "action": "play",
+      "description": "Fernes Summen vieler Stimmen — Masse, Bedrohung",
+      "ableton_hint": "Unter-Tiere-Chor — play (Note 44)",
+      "midi_note": 44,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "chor",
+        "masse",
+        "tier"
+      ],
+      "moods": [
+        "unheimlich",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "unter_tiere_chor_fade_in",
+      "label": "Unter-Tiere-Chor",
+      "soundname": "Unter-Tiere-Chor",
+      "action": "fade_in",
+      "description": "Einblenden Unter-Tiere-Chor",
+      "ableton_hint": "Unter-Tiere-Chor — fade_in (Note 68)",
+      "midi_note": 68,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "chor",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "unter_tiere_chor_fade_out",
+      "label": "Unter-Tiere-Chor",
+      "soundname": "Unter-Tiere-Chor",
+      "action": "fade_out",
+      "description": "Ausblenden Unter-Tiere-Chor",
+      "ableton_hint": "Unter-Tiere-Chor — fade_out (Note 69)",
+      "midi_note": 69,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "chor",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "archiv_rauschen",
+      "label": "Archiv-Rauschen",
+      "soundname": "Archiv-Rauschen",
+      "action": "play",
+      "description": "Bandgerät-Rauschen — Archiv, Vergangenheit",
+      "ableton_hint": "Archiv-Rauschen — play (Note 45)",
+      "midi_note": 45,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "rauschen",
+        "archiv",
+        "vintage"
+      ],
+      "moods": [
+        "melancholisch",
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "archiv_rauschen_fade_in",
+      "label": "Archiv-Rauschen",
+      "soundname": "Archiv-Rauschen",
+      "action": "fade_in",
+      "description": "Einblenden Archiv-Rauschen",
+      "ableton_hint": "Archiv-Rauschen — fade_in (Note 70)",
+      "midi_note": 70,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "archiv",
+        "fade",
+        "fade_in"
+      ],
+      "moods": [
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    },
+    {
+      "id": "archiv_rauschen_fade_out",
+      "label": "Archiv-Rauschen",
+      "soundname": "Archiv-Rauschen",
+      "action": "fade_out",
+      "description": "Ausblenden Archiv-Rauschen",
+      "ableton_hint": "Archiv-Rauschen — fade_out (Note 71)",
+      "midi_note": 71,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "archiv",
+        "fade",
+        "fade_out"
+      ],
+      "moods": [
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0
+    }
+  ]
+}

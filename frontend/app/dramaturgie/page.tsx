@@ -137,7 +137,7 @@ export default function DramaturgiePage() {
       sessionStorage.setItem("currentScriptId", created.id);
       await streamDramaturgyWorkshop(
         created.id,
-        { openai_model: openaiModel, anthropic_model: anthropicModel, discussion_rounds: 3 },
+        { openai_model: openaiModel, anthropic_model: anthropicModel, discussion_rounds: 1 },
         {
           onEvent: handleWorkshopEvent,
           onError: (detail) => setError(detail)
@@ -160,7 +160,10 @@ export default function DramaturgiePage() {
         <AppNav />
       </div>
       <p className="textMuted">
-        Stücktext einfügen — zwei KIs diskutieren die Regie (Video, Sound, Licht) für jeden Abschnitt.
+        Stücktext einfügen — Dramaturg A (GPT) und Dramaturg B (Claude) diskutieren abwechselnd die Regie
+        (Video, Sound, Licht) für jeden Abschnitt. Sound-Cues aus{" "}
+        <code>media/sound/Sound Übersicht.csv</code> (MIDI → Ableton). Das Gespräch wird in der Aufführung
+        vertont, danach folgt der Stücktext mit Cues.
       </p>
 
       <section className="card col">

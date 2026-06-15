@@ -18,13 +18,14 @@ import {
 import { fetchMediaCatalog } from "@/lib/api/media";
 import type { MediaCatalog } from "@/lib/types/media";
 import { formatLightChannelLabel } from "@/lib/types/media";
+import { formatMidiTrigger } from "@/lib/midi/format";
 
 type Channel = "visual" | "sound";
 
 export function OscTestPanel() {
   const [catalog, setCatalog] = useState<MediaCatalog | null>(null);
   const [clipId, setClipId] = useState("kuh");
-  const [soundId, setSoundId] = useState("dummy_drone");
+  const [soundId, setSoundId] = useState("maschinen_grundader");
   const [lightId, setLightId] = useState("vorbuehnenzug");
   const [sendVisual, setSendVisual] = useState(true);
   const [sendSound, setSendSound] = useState(true);
@@ -166,6 +167,12 @@ export function OscTestPanel() {
   const oscTarget = catalog?.touchdesigner
     ? `${catalog.touchdesigner.osc_host}:${catalog.touchdesigner.osc_port}`
     : "—";
+  const soundTarget =
+    catalog?.sound?.output === "midi" || catalog?.sound?.output === "both"
+      ? `MIDI ${catalog.sound.midi_port || "auto"} · Kanal ${catalog.sound.midi_channel}`
+      : catalog?.sound
+        ? `OSC ${catalog.sound.osc_host}:${catalog.sound.osc_port}`
+        : oscTarget;
   const lightTcpTarget = catalog?.lighting
     ? `TCP ${catalog.lighting.tcp_host}:${catalog.lighting.tcp_port}`
     : "—";
@@ -186,8 +193,11 @@ export function OscTestPanel() {
     <section className="card col oscTestPanel">
       <h2>OSC Technik-Test</h2>
       <p className="textMuted" style={{ marginTop: 0 }}>
-        Video/Sound: <code>{oscTarget}</code>
-        {dryRun ? <span className="oscTestWarn"> · DRY-RUN</span> : <span> · aktiv</span>}
+        Video: <code>{oscTarget}</code>
+        {dryRun ? <span className="oscTestWarn"> · DRY-RUN</span> : null}
+        {" · "}
+        Sound: <code>{soundTarget}</code>
+        {!dryRun && catalog?.sound?.output !== "osc" ? <span> · aktiv</span> : null}
       </p>
 
       {activeLabel ? (
@@ -212,7 +222,13 @@ export function OscTestPanel() {
           <span>Sound</span>
           <select value={soundId} onChange={(e) => setSoundId(e.target.value)} disabled={lightBusy}>
             {(catalog?.sounds ?? []).map((s) => (
-              <option key={s.id} value={s.id}>{s.id}</option>
+              <option key={s.id} value={s.id}>
+                {s.soundname || s.label || s.id}
+                {s.action && s.action !== "play" ? ` [${s.action}]` : ""}
+                {s.midi_note != null
+                  ? ` · ${formatMidiTrigger(s.midi_note, s.channel ?? catalog?.sound?.midi_channel ?? 1)}`
+                  : ""}
+              </option>
             ))}
           </select>
         </label>

@@ -1,4 +1,5 @@
 import type { MediaLookup } from "@/lib/types/media";
+import { formatMidiTrigger } from "@/lib/midi/format";
 import type { CuePoint, DramaturgyDecision } from "@/lib/types/director";
 import { normalizeCuePoints } from "@/features/show/cuePlayback";
 
@@ -34,7 +35,13 @@ function CuePointRow({ point, media }: { point: CuePoint; media?: MediaLookup })
       {!video && !sound && !light ? null : (
         <span className="textMuted" style={{ fontSize: "0.85rem" }}>
           {video ? video.path : ""}
-          {sound ? ` · ${sound.path}` : ""}
+          {sound
+            ? sound.midi_note != null
+              ? ` · MIDI ${formatMidiTrigger(sound.midi_note, sound.channel ?? 1)}`
+              : sound.label
+                ? ` · ${sound.label}`
+                : ""
+            : ""}
           {light ? ` · ${light.description || light.id}` : ""}
         </span>
       )}
@@ -93,7 +100,26 @@ export function MediaCueDetail({
               ) : null}
               {sound ? (
                 <li>
-                  <strong>Sound-Datei:</strong> <code>{sound.path}</code>
+                  <strong>Sound:</strong> {sound.soundname || sound.label || sound.id}
+                  {sound.action && sound.action !== "play" ? ` (${sound.action})` : ""}
+                  {sound.midi_note != null ? (
+                    <>
+                      {" "}
+                      · <code>{formatMidiTrigger(sound.midi_note, sound.channel ?? 1)}</code>
+                    </>
+                  ) : null}
+                  {sound.description ? (
+                    <>
+                      <br />
+                      {sound.description}
+                    </>
+                  ) : null}
+                  {sound.ableton_hint ? (
+                    <>
+                      <br />
+                      <span className="textMuted">Ableton: {sound.ableton_hint}</span>
+                    </>
+                  ) : null}
                 </li>
               ) : null}
               {lightScene ? (

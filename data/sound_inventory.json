@@ -1,0 +1,6 @@
+{
+  "source": "media/sound/Sound Übersicht.csv",
+  "description": "Sound-Cues für Dramaturgie — MIDI Note On/Off an Ableton (kein WAV-Playback in der Maschine)",
+  "columns": ["cue_id", "midi_note", "kanal", "soundname", "aktion", "beschreibung", "tags", "stimmungen"],
+  "actions": ["play", "fade_in", "fade_out"]
+}

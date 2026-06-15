@@ -1,0 +1,31 @@
+cue_id;midi_note;kanal;soundname;aktion;beschreibung;tags;stimmungen
+maschinen_grundader;36;1;Maschinen-Grundader;play;Leiser Dauer-Drone — Grundstimmung der Bühne;drone,grundton,dauer;melancholisch,neutral,unheimlich
+maschinen_grundader_fade_in;52;1;Maschinen-Grundader;fade_in;Einblenden der Maschinen-Grundader;drone,fade;melancholisch,neutral
+maschinen_grundader_fade_out;53;1;Maschinen-Grundader;fade_out;Ausblenden der Maschinen-Grundader;drone,fade;melancholisch,neutral
+kaefigecho;37;1;Käfigecho;play;Metallisches Nachhallen — Enge, Käfig, Erinnerung;raum,metall,echo;unheimlich,leer
+kaefigecho_fade_in;54;1;Käfigecho;fade_in;Einblenden Käfigecho;raum,fade;unheimlich
+kaefigecho_fade_out;55;1;Käfigecho;fade_out;Ausblenden Käfigecho;raum,fade;unheimlich
+erinnerungsglitch;38;1;Erinnerungsglitch;play;Kurzer digitaler Bruch — Erinnerung stottert;glitch,störung,akzent;spannung,unheimlich
+erinnerungsglitch_fade_in;56;1;Erinnerungsglitch;fade_in;Einblenden Erinnerungsglitch;glitch,fade;spannung
+erinnerungsglitch_fade_out;57;1;Erinnerungsglitch;fade_out;Ausblenden Erinnerungsglitch;glitch,fade;spannung
+herz_unter_glas;39;1;Herz unter Glas;play;Gedämpfter Puls — Körper, Angst, Nähe;puls,herz,sub;spannung,melancholisch
+herz_unter_glas_fade_in;58;1;Herz unter Glas;fade_in;Einblenden Herz unter Glas;puls,fade;spannung
+herz_unter_glas_fade_out;59;1;Herz unter Glas;fade_out;Ausblenden Herz unter Glas;puls,fade;spannung
+stallluft_digital;40;1;Stallluft digital;play;Raumton Stall — Tier, Staub, Wärme;ambient,raum,stall;neutral,melancholisch
+stallluft_digital_fade_in;60;1;Stallluft digital;fade_in;Einblenden Stallluft digital;ambient,fade;neutral
+stallluft_digital_fade_out;61;1;Stallluft digital;fade_out;Ausblenden Stallluft digital;ambient,fade;neutral
+tierstimme_verzerrt;41;1;Tierstimme verzerrt;play;Verfremdete Tierlaute — Bedrohung, Komik, Traum;tier,stimme,verzerrt;unheimlich,spannung
+tierstimme_verzerrt_fade_in;62;1;Tierstimme verzerrt;fade_in;Einblenden Tierstimme verzerrt;tier,fade;unheimlich
+tierstimme_verzerrt_fade_out;63;1;Tierstimme verzerrt;fade_out;Ausblenden Tierstimme verzerrt;tier,fade;unheimlich
+metallseufzer;42;1;Metallseufzer;play;Einmaliger metallischer Seufzer — Maschine atmet;stinger,metall,akzent;spannung,neutral
+metallseufzer_fade_in;64;1;Metallseufzer;fade_in;Einblenden Metallseufzer (selten);metall,fade;spannung
+metallseufzer_fade_out;65;1;Metallseufzer;fade_out;Ausblenden Metallseufzer;metall,fade;spannung
+leere_zwischen_saetzen;43;1;Leere zwischen Sätzen;play;Fast Stille — Pause, Nachhall der Abwesenheit;stille,raum,leise;leer,melancholisch
+leere_zwischen_saetzen_fade_in;66;1;Leere zwischen Sätzen;fade_in;Einblenden Leere zwischen Sätzen;stille,fade;leer
+leere_zwischen_saetzen_fade_out;67;1;Leere zwischen Sätzen;fade_out;Ausblenden Leere zwischen Sätzen;stille,fade;leer
+unter_tiere_chor;44;1;Unter-Tiere-Chor;play;Fernes Summen vieler Stimmen — Masse, Bedrohung;chor,masse,tier;unheimlich,spannung
+unter_tiere_chor_fade_in;68;1;Unter-Tiere-Chor;fade_in;Einblenden Unter-Tiere-Chor;chor,fade;unheimlich
+unter_tiere_chor_fade_out;69;1;Unter-Tiere-Chor;fade_out;Ausblenden Unter-Tiere-Chor;chor,fade;unheimlich
+archiv_rauschen;45;1;Archiv-Rauschen;play;Bandgerät-Rauschen — Archiv, Vergangenheit;rauschen,archiv,vintage;melancholisch,neutral
+archiv_rauschen_fade_in;70;1;Archiv-Rauschen;fade_in;Einblenden Archiv-Rauschen;archiv,fade;melancholisch
+archiv_rauschen_fade_out;71;1;Archiv-Rauschen;fade_out;Ausblenden Archiv-Rauschen;archiv,fade;melancholisch

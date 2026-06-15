@@ -3,6 +3,7 @@ import { formatOscCommand } from "@/lib/types/director";
 
 const PHASE_LABELS: Record<ShowPhase, string> = {
   planned: "Regie geplant",
+  dramaturg_discussion: "Dramaturgen-Gespräch",
   speaking: "Stimme läuft …",
   cues_active: "Cues werden gesendet …",
   sent: "Cues gesendet",

@@ -3,6 +3,9 @@ import uuid
 
 from app.schemas.script import ScriptBeat, ScriptSpeaker
 
+MIN_BEAT_LINES = 4
+MAX_BEAT_CHARS = 1800
+
 
 def split_source_text(source_text: str) -> list[str]:
     text = source_text.strip()
@@ -32,7 +35,40 @@ def split_sentences(text: str) -> list[str]:
     return sentences
 
 
-MAX_BEAT_CHARS = 550
+def count_lines(text: str) -> int:
+    return len([ln for ln in text.splitlines() if ln.strip()])
+
+
+def is_section_long_enough(text: str) -> bool:
+    if count_lines(text) >= MIN_BEAT_LINES:
+        return True
+    return len(split_sentences(text)) >= MIN_BEAT_LINES
+
+
+def merge_short_chunks(chunks: list[str]) -> list[str]:
+    if not chunks:
+        return []
+
+    merged: list[str] = []
+    current = chunks[0]
+    for chunk in chunks[1:]:
+        combined = f"{current}\n\n{chunk}"
+        if not is_section_long_enough(current) and len(combined) <= MAX_BEAT_CHARS:
+            current = combined
+        else:
+            merged.append(current)
+            current = chunk
+    merged.append(current)
+
+    if len(merged) >= 2 and not is_section_long_enough(merged[-1]):
+        tail = merged.pop()
+        candidate = f"{merged[-1]}\n\n{tail}"
+        if len(candidate) <= MAX_BEAT_CHARS:
+            merged[-1] = candidate
+        else:
+            merged.append(tail)
+
+    return merged
 
 
 def split_long_chunk(chunk: str) -> list[str]:
@@ -40,7 +76,7 @@ def split_long_chunk(chunk: str) -> list[str]:
         return [chunk]
     sentences = split_sentences(chunk)
     if len(sentences) <= 1:
-        return [chunk]
+        return [chunk[:MAX_BEAT_CHARS].rstrip()]
     groups: list[str] = []
     current: list[str] = []
     current_len = 0
@@ -65,7 +101,7 @@ def default_speaker(order: int) -> ScriptSpeaker:
 
 
 def build_beats_from_text(source_text: str) -> list[ScriptBeat]:
-    chunks = split_source_text(source_text)
+    chunks = merge_short_chunks(split_source_text(source_text))
     expanded: list[str] = []
     for chunk in chunks:
         expanded.extend(split_long_chunk(chunk))

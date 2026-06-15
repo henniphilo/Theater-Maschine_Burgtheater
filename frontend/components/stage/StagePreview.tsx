@@ -6,6 +6,7 @@ export function StagePreview({
   beats,
   activeBeatIndex = -1,
   activeOscBridge = null,
+  segmentPhase,
   running = false,
   paused = false,
   onBeatSelect,
@@ -14,6 +15,7 @@ export function StagePreview({
   beats: ScriptBeat[];
   activeBeatIndex?: number;
   activeOscBridge?: string | null;
+  segmentPhase?: "discussion" | "performance";
   running?: boolean;
   paused?: boolean;
   onBeatSelect?: (index: number) => void;
@@ -63,13 +65,26 @@ export function StagePreview({
         </div>
         {beats.map((beat, index) => {
           const active = index === activeBeatIndex;
+          const phaseMarker =
+            active && running
+              ? segmentPhase === "discussion"
+                ? "D"
+                : segmentPhase === "performance"
+                  ? "▶"
+                  : ""
+              : beat.discussion_turns?.length
+                ? "D"
+                : "";
           const d = beat.dramaturgy;
           const videoPath = d?.visual?.clip_id ? media?.videoById[d.visual.clip_id]?.path : undefined;
           const rowClass = `stageTimelineRow${active ? " stageTimelineRowActive" : ""}${onBeatSelect ? " stageTimelineRowClickable" : ""}`;
           const title = videoPath ? `${d?.visual?.clip_id}: ${videoPath}` : beat.text.slice(0, 80);
           const cells = (
             <>
-              <span className="stageTimelineCell">{index + 1}</span>
+              <span className="stageTimelineCell">
+                {phaseMarker ? `${phaseMarker} ` : ""}
+                {index + 1}
+              </span>
               <span className="stageTimelineCell">{speakerLabel(beat.speaker)}</span>
               <span className="stageTimelineCell">{d?.visual?.clip_id ?? "—"}</span>
               <span className="stageTimelineCell">{d?.sound?.cue_id ?? "—"}</span>

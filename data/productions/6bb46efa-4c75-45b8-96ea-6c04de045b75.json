@@ -1,0 +1,210 @@
+{
+  "id": "6bb46efa-4c75-45b8-96ea-6c04de045b75",
+  "title": "Stück",
+  "source_text": "– wir werden alle von Pflanzen ersetzt werden, \nweil die billiger in der Anschaffung und im Betrieb sind \nund keine Widerworte geben –,\nDa der Mensch, ja, sagen wir so, \nalso dermaßen leicht verderblich geworden ist, \nohne daß dem Tier stattdessen eine kleine Chance gegeben wird, \nauch ein bißchen was zu verdienen",
+  "beats": [
+    {
+      "id": "ca96b72b-7cd6-45fa-b8ac-7181ece75840",
+      "order": 0,
+      "text": "– wir werden alle von Pflanzen ersetzt werden, \nweil die billiger in der Anschaffung und im Betrieb sind \nund keine Widerworte geben –,\nDa der Mensch, ja, sagen wir so, \nalso dermaßen leicht verderblich geworden ist, \nohne daß dem Tier stattdessen eine kleine Chance gegeben wird, \nauch ein bißchen was zu verdienen",
+      "speaker": "AI_A",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "bar_avatar",
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 0.7,
+          "fade_time": 4.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": "maschinen_grundader",
+          "volume": 0.64
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": "vorbuehnenzug",
+          "fade_time": 3.0
+        },
+        "reason": "Text thematisiert memory mit Stimmung „neutral“ (Intensität 0.60). Video: bar_avatar. Sound: maschinen_grundader. Licht: vorbuehnenzug.",
+        "dramaturgical_reading": "",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "verstärken",
+            "intensity": 0.6,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "bar_avatar",
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.7,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": "maschinen_grundader",
+              "volume": 0.64
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": "vorbuehnenzug",
+              "fade_time": 3.0
+            }
+          }
+        ],
+        "tags": [
+          "memory"
+        ],
+        "mood": "neutral",
+        "intensity": 0.6,
+        "timestamp": 1781520194.675617
+      },
+      "planned_commands": [
+        {
+          "bridge": "visual",
+          "host": "host.docker.internal",
+          "port": 7000,
+          "address": "/visual/play_clip",
+          "args": [
+            "bar_avatar",
+            0.7,
+            4.0
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "sound",
+          "host": "host.docker.internal",
+          "port": 7000,
+          "address": "/sound/trigger",
+          "args": [
+            "maschinen_grundader",
+            0.64
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/11/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/12/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/13/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/14/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/15/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/16/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/17/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/18/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/19/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "host.docker.internal",
+          "port": 7000,
+          "address": "/light/set_scene",
+          "args": [
+            "vorbuehnenzug",
+            3.0
+          ],
+          "dry_run": true,
+          "mirror": true
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Der Text kritisiert die Ersetzbarkeit des Menschen durch Pflanzen und thematisiert die Unterbewertung des Tiers. Dramaturgisch verstärken wir die pessimistischen Untertöne des Texts. Beim Satzbeginn \"wir werden alle von Pflanzen ersetzt werden\" könnte das Video \"mehlwurmer\" dezent im Hintergrund laufen. Der Sound erzeugt ein leises maschinelles Summen. Das Licht bleibt kühl, um die Austauschbarkeit und Emotionslosigkeit zu betonen."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, dein Ansatz illustriert zu direkt — Mehlwürmer für Verderblichkeit ist noch zu nah am Text. Ich würde widersprechen: Beim zweiten Cue, wenn das Tier ins Spiel kommt, könnte „esel_lauft_27-05\" laufen — nicht als Mitleidsgeste, sondern kalt, dokumentarisch. Das Tier als übersehene Arbeitskraft. Der Text behauptet Ökonomie, die Regie zeigt stilles Weiterarbeiten. Das entlarvt mehr als ein Summen."
+        },
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, ich stimme zu, dass Mehlwürmer zu nah dran waren. Das Video \"esel_lauft_27-05\" als Gegensatz zum ökonomischen Argument des Textes ist stark. Ich ergänze: Beim Satz \"dermaßen leicht verderblich\" verstärken wir mit „fuchs_avatar“ und leichten mechanischen Klängen im Hintergrund. Licht bleibt kühl, jedoch blitzt kurz ein klinisches Weiß auf, um die Verderblichkeit durchleuchtend zu entlarven."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, der Fuchs-Avatar beim Wort „verderblich\" stört mich — er bleibt im Tier-Repertoire, wo wir schon sind. Ich würde dort stattdessen **reduzieren**: Licht runter, Sound fast weg, kurze Stille. Verderblichkeit als Abwesenheit, nicht als Bild. Den Esel halte ich für den stärkeren Schluss — er läuft einfach weiter, während der Text das Tier vergisst. Das ist die eigentliche Entlarvung."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Der Text kritisiert die Ersetzbarkeit des Menschen durch Pflanzen und thematisiert die Unterbewertung des Tiers. Dramaturgisch verstärken wir die pessimistischen Untertöne des Texts. Beim Satzbeginn \"wir werden alle von Pflanzen ersetzt werden\" könnte das Video \"mehlwurmer\" dezent im Hintergrund laufen. Der Sound erzeugt ein leises maschinelles Summen. Das Licht bleibt kühl, um die Austauschbarkeit und Emotionslosigkeit zu betonen.\nDramaturg B (Claude): Dramaturg A, dein Ansatz illustriert zu direkt — Mehlwürmer für Verderblichkeit ist noch zu nah am Text. Ich würde widersprechen: Beim zweiten Cue, wenn das Tier ins Spiel kommt, könnte „esel_lauft_27-05\" laufen — nicht als Mitleidsgeste, sondern kalt, dokumentarisch. Das Tier als übersehene Arbeitskraft. Der Text behauptet Ökonomie, die Regie zeigt stilles Weiterarbeiten. Das entlarvt mehr als ein Summen.\nDramaturg A (GPT): Dramaturg B, ich stimme zu, dass Mehlwürmer zu nah dran waren. Das Video \"esel_lauft_27-05\" als Gegensatz zum ökonomischen Argument des Textes ist stark. Ich ergänze: Beim Satz \"dermaßen leicht verderblich\" verstärken wir mit „fuchs_avatar“ und leichten mechanischen Klängen im Hintergrund. Licht bleibt kühl, jedoch blitzt kurz ein klinisches Weiß auf, um die Verderblichkeit durchleuchtend zu entlarven.\nDramaturg B (Claude): Dramaturg A, der Fuchs-Avatar beim Wort „verderblich\" stört mich — er bleibt im Tier-Repertoire, wo wir schon sind. Ich würde dort stattdessen **reduzieren**: Licht runter, Sound fast weg, kurze Stille. Verderblichkeit als Abwesenheit, nicht als Bild. Den Esel halte ich für den stärkeren Schluss — er läuft einfach weiter, während der Text das Tier vergisst. Das ist die eigentliche Entlarvung."
+    }
+  ],
+  "status": "ready",
+  "has_rendered_audio": false
+}

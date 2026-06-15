@@ -50,9 +50,11 @@ app/director/outputs/eos_light.py
 app/director/outputs/light_tcp.py
 app/director/outputs/lighting.py
 app/director/outputs/logger.py
+app/director/outputs/midi_log.py
 app/director/outputs/osc_commands.py
 app/director/outputs/osc_log.py
 app/director/outputs/sound.py
+app/director/outputs/sound_midi.py
 app/director/outputs/touchdesigner.py
 app/models/__init__.py
 app/models/entities.py
@@ -83,6 +85,7 @@ tests/test_director_api.py
 tests/test_director_pipeline.py
 tests/test_dramaturgy.py
 tests/test_dramaturgy_rules_text.py
+tests/test_dramaturgy_workshop.py
 tests/test_eos_light.py
 tests/test_health.py
 tests/test_light_tcp.py
@@ -93,5 +96,6 @@ tests/test_media_inventory.py
 tests/test_media_selector.py
 tests/test_script_api.py
 tests/test_script_splitter.py
+tests/test_sound_midi.py
 tests/test_technik_hold.py
 tests/test_touchdesigner_bridge.py

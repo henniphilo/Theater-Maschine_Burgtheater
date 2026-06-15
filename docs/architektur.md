@@ -82,6 +82,34 @@ DialogueEvent  →  DramaturgyDecision  →  ScheduledCue  →  OSC / Log
    dramaturgisch      abstrakte Cues         technisch
 ```
 
+### Show-Ablauf (Stück / Aufführung)
+
+Pro Abschnitt (Beat) zwei Phasen — **ohne Live-LLM** in der Aufführung:
+
+```mermaid
+sequenceDiagram
+  participant W as Dramaturgie_Workshop
+  participant A as Aufführung
+  participant TTS as TTS
+  participant C as Cues_OSC_MIDI
+
+  Note over W: Vorbereitung
+  W->>W: GPT ↔ Claude, max. 2 Statements je Dramaturg
+  W->>W: discussion_turns + Regieentscheidung speichern
+
+  Note over A,C: Aufführung
+  A->>TTS: Phase 1 — discussion_turns (openai/anthropic)
+  A->>TTS: Phase 2 — beat.text (AI_A/AI_B/narrator)
+  A->>C: cue_points während Phase 2
+```
+
+| Phase | Inhalt | Stimmen | Cues |
+|-------|--------|---------|------|
+| 1 Dramaturgen | Gespeichertes `discussion_turns[]` | GPT / Claude TTS | keine |
+| 2 Performance | `beat.text` | Stimme A/B / Erzähler | Video, Sound, Licht |
+
+Sprung zu einem Abschnitt startet immer bei Phase 1 (falls Turns vorhanden). Alte Stücke ohne `discussion_turns` → nur Phase 2.
+
 ---
 
 ## 2. Signale — Eingang, Verarbeitung, Ausgang
