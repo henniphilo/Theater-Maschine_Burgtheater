@@ -62,6 +62,10 @@ def test_csv_roundtrip_write_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPat
         lambda _data_dir: csv_path,
     )
     monkeypatch.setattr(
+        "app.services.sound_cue_catalog.resolve_sound_overview_path",
+        lambda _data_dir: csv_path,
+    )
+    monkeypatch.setattr(
         "app.services.sound_cue_catalog.settings.director_data_dir",
         str(tmp_path),
     )

@@ -1,4 +1,4 @@
-from app.director.cues.cue_models import VisualAction, VisualCue, VisualOutputAssignment
+from app.director.cues.cue_models import VisualAction, VisualCue
 from app.services.video_cue_catalog import get_video_cue_catalog_service
 
 

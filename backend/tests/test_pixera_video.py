@@ -1,8 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from app.core.config import settings
 from app.director.cues.cue_models import DramaturgyDecision, VisualAction, VisualCue, VisualOutputAssignment
 from app.director.outputs.osc_commands import build_osc_commands, send_osc_commands
 from app.director.outputs.pixera import PixeraBridge

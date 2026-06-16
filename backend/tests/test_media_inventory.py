@@ -28,12 +28,13 @@ def test_scan_finds_all_video_files() -> None:
     assert scanned_paths == on_disk
 
 
-def test_media_database_loads_scanned_videos() -> None:
+def test_media_database_loads_pixera_videos() -> None:
     db = MediaDatabase()
     assert len(db.videos) >= 3
-    assert {v.id for v in db.videos} == {a.id for a in db.videos}
+    assert any(v.id == "clyde" for v in db.videos)
+    assert all(v.path.startswith("pixera:") for v in db.videos)
     assert db.sounds
-    assert all(s.path.startswith("media/audio/dummy_") for s in db.sounds)
+    assert any(s.id == "maschinen_grundader" for s in db.sounds)
 
 
 def test_light_scenes_reference_channel_inventory() -> None:

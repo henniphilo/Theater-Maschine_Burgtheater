@@ -5,9 +5,11 @@ from app.main import app
 client = TestClient(app)
 
 SAMPLE_TEXT = (
-    "Vielleicht ist Erinnerung nur eine technische Störung.\n\n"
+    "Vielleicht ist Erinnerung nur eine technische Störung.\n"
+    "Ein zweiter Gedanke dazu.\nDritter Satz im Block.\nVierter Satz im Block.\n\n"
     "---\n\n"
-    "Der Körper erinnert sich anders als der Geist."
+    "Der Körper erinnert sich anders als der Geist.\n"
+    "Noch ein Satz.\nUnd ein weiterer.\nAbschluss hier."
 )
 
 

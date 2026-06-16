@@ -96,18 +96,15 @@ class MediaDatabase:
 
     def reload(self) -> None:
         from app.director.media.inventory import (
-            load_sound_assets,
             partition_visual_assets,
             resolve_repo_root,
             scan_visual_assets,
         )
 
-        media_path = self.data_dir / "media.json"
         light_path = self.data_dir / "light_scenes.json"
         inventory_path = self.data_dir / "light_inventory.json"
         rules_path = self.data_dir / "dramaturgy_rules.json"
 
-        media_data = json.loads(media_path.read_text(encoding="utf-8"))
         light_data = json.loads(light_path.read_text(encoding="utf-8"))
         rules_data = json.loads(rules_path.read_text(encoding="utf-8"))
         if inventory_path.exists():

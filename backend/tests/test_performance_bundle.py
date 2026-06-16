@@ -1,4 +1,5 @@
 import io
+import shutil
 import zipfile
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
@@ -15,6 +16,14 @@ from app.services.script_store import ScriptStore
 client = TestClient(app)
 
 
+def _seed_data_dir(target: Path) -> None:
+    repo_data = Path(__file__).resolve().parents[2] / "data"
+    if not repo_data.exists():
+        repo_data = Path(__file__).resolve().parents[1] / "data"
+    for name in ("media.json", "light_scenes.json", "light_inventory.json", "dramaturgy_rules.json"):
+        shutil.copy(repo_data / name, target / name)
+
+
 def _decision() -> DramaturgyDecision:
     return DramaturgyDecision(
         visual=VisualCue(action=VisualAction.PLAY_CLIP, clip_id="clyde"),
@@ -27,6 +36,7 @@ def _decision() -> DramaturgyDecision:
 
 
 def _ready_script(tmp_path: Path) -> ProductionScript:
+    _seed_data_dir(tmp_path)
     store = ScriptStore(data_dir=tmp_path)
     beat = ScriptBeat(
         id="beat-1",
@@ -54,6 +64,7 @@ def _fake_audio(tmp_path: Path, name: str) -> Path:
 
 @pytest.fixture
 def bundle_service(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> PerformanceBundleService:
+    _seed_data_dir(tmp_path)
     store = ScriptStore(data_dir=tmp_path)
     tts = MagicMock()
     tts.is_available.return_value = True

@@ -39,7 +39,8 @@ def test_split_long_paragraph_into_multiple_beats() -> None:
 
 
 def test_build_beats_alternates_speakers() -> None:
-    text = "\n\n".join([f"Absatz {i} mit etwas Text." for i in range(MIN_BEAT_LINES + 2)])
+    paragraph = "\n".join([f"Zeile {i} mit genug Inhalt." for i in range(MIN_BEAT_LINES)])
+    text = "\n\n".join([paragraph, paragraph])
     beats = build_beats_from_text(text)
     assert len(beats) >= 2
     assert beats[0].speaker == "AI_A"
@@ -47,7 +48,7 @@ def test_build_beats_alternates_speakers() -> None:
 
 
 def test_clamp_statement_at_sentence_boundary() -> None:
-    long = "A" * 200 + ". " + "B" * 300
+    long = ". ".join([f"Satz Nummer {i} mit Inhalt" for i in range(80)])
     clamped = _clamp_statement(long, max_chars=450)
     assert len(clamped) <= 450
     assert clamped.endswith(".")

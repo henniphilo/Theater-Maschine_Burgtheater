@@ -58,6 +58,7 @@ def test_process_immediate_mode_executes(monkeypatch) -> None:
     from app.core.config import settings
 
     monkeypatch.setattr(settings, "director_execute_mode", "immediate")
+    monkeypatch.setattr(settings, "visual_output", "touchdesigner")
     pipeline = DirectorPipeline()
     touchdesigner = MagicMock()
     pipeline.touchdesigner = touchdesigner

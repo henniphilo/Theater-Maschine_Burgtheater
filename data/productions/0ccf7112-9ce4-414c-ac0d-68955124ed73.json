@@ -1,0 +1,19 @@
+{
+  "id": "0ccf7112-9ce4-414c-ac0d-68955124ed73",
+  "title": "Teststück",
+  "source_text": "Vielleicht ist Erinnerung nur eine technische Störung.\n\n---\n\nDer Körper erinnert sich anders als der Geist.",
+  "beats": [
+    {
+      "id": "4bcd805e-e24c-41bf-95f9-ee039bac0df6",
+      "order": 0,
+      "text": "Vielleicht ist Erinnerung nur eine technische Störung.\n\nDer Körper erinnert sich anders als der Geist.",
+      "speaker": "AI_A",
+      "dramaturgy": null,
+      "planned_commands": [],
+      "discussion_turns": [],
+      "discussion_summary": null
+    }
+  ],
+  "status": "draft",
+  "has_rendered_audio": false
+}

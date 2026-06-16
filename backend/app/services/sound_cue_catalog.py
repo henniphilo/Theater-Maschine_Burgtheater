@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.director.media.database import SoundAsset
 from app.director.media.sound_inventory import load_sound_cues_from_csv, resolve_sound_overview_path
 from app.director.outputs.sound_midi import MidiCueMapping
-from app.schemas.sound_cues import SoundCueCatalog, SoundCueEntry
+from app.schemas.sound_cues import SoundCueCatalog
 
 
 def _repo_roots() -> list[Path]:

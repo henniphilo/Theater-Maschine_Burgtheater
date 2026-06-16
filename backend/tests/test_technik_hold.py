@@ -7,6 +7,7 @@ from app.director.technik_hold import TechnikHoldManager, TechnikHoldState
 def test_technik_hold_start_and_stop(mock_settings: MagicMock) -> None:
     mock_settings.osc_dry_run = True
     mock_settings.technik_hold_interval_seconds = 0.05
+    mock_settings.visual_output = "touchdesigner"
 
     pipeline = MagicMock()
     manager = TechnikHoldManager(pipeline)
