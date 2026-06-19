@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-SoundCueAction = Literal["play", "fade_in", "fade_out"]
+SoundCueAction = Literal["play", "fade_in", "fade_out", "out", "cut_all"]
 
 
 class SoundCueDefaults(BaseModel):
@@ -24,6 +24,7 @@ class SoundCueEntry(BaseModel):
     moods: list[str] = Field(default_factory=list)
     intensity_min: float = Field(default=0.0, ge=0.0, le=1.0)
     intensity_max: float = Field(default=1.0, ge=0.0, le=1.0)
+    dramaturgy_active: bool = False
 
     @field_validator("id")
     @classmethod

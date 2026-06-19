@@ -35,6 +35,7 @@ class SoundAsset(BaseModel):
     moods: list[str] = Field(default_factory=list)
     intensity_min: float = 0.0
     intensity_max: float = 1.0
+    dramaturgy_active: bool = False
 
 
 class LightScene(BaseModel):
@@ -130,6 +131,10 @@ class MediaDatabase:
             min_cue_interval_seconds=rules_data.get("min_cue_interval_seconds", {}),
         )
 
+    @property
+    def dramaturgy_sounds(self) -> list[SoundAsset]:
+        return [s for s in self.sounds if s.dramaturgy_active]
+
     def get_video_by_tags(
         self,
         tags: list[str],
@@ -153,16 +158,19 @@ class MediaDatabase:
         mood: str = "",
         intensity: float = 0.5,
         exclude_ids: list[str] | None = None,
+        *,
+        dramaturgy_only: bool = True,
     ) -> SoundAsset | None:
         exclude = set(exclude_ids or [])
+        pool = self.dramaturgy_sounds if dramaturgy_only else self.sounds
         candidates = [
             s
-            for s in self.sounds
+            for s in pool
             if s.id not in exclude
             and s.intensity_min <= intensity <= s.intensity_max
             and self._matches(s.tags, s.moods, tags, mood)
         ]
-        return candidates[0] if candidates else self._fallback_sound(exclude, intensity)
+        return candidates[0] if candidates else self._fallback_sound(exclude, intensity, dramaturgy_only=dramaturgy_only)
 
     def get_light_scene(self, mood: str, intensity: float) -> LightScene | None:
         candidates = [
@@ -192,11 +200,18 @@ class MediaDatabase:
                 return video
         return next((v for v in self.videos if v.id not in exclude), None)
 
-    def _fallback_sound(self, exclude: set[str], intensity: float) -> SoundAsset | None:
-        for sound in self.sounds:
+    def _fallback_sound(
+        self,
+        exclude: set[str],
+        intensity: float,
+        *,
+        dramaturgy_only: bool = True,
+    ) -> SoundAsset | None:
+        pool = self.dramaturgy_sounds if dramaturgy_only else self.sounds
+        for sound in pool:
             if sound.id not in exclude and sound.intensity_min <= intensity <= sound.intensity_max:
                 return sound
-        return next((s for s in self.sounds if s.id not in exclude), None)
+        return next((s for s in pool if s.id not in exclude), None)
 
     def register_recording(self, recording_id: str, path: str, tags: list[str]) -> VideoAsset:
         """Add live recording to in-memory catalog after capture."""

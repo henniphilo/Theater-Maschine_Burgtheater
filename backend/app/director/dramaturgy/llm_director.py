@@ -46,7 +46,7 @@ class LLMDirector:
                         "moods": s.moods[:3],
                         "midi_note": s.midi_note,
                     }
-                    for s in self.media_db.sounds
+                    for s in self.media_db.dramaturgy_sounds
                 ],
                 "lights": [
                     {"id": s.id, "moods": s.moods[:3], "channels": s.channels[:6]}
@@ -84,7 +84,7 @@ class LLMDirector:
                     "tags": s.tags,
                     "moods": s.moods,
                 }
-                for s in self.media_db.sounds
+                for s in self.media_db.dramaturgy_sounds
             ],
             "lights": [
                 {
@@ -112,7 +112,9 @@ class LLMDirector:
                 "Unterschiedliche Videos: pro output_id eigene clip_id in outputs[].",
                 "Ohne outputs[] gilt clip_id nur für RZ21 (Frontprojektor).",
                 "Licht: nur scene_id aus lights[] — Kanäle laut Kanal-Übersicht.",
-                "Sound: nur cue_id aus sounds[] (play / fade_in / fade_out) — MIDI an Ableton.",
+                "Sound: nur cue_id aus sounds[] (play / fade_in / fade_out / out) — MIDI an Ableton.",
+                "Sound sofort aus (ein Layer): cue_id mit _out (z. B. kaefigecho_out).",
+                "Alle Sounds sofort aus: cue_id alle_sounds_cut.",
             ],
             "rules_digest": load_dramaturgy_rules()[:500],
         }
@@ -213,7 +215,7 @@ class LLMDirector:
         decision = self._sync_legacy_fields(decision)
         video_ids = {v.id for v in self.media_db.videos}
         recording_ids = {r.id for r in self.media_db.recordings}
-        sound_ids = {s.id for s in self.media_db.sounds}
+        sound_ids = {s.id for s in self.media_db.dramaturgy_sounds}
         light_ids = {s.id for s in self.media_db.light_scenes}
         output_ids = {p.id for p in get_video_cue_catalog_service().load().projectors}
 

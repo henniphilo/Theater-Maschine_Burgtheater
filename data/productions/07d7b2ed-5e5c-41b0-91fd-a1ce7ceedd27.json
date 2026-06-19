@@ -1,0 +1,985 @@
+{
+  "id": "07d7b2ed-5e5c-41b0-91fd-a1ce7ceedd27",
+  "title": "Unter Tieren",
+  "source_text": "– wir werden alle von Pflanzen ersetzt werden, \nweil die billiger in der Anschaffung und im Betrieb sind \nund keine Widerworte geben –,\nDa der Mensch, ja, sagen wir so, \nalso dermaßen leicht verderblich geworden ist, \nohne daß dem Tier stattdessen eine kleine Chance gegeben wird, \nauch ein bißchen was zu verdienen \n\nda wir also gar kein Geld haben, \nmüssen wir uns leider wieder dem Produzenten der Waren zuwenden, \nwelcher jede Ware an der eines andren messen muß, \n\ndie Produkte stehen sich gegenüber und knurren einander an. \n\n\n\nDer wahre Klassenkampf\n\nWas aber, wenn die Preissteigerungen so hoch sind, \ndaß keiner die Waren mehr kaufen kann? \n\nWenn beide, \nProduzenten wie Arbeiter, \nzusätzliche Kaufkraft wollen, \ndann stehen ihre Interessen ja denen der Gläubigerklasse entgegen, oder? \n\nDie Kreditkapazitäten, also die Geldmengen ausweiten? \nIch weiß nicht, was das bringen soll. \nIch weiß nur, daß das viel bringt, \naber vielleicht nicht grade den erwünschten Effekt bei den Effekten. \nHandeln Sie jetzt rasch! \n\nEin Konflikt zwischen Schuldnern und Schöpfern? Das klingt ernst. \nZu hoch für mich, \nund ich bin schon gern hochtönend, \n\nIst das etwa ein Konflikt zwischen den Anlegern, \ndie an hohen Zinsen und stabilen Preisen interessiert sind, \nund den auf Kredite und Finanzierungen angewiesenen Unternehmen \nund in der Folge auch deren Arbeitern, \ndie ihre Arbeitskraft, \ndas einzige wirklich gute Gut, das sie haben, \nsofort in Konsum umsetzen wollen? \n\nIst das der wahre Klassenkampf? \nZwischen den Banken, \ndie den Unternehmen ihre Kredite aufdrängen wollen,",
+  "beats": [
+    {
+      "id": "a42d4c92-d662-497e-be87-e5dff2a19b79",
+      "order": 0,
+      "text": "– wir werden alle von Pflanzen ersetzt werden, \nweil die billiger in der Anschaffung und im Betrieb sind \nund keine Widerworte geben –,\nDa der Mensch, ja, sagen wir so, \nalso dermaßen leicht verderblich geworden ist, \nohne daß dem Tier stattdessen eine kleine Chance gegeben wird, \nauch ein bißchen was zu verdienen",
+      "speaker": "AI_A",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "black",
+          "outputs": [],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 0.7,
+          "fade_time": 4.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": "maschinen_grundader",
+          "volume": 0.64
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": "vorbuehnenzug",
+          "fade_time": 3.0
+        },
+        "reason": "Text thematisiert memory mit Stimmung „neutral“ (Intensität 0.60). Video: black. Sound: maschinen_grundader. Licht: vorbuehnenzug.",
+        "dramaturgical_reading": "",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "verstärken",
+            "intensity": 0.6,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "black",
+              "outputs": [],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.7,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": "maschinen_grundader",
+              "volume": 0.64
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": "vorbuehnenzug",
+              "fade_time": 3.0
+            }
+          }
+        ],
+        "tags": [
+          "memory"
+        ],
+        "mood": "neutral",
+        "intensity": 0.6,
+        "timestamp": 1781870328.145257
+      },
+      "planned_commands": [
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "sound",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/sound/trigger",
+          "args": [
+            "maschinen_grundader",
+            0.64
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/11/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/12/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/13/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/14/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/15/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/16/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/17/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/18/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/19/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/light/set_scene",
+          "args": [
+            "vorbuehnenzug",
+            3.0
+          ],
+          "dry_run": true,
+          "mirror": true
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, der Textabschnitt thematisiert den ersetzbaren Wert des Menschen durch Pflanzen und indirekt die Entwertung des Tieres. Ich schlage vor, das Video „macbook“ zu nutzen, um die Technologisierung und Entwertung zu visualisieren. Dazu könnte ein kalter, mechanischer Sound ein Gefühl von Entfremdung verstärken. Das Licht könnte für eine kurze Phase ins Dunkle wechseln, um die Verdrängung des Menschlichen zu symbolisieren."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, dein Ansatz mit „macbook\" illustriert die Technologisierung zu direkt. Ich würde lieber mit Widerspruch arbeiten: Beim Schlüsselwort „Pflanzen\" läuft „clyde\" – das Tier als stumme Gegenfolie zur ökonomischen Logik. Der zweite Cue beim Satz „leicht verderblich\" kippt ins Bürokratische: nicht Dunkel, sondern kaltes, hartes Licht – Entlarven statt Trauer. Die Ökonomisierung des Lebendigen klingt sachlich, nicht elegisch."
+        },
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, der Inhalt handelt von der Ersetzung des Menschen durch effizientere Pflanzen und der unterdrückten Chance des Tieres. Ich stimme dem Widerspruch mit dem Video „clyde“ zu, um den Punkt der Tierdegradierung zu unterstreichen. Für das „leicht verderblich“ könnte eine mechanische Klangschicht hinzugefügt werden, um die entfremdete Bürokratie hörbar zu machen, während kaltes, hartes Licht das dokumentarisch Sterile betont."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, gut – der mechanische Sound bei „verderblich\" überzeugt mich. Aber ich möchte einen dritten Impuls: Am Ende, bei „auch ein bißchen was zu verdienen\", kehrt „clyde\" verändert zurück – dunkler, langsamer. Das Tier meldet sich nochmals, nur um sofort wieder zu verschwinden. Keine Auflösung, kein Mitleid – nur die beiläufige Absurdität, dass das Tier nie gefragt wurde. Funktion: wiederkehren, dann auslöschen."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Dramaturg B, der Textabschnitt thematisiert den ersetzbaren Wert des Menschen durch Pflanzen und indirekt die Entwertung des Tieres. Ich schlage vor, das Video „macbook“ zu nutzen, um die Technologisierung und Entwertung zu visualisieren. Dazu könnte ein kalter, mechanischer Sound ein Gefühl von Entfremdung verstärken. Das Licht könnte für eine kurze Phase ins Dunkle wechseln, um die Verdrängung des Menschlichen zu symbolisieren.\nDramaturg B (Claude): Dramaturg A, dein Ansatz mit „macbook\" illustriert die Technologisierung zu direkt. Ich würde lieber mit Widerspruch arbeiten: Beim Schlüsselwort „Pflanzen\" läuft „clyde\" – das Tier als stumme Gegenfolie zur ökonomischen Logik. Der zweite Cue beim Satz „leicht verderblich\" kippt ins Bürokratische: nicht Dunkel, sondern kaltes, hartes Licht – Entlarven statt Trauer. Die Ökonomisierung des Lebendigen klingt sachlich, nicht elegisch.\nDramaturg A (GPT): Dramaturg B, der Inhalt handelt von der Ersetzung des Menschen durch effizientere Pflanzen und der unterdrückten Chance des Tieres. Ich stimme dem Widerspruch mit dem Video „clyde“ zu, um den Punkt der Tierdegradierung zu unterstreichen. Für das „leicht verderblich“ könnte eine mechanische Klangschicht hinzugefügt werden, um die entfremdete Bürokratie hörbar zu machen, während kaltes, hartes Licht das dokumentarisch Sterile betont.\nDramaturg B (Claude): Dramaturg A, gut – der mechanische Sound bei „verderblich\" überzeugt mich. Aber ich möchte einen dritten Impuls: Am Ende, bei „auch ein bißchen was zu verdienen\", kehrt „clyde\" verändert zurück – dunkler, langsamer. Das Tier meldet sich nochmals, nur um sofort wieder zu verschwinden. Keine Auflösung, kein Mitleid – nur die beiläufige Absurdität, dass das Tier nie gefragt wurde. Funktion: wiederkehren, dann auslöschen."
+    },
+    {
+      "id": "c8704414-f2bf-4536-b0fc-6f7886b6ea85",
+      "order": 1,
+      "text": "da wir also gar kein Geld haben, \nmüssen wir uns leider wieder dem Produzenten der Waren zuwenden, \nwelcher jede Ware an der eines andren messen muß,\n\ndie Produkte stehen sich gegenüber und knurren einander an.",
+      "speaker": "AI_B",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "clyde",
+          "outputs": [],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 0.7,
+          "fade_time": 4.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": "maschinen_grundader_fade_in",
+          "volume": 0.64
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": "vorbuehnenzug",
+          "fade_time": 3.0
+        },
+        "reason": "Text thematisiert memory mit Stimmung „neutral“ (Intensität 0.60). Video: clyde. Sound: maschinen_grundader_fade_in. Licht: vorbuehnenzug.",
+        "dramaturgical_reading": "",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "verstärken",
+            "intensity": 0.6,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "clyde",
+              "outputs": [],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.7,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": "maschinen_grundader_fade_in",
+              "volume": 0.64
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": "vorbuehnenzug",
+              "fade_time": 3.0
+            }
+          }
+        ],
+        "tags": [
+          "memory"
+        ],
+        "mood": "neutral",
+        "intensity": 0.6,
+        "timestamp": 1781870348.21984
+      },
+      "planned_commands": [
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Clyde"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "sound",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/sound/trigger",
+          "args": [
+            "maschinen_grundader_fade_in",
+            0.64
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/11/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/12/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/13/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/14/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/15/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/16/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/17/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/18/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/19/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/light/set_scene",
+          "args": [
+            "vorbuehnenzug",
+            3.0
+          ],
+          "dry_run": true,
+          "mirror": true
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, der Textabschnitt beschäftigt sich mit der Kälte der ökonomischen Transaktionen, in denen Waren miteinander in Konkurrenz stehen. Ich denke, ein erster Cue könnte das Wort \"knurren\" sein. Über Video könnten wir mit dem Video \"clyde\" oder \"bonnie\" den Tieraspekt hervorheben, während ein tiefes, animalisches Knurren als Sound den Konkurrenzkampf verstärkt."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, der Tier-Aspekt ist verlockend, aber ich würde widersprechen: „knurren\" ist hier Metapher für Warenlogik, nicht für echte Tiere. Eine direkte Tier-Bebilderung illustriert bloß. Ich schlage vor: beim ersten Cue (Satzende „zuwenden\") kaltes, maschinelles Licht – die Unausweichlichkeit. Beim zweiten Cue „knurren\" dann ein Spannungs-Video wie `sebastian` oder `macbook`, um die Konfrontation als systemische Mechanik zu entlarven."
+        },
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, ich stimme zu, dass der Tieraspekt metaphorisch zu sehen ist. Der erste Cue bei \"zuwenden\" könnte durch kaltes, maschinelles Licht unterstützt werden, um die Sachlichkeit der Ökonomie zu betonen. Beim zweiten Cue, \"knurren\", verstärken wir die systemische Konfrontation mit dem Video „macbook“ und einem mechanischen Sound. So heben wir die Unmenschlichkeit und Aggression innerhalb des wirtschaftlichen Systems hervor."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, gut – aber ich möchte schärfen: Der Satz „stehen sich gegenüber und knurren\" hat eine eigene Rhythmik, fast ein Innehalten vor dem Angriff. Ich würde den zweiten Cue nicht auf „knurren\" setzen, sondern danach – eine kurze Verzögerung, dann kippt das Licht schmal und kalt. Das Knurren selbst bleibt kurz unkommentiert: die Stille vor der Mechanik ist bedrohlicher als ihr Illustration."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Dramaturg B, der Textabschnitt beschäftigt sich mit der Kälte der ökonomischen Transaktionen, in denen Waren miteinander in Konkurrenz stehen. Ich denke, ein erster Cue könnte das Wort \"knurren\" sein. Über Video könnten wir mit dem Video \"clyde\" oder \"bonnie\" den Tieraspekt hervorheben, während ein tiefes, animalisches Knurren als Sound den Konkurrenzkampf verstärkt.\nDramaturg B (Claude): Dramaturg A, der Tier-Aspekt ist verlockend, aber ich würde widersprechen: „knurren\" ist hier Metapher für Warenlogik, nicht für echte Tiere. Eine direkte Tier-Bebilderung illustriert bloß. Ich schlage vor: beim ersten Cue (Satzende „zuwenden\") kaltes, maschinelles Licht – die Unausweichlichkeit. Beim zweiten Cue „knurren\" dann ein Spannungs-Video wie `sebastian` oder `macbook`, um die Konfrontation als systemische Mechanik zu entlarven.\nDramaturg A (GPT): Dramaturg B, ich stimme zu, dass der Tieraspekt metaphorisch zu sehen ist. Der erste Cue bei \"zuwenden\" könnte durch kaltes, maschinelles Licht unterstützt werden, um die Sachlichkeit der Ökonomie zu betonen. Beim zweiten Cue, \"knurren\", verstärken wir die systemische Konfrontation mit dem Video „macbook“ und einem mechanischen Sound. So heben wir die Unmenschlichkeit und Aggression innerhalb des wirtschaftlichen Systems hervor.\nDramaturg B (Claude): Dramaturg A, gut – aber ich möchte schärfen: Der Satz „stehen sich gegenüber und knurren\" hat eine eigene Rhythmik, fast ein Innehalten vor dem Angriff. Ich würde den zweiten Cue nicht auf „knurren\" setzen, sondern danach – eine kurze Verzögerung, dann kippt das Licht schmal und kalt. Das Knurren selbst bleibt kurz unkommentiert: die Stille vor der Mechanik ist bedrohlicher als ihr Illustration."
+    },
+    {
+      "id": "669d6376-36f9-4567-a374-f71dd6c7b015",
+      "order": 2,
+      "text": "Der wahre Klassenkampf\n\nWas aber, wenn die Preissteigerungen so hoch sind, \ndaß keiner die Waren mehr kaufen kann?\n\nWenn beide, \nProduzenten wie Arbeiter, \nzusätzliche Kaufkraft wollen, \ndann stehen ihre Interessen ja denen der Gläubigerklasse entgegen, oder?",
+      "speaker": "AI_A",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "macbook",
+          "outputs": [
+            {
+              "output_id": "rz21",
+              "clip_id": "macbook",
+              "action": null
+            },
+            {
+              "output_id": "eva",
+              "clip_id": "black",
+              "action": null
+            }
+          ],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 1.0,
+          "fade_time": 3.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": null,
+          "volume": 0.6
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": null,
+          "fade_time": 4.0
+        },
+        "reason": "Das mechanische ökonomische Dilemma wird durch visuelle und auditive Elemente, die die Kälte und den Konflikt der Situation hervorheben, effektiv dargestellt.",
+        "dramaturgical_reading": "Der Text beschreibt ein ökonomisches Dilemma, das die Interessen der Produzenten und Arbeiter gegen die Gläubiger aufspannt. Die mechanische Unvermeidlichkeit und der programmierte Konflikt werden entlarvt.",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "überlagern",
+            "intensity": 0.6,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "macbook",
+              "outputs": [
+                {
+                  "output_id": "rz21",
+                  "clip_id": "macbook",
+                  "action": null
+                },
+                {
+                  "output_id": "eva",
+                  "clip_id": "black",
+                  "action": null
+                }
+              ],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 1.0,
+              "fade_time": 3.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": null,
+              "volume": 0.6
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": null,
+              "fade_time": 4.0
+            }
+          },
+          {
+            "trigger": "sentence_end",
+            "keyword": "kaufen kann?",
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "auslöschen",
+            "intensity": 0.7,
+            "visual": {
+              "action": "stop_clip",
+              "clip_id": "macbook",
+              "outputs": [],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.8,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": null,
+              "volume": 0.6
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": null,
+              "fade_time": 4.0
+            }
+          },
+          {
+            "trigger": "keyword",
+            "keyword": "oder?",
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "entlarven",
+            "intensity": 0.8,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "macbook",
+              "outputs": [
+                {
+                  "output_id": "rz21",
+                  "clip_id": "macbook",
+                  "action": null
+                }
+              ],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.6,
+              "fade_time": 2.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": null,
+              "volume": 0.6
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": null,
+              "fade_time": 4.0
+            }
+          }
+        ],
+        "tags": [
+          "memory"
+        ],
+        "mood": "neutral",
+        "intensity": 0.6,
+        "timestamp": 0.0
+      },
+      "planned_commands": [
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Macbook"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_Eva.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_Adam.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_Eva.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_LED.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Macbook"
+          ],
+          "dry_run": true,
+          "mirror": false
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Der Text spricht von einem ökonomischen Dilemma und Konflikt, der die Interessen der Produzenten und Arbeiter gegen die Gläubiger aufspannt. Für die Regie könnte das ein Szenario der Unvereinbarkeit und Reibung darstellen. Zu Beginn schlage ich ein dunkles, konfliktgeladenes Setup vor: Video \"clyde\", um das tierische Element der Konkurrenz zu symbolisieren. Sound: ein leiser, pulsierender Klick oder Ticken, der Spannung suggeriert."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, ich widerspreche dem „clyde\"-Einsatz: Das wäre Illustration des Tier-Titels, genau was wir vermeiden. Ich lese den Text anders — die Frage-Struktur entlarvt ökonomische Logik als Tautologie. Das Spannende ist die mechanische Unvermeidlichkeit. Ich würde „macbook\" vorschlagen: Zahlenfluss, kalte Bildschirmfläche. Die „Gläubigerklasse\" am Satzende braucht dann einen zweiten Cue — Licht schmal, verhörartig."
+        },
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, ich verstehe deine Perspektive und stimme dem mechanischen Ansatz zu. Der Abschnitt beschreibt einen wirren ökonomischen Kampf, fast wie ein programmierter Konflikt. Ich sehe den Anfang als forcierte Spannung: Video \"macbook\" zeigt Technologiekälte. Den Schluss sollten wir hervorheben, wenn Interessen aufprallen: Sound trübt kurzzeitig ab, bevor das Licht verhörartig wird, wie du sagtest. Das entlarvt die unlösbare Situation."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, gut – aber ich möchte die Frage-Struktur selbst als Cue-Auslöser schärfen. Das Fragezeichen nach „kaufen kann?\" ist kein rhetorischer Schmuck, sondern ein Bruch: Das System stottert. Hier würde ich Sound kurz aussetzen – Auslöschen. Dann beim finalen „oder?\" ein zweiter Bruch: Licht schmal, kalt. Die Maschinerie fragt sich selbst und findet keine Antwort. Das ist der eigentliche Horror des Textes."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Der Text spricht von einem ökonomischen Dilemma und Konflikt, der die Interessen der Produzenten und Arbeiter gegen die Gläubiger aufspannt. Für die Regie könnte das ein Szenario der Unvereinbarkeit und Reibung darstellen. Zu Beginn schlage ich ein dunkles, konfliktgeladenes Setup vor: Video \"clyde\", um das tierische Element der Konkurrenz zu symbolisieren. Sound: ein leiser, pulsierender Klick oder Ticken, der Spannung suggeriert.\nDramaturg B (Claude): Dramaturg A, ich widerspreche dem „clyde\"-Einsatz: Das wäre Illustration des Tier-Titels, genau was wir vermeiden. Ich lese den Text anders — die Frage-Struktur entlarvt ökonomische Logik als Tautologie. Das Spannende ist die mechanische Unvermeidlichkeit. Ich würde „macbook\" vorschlagen: Zahlenfluss, kalte Bildschirmfläche. Die „Gläubigerklasse\" am Satzende braucht dann einen zweiten Cue — Licht schmal, verhörartig.\nDramaturg A (GPT): Dramaturg B, ich verstehe deine Perspektive und stimme dem mechanischen Ansatz zu. Der Abschnitt beschreibt einen wirren ökonomischen Kampf, fast wie ein programmierter Konflikt. Ich sehe den Anfang als forcierte Spannung: Video \"macbook\" zeigt Technologiekälte. Den Schluss sollten wir hervorheben, wenn Interessen aufprallen: Sound trübt kurzzeitig ab, bevor das Licht verhörartig wird, wie du sagtest. Das entlarvt die unlösbare Situation.\nDramaturg B (Claude): Dramaturg A, gut – aber ich möchte die Frage-Struktur selbst als Cue-Auslöser schärfen. Das Fragezeichen nach „kaufen kann?\" ist kein rhetorischer Schmuck, sondern ein Bruch: Das System stottert. Hier würde ich Sound kurz aussetzen – Auslöschen. Dann beim finalen „oder?\" ein zweiter Bruch: Licht schmal, kalt. Die Maschinerie fragt sich selbst und findet keine Antwort. Das ist der eigentliche Horror des Textes."
+    },
+    {
+      "id": "8e72b514-7dce-4a16-a736-e24896fc1101",
+      "order": 3,
+      "text": "Die Kreditkapazitäten, also die Geldmengen ausweiten? \nIch weiß nicht, was das bringen soll. \nIch weiß nur, daß das viel bringt, \naber vielleicht nicht grade den erwünschten Effekt bei den Effekten. \nHandeln Sie jetzt rasch!",
+      "speaker": "AI_B",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "inge",
+          "outputs": [],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 0.7,
+          "fade_time": 4.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": "maschinen_grundader_fade_out",
+          "volume": 0.67
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": "cyc_fluter",
+          "fade_time": 5.0
+        },
+        "reason": "Text thematisiert body mit Stimmung „melancholisch“ (Intensität 0.68). Video: inge. Sound: maschinen_grundader_fade_out. Licht: cyc_fluter.",
+        "dramaturgical_reading": "",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "verstärken",
+            "intensity": 0.68,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "inge",
+              "outputs": [],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.7,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": "maschinen_grundader_fade_out",
+              "volume": 0.67
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": "cyc_fluter",
+              "fade_time": 5.0
+            }
+          }
+        ],
+        "tags": [
+          "body"
+        ],
+        "mood": "melancholisch",
+        "intensity": 0.68,
+        "timestamp": 1781870393.210567
+      },
+      "planned_commands": [
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Inge"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "sound",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/sound/trigger",
+          "args": [
+            "maschinen_grundader_fade_out",
+            0.67
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/1701/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/light/set_scene",
+          "args": [
+            "cyc_fluter",
+            5.0
+          ],
+          "dry_run": true,
+          "mirror": true
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Dieser Abschnitt spielt mit Unsicherheit und ironischem Kommentar zur Wirtschaft. Der Widerspruch \"weiß nicht\" vs. \"weiß nur\" zeigt skeptische Haltung. Für die Regie würde ich vorschlagen, die \"technischen\" Videoelemente zu nutzen.  \n\nBeim Satzbeginn \"Die Kreditkapazitäten...\" würde ein Video vom \"macbook\" starten, um das Thema Technik und Finanzen zu verstärken."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, der Macbook-Einsatz gefällt mir als Einstieg. Aber ich würde die Lesart schärfen: Das \"Handeln Sie jetzt rasch!\" am Ende ist kein Imperativ — es ist Panik als Sprachmaske. Die Regie sollte dort *widersprechen*: plötzliches Licht-Freeze oder Sound-Abbruch, der die Dringlichkeit entleert. Der Text behauptet Handlungsfähigkeit, hat aber gerade zugegeben, nichts zu verstehen."
+        },
+        {
+          "speaker": "openai",
+          "content": "Dramaturg B, ich stimme zu, dass die Dringlichkeit in \"Handeln Sie jetzt rasch!\" ironisch betrachtet werden sollte. Wir können mit einem abrupten Licht-Wechsel die Unklarheit des Textes betonen. \n\nVideo: Beim \"weiß nicht, was das bringen soll\" könnte ein Video von \"clyde\" störend dazwischenschalten, um das Chaos hinter der Behauptung zu zeigen."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, das Clyde-Tier als Störung ist ein starker Gedanke — aber ich würde es lieber für den Widerspruch im Satz reservieren: *\"Ich weiß nicht / ich weiß nur\"* ist der eigentliche Kipppunkt. Dort bricht die Sprache sich selbst. Genau da sollte ein Sound-Eingriff kommen — kein Chaos, sondern kurzes Einfrieren — bevor das Rasch-Kommando ins Leere fällt."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Dieser Abschnitt spielt mit Unsicherheit und ironischem Kommentar zur Wirtschaft. Der Widerspruch \"weiß nicht\" vs. \"weiß nur\" zeigt skeptische Haltung. Für die Regie würde ich vorschlagen, die \"technischen\" Videoelemente zu nutzen.  \n\nBeim Satzbeginn \"Die Kreditkapazitäten...\" würde ein Video vom \"macbook\" starten, um das Thema Technik und Finanzen zu verstärken.\nDramaturg B (Claude): Dramaturg A, der Macbook-Einsatz gefällt mir als Einstieg. Aber ich würde die Lesart schärfen: Das \"Handeln Sie jetzt rasch!\" am Ende ist kein Imperativ — es ist Panik als Sprachmaske. Die Regie sollte dort *widersprechen*: plötzliches Licht-Freeze oder Sound-Abbruch, der die Dringlichkeit entleert. Der Text behauptet Handlungsfähigkeit, hat aber gerade zugegeben, nichts zu verstehen.\nDramaturg A (GPT): Dramaturg B, ich stimme zu, dass die Dringlichkeit in \"Handeln Sie jetzt rasch!\" ironisch betrachtet werden sollte. Wir können mit einem abrupten Licht-Wechsel die Unklarheit des Textes betonen. \n\nVideo: Beim \"weiß nicht, was das bringen soll\" könnte ein Video von \"clyde\" störend dazwischenschalten, um das Chaos hinter der Behauptung zu zeigen.\nDramaturg B (Claude): Dramaturg A, das Clyde-Tier als Störung ist ein starker Gedanke — aber ich würde es lieber für den Widerspruch im Satz reservieren: *\"Ich weiß nicht / ich weiß nur\"* ist der eigentliche Kipppunkt. Dort bricht die Sprache sich selbst. Genau da sollte ein Sound-Eingriff kommen — kein Chaos, sondern kurzes Einfrieren — bevor das Rasch-Kommando ins Leere fällt."
+    },
+    {
+      "id": "20508c0f-c311-419e-8d7d-7b151171152e",
+      "order": 4,
+      "text": "Ein Konflikt zwischen Schuldnern und Schöpfern? Das klingt ernst. \nZu hoch für mich, \nund ich bin schon gern hochtönend,\n\nIst das etwa ein Konflikt zwischen den Anlegern, \ndie an hohen Zinsen und stabilen Preisen interessiert sind, \nund den auf Kredite und Finanzierungen angewiesenen Unternehmen \nund in der Folge auch deren Arbeitern, \ndie ihre Arbeitskraft, \ndas einzige wirklich gute Gut, das sie haben, \nsofort in Konsum umsetzen wollen?\n\nIst das der wahre Klassenkampf? \nZwischen den Banken, \ndie den Unternehmen ihre Kredite aufdrängen wollen,",
+      "speaker": "AI_A",
+      "dramaturgy": {
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "black",
+          "outputs": [],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "opacity": 0.7,
+          "fade_time": 4.0
+        },
+        "sound": {
+          "action": "trigger_cue",
+          "cue_id": "maschinen_grundader",
+          "volume": 0.64
+        },
+        "light": {
+          "action": "set_scene",
+          "scene_id": "vorbuehnenzug",
+          "fade_time": 3.0
+        },
+        "reason": "Text thematisiert memory mit Stimmung „neutral“ (Intensität 0.60). Video: black. Sound: maschinen_grundader. Licht: vorbuehnenzug.",
+        "dramaturgical_reading": "",
+        "cue_points": [
+          {
+            "trigger": "start",
+            "keyword": null,
+            "sentence_index": null,
+            "time_offset_sec": 0.0,
+            "function": "verstärken",
+            "intensity": 0.6,
+            "visual": {
+              "action": "play_clip",
+              "clip_id": "black",
+              "outputs": [],
+              "recording_id": null,
+              "blend": "slow_fade",
+              "opacity": 0.7,
+              "fade_time": 4.0
+            },
+            "sound": {
+              "action": "trigger_cue",
+              "cue_id": "maschinen_grundader",
+              "volume": 0.64
+            },
+            "light": {
+              "action": "set_scene",
+              "scene_id": "vorbuehnenzug",
+              "fade_time": 3.0
+            }
+          }
+        ],
+        "tags": [
+          "memory"
+        ],
+        "mood": "neutral",
+        "intensity": 0.6,
+        "timestamp": 1781870413.080565
+      },
+      "planned_commands": [
+        {
+          "bridge": "pixera",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/pixera/args/cue/apply",
+          "args": [
+            "KI_RZ21.Black"
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "sound",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/sound/trigger",
+          "args": [
+            "maschinen_grundader",
+            0.64
+          ],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/11/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/12/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/13/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/14/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/15/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/16/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/17/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/18/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "10.101.90.112",
+          "port": 3032,
+          "address": "/eos/chan/19/full",
+          "args": [],
+          "dry_run": true,
+          "mirror": false
+        },
+        {
+          "bridge": "light",
+          "host": "127.0.0.1",
+          "port": 7000,
+          "address": "/light/set_scene",
+          "args": [
+            "vorbuehnenzug",
+            3.0
+          ],
+          "dry_run": true,
+          "mirror": true
+        }
+      ],
+      "discussion_turns": [
+        {
+          "speaker": "openai",
+          "content": "Der Abschnitt verhandelt einen komplexen Konflikt zwischen Finanzmärkten und den arbeitenden Klassen, was an den zentralen Themen von Ausbeutung und Machtgefällen rührt. Ich würde das durch folgende Cues verstärken: \n\n1. Video: 'macbook' für das Technische und Kühle des Finanzmarkts. \n2. Sound: Ein dumpfes, kontinuierliches Pulsieren für den unsichtbaren Druck. \n3."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, dein Ansatz illustriert zu direkt — Macbook für Finanzmarkt ist genau die Bebilderung, die wir vermeiden wollen. Ich würde stärker auf die selbstironische Brechung setzen: \"zu hoch für mich, und ich bin schon gern hochtönend\" ist das eigentliche Zentrum. Der Text entlarvt sich selbst als Schein-Analyse. Regie sollte diese Selbstdemontage zeigen — etwa durch Licht, das beim falschen Moment erhellt."
+        },
+        {
+          "speaker": "openai",
+          "content": "Der Textabschnitt beleuchtet ironisch die Konflikte zwischen Finanzakteuren und der arbeitsabhängigen Bevölkerung und dekonstruiert dabei seine eigene Ernsthaftigkeit. \n\n1. Video: 'kurzthiel', um die Unheimlichkeit und Absurdität hinter der vermeintlichen Sachlichkeit zu entlarven.\n2. Sound: Eine subtile, verzerrte Melodie, die den selbstironischen Ton verstärkt.\n3."
+        },
+        {
+          "speaker": "anthropic",
+          "content": "Dramaturg A, „kurzthiel\" gefällt mir als Entlarvungsgeste — aber ich würde ihn erst beim „wahren Klassenkampf?\" einsetzen, als verzögerte Reaktion auf die falsche Emphase. Vorher schlage ich vor: Licht, das bei „zu hoch für mich\" übertrieben hell aufzieht — als würde die Bühne die Selbstironie ernst nehmen, obwohl sie das nicht sollte. Das ist der Widerspruch, der hier trägt."
+        }
+      ],
+      "discussion_summary": "Dramaturg A (GPT): Der Abschnitt verhandelt einen komplexen Konflikt zwischen Finanzmärkten und den arbeitenden Klassen, was an den zentralen Themen von Ausbeutung und Machtgefällen rührt. Ich würde das durch folgende Cues verstärken: \n\n1. Video: 'macbook' für das Technische und Kühle des Finanzmarkts. \n2. Sound: Ein dumpfes, kontinuierliches Pulsieren für den unsichtbaren Druck. \n3.\nDramaturg B (Claude): Dramaturg A, dein Ansatz illustriert zu direkt — Macbook für Finanzmarkt ist genau die Bebilderung, die wir vermeiden wollen. Ich würde stärker auf die selbstironische Brechung setzen: \"zu hoch für mich, und ich bin schon gern hochtönend\" ist das eigentliche Zentrum. Der Text entlarvt sich selbst als Schein-Analyse. Regie sollte diese Selbstdemontage zeigen — etwa durch Licht, das beim falschen Moment erhellt.\nDramaturg A (GPT): Der Textabschnitt beleuchtet ironisch die Konflikte zwischen Finanzakteuren und der arbeitsabhängigen Bevölkerung und dekonstruiert dabei seine eigene Ernsthaftigkeit. \n\n1. Video: 'kurzthiel', um die Unheimlichkeit und Absurdität hinter der vermeintlichen Sachlichkeit zu entlarven.\n2. Sound: Eine subtile, verzerrte Melodie, die den selbstironischen Ton verstärkt.\n3.\nDramaturg B (Claude): Dramaturg A, „kurzthiel\" gefällt mir als Entlarvungsgeste — aber ich würde ihn erst beim „wahren Klassenkampf?\" einsetzen, als verzögerte Reaktion auf die falsche Emphase. Vorher schlage ich vor: Licht, das bei „zu hoch für mich\" übertrieben hell aufzieht — als würde die Bühne die Selbstironie ernst nehmen, obwohl sie das nicht sollte. Das ist der Widerspruch, der hier trägt."
+    }
+  ],
+  "status": "ready",
+  "has_rendered_audio": false
+}

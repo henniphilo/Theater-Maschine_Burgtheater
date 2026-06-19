@@ -28,7 +28,8 @@
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "maschinen_grundader_fade_in",
@@ -42,15 +43,15 @@
       "velocity": null,
       "tags": [
         "drone",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "melancholisch",
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "maschinen_grundader_fade_out",
@@ -72,7 +73,31 @@
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
+    },
+    {
+      "id": "maschinen_grundader_out",
+      "label": "Maschinen-Grundader",
+      "soundname": "Maschinen-Grundader",
+      "action": "out",
+      "description": "Sofort aus — Maschinen-Grundader",
+      "ableton_hint": "Maschinen-Grundader — out (Note 72)",
+      "midi_note": 72,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "drone",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "melancholisch",
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "kaefigecho",
@@ -94,7 +119,8 @@
         "leer"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "kaefigecho_fade_in",
@@ -108,14 +134,14 @@
       "velocity": null,
       "tags": [
         "raum",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "kaefigecho_fade_out",
@@ -136,7 +162,30 @@
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
+    },
+    {
+      "id": "kaefigecho_out",
+      "label": "Käfigecho",
+      "soundname": "Käfigecho",
+      "action": "out",
+      "description": "Sofort aus — Käfigecho",
+      "ableton_hint": "Käfigecho — out (Note 73)",
+      "midi_note": 73,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "raum",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "erinnerungsglitch",
@@ -158,7 +207,8 @@
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "erinnerungsglitch_fade_in",
@@ -172,14 +222,14 @@
       "velocity": null,
       "tags": [
         "glitch",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "erinnerungsglitch_fade_out",
@@ -200,7 +250,30 @@
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
+    },
+    {
+      "id": "erinnerungsglitch_out",
+      "label": "Erinnerungsglitch",
+      "soundname": "Erinnerungsglitch",
+      "action": "out",
+      "description": "Sofort aus — Erinnerungsglitch",
+      "ableton_hint": "Erinnerungsglitch — out (Note 74)",
+      "midi_note": 74,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "glitch",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "herz_unter_glas",
@@ -222,7 +295,8 @@
         "melancholisch"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "herz_unter_glas_fade_in",
@@ -236,14 +310,14 @@
       "velocity": null,
       "tags": [
         "puls",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "herz_unter_glas_fade_out",
@@ -264,7 +338,30 @@
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
+    },
+    {
+      "id": "herz_unter_glas_out",
+      "label": "Herz unter Glas",
+      "soundname": "Herz unter Glas",
+      "action": "out",
+      "description": "Sofort aus — Herz unter Glas",
+      "ableton_hint": "Herz unter Glas — out (Note 75)",
+      "midi_note": 75,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "puls",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "stallluft_digital",
@@ -286,7 +383,8 @@
         "melancholisch"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "stallluft_digital_fade_in",
@@ -300,14 +398,14 @@
       "velocity": null,
       "tags": [
         "ambient",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "stallluft_digital_fade_out",
@@ -328,7 +426,30 @@
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "stallluft_digital_out",
+      "label": "Stallluft digital",
+      "soundname": "Stallluft digital",
+      "action": "out",
+      "description": "Sofort aus — Stallluft digital",
+      "ableton_hint": "Stallluft digital — out (Note 76)",
+      "midi_note": 76,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "ambient",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "tierstimme_verzerrt",
@@ -350,7 +471,8 @@
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "tierstimme_verzerrt_fade_in",
@@ -364,14 +486,14 @@
       "velocity": null,
       "tags": [
         "tier",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "tierstimme_verzerrt_fade_out",
@@ -392,7 +514,30 @@
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "tierstimme_verzerrt_out",
+      "label": "Tierstimme verzerrt",
+      "soundname": "Tierstimme verzerrt",
+      "action": "out",
+      "description": "Sofort aus — Tierstimme verzerrt",
+      "ableton_hint": "Tierstimme verzerrt — out (Note 77)",
+      "midi_note": 77,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "tier",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "metallseufzer",
@@ -414,7 +559,8 @@
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "metallseufzer_fade_in",
@@ -428,14 +574,14 @@
       "velocity": null,
       "tags": [
         "metall",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "metallseufzer_fade_out",
@@ -456,7 +602,30 @@
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
+    },
+    {
+      "id": "metallseufzer_out",
+      "label": "Metallseufzer",
+      "soundname": "Metallseufzer",
+      "action": "out",
+      "description": "Sofort aus — Metallseufzer",
+      "ableton_hint": "Metallseufzer — out (Note 78)",
+      "midi_note": 78,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "metall",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     },
     {
       "id": "leere_zwischen_saetzen",
@@ -478,7 +647,8 @@
         "melancholisch"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "leere_zwischen_saetzen_fade_in",
@@ -492,14 +662,14 @@
       "velocity": null,
       "tags": [
         "stille",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "leer"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "leere_zwischen_saetzen_fade_out",
@@ -520,7 +690,30 @@
         "leer"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "leere_zwischen_saetzen_out",
+      "label": "Leere zwischen Sätzen",
+      "soundname": "Leere zwischen Sätzen",
+      "action": "out",
+      "description": "Sofort aus — Leere zwischen Sätzen",
+      "ableton_hint": "Leere zwischen Sätzen — out (Note 79)",
+      "midi_note": 79,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "stille",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "leer"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "unter_tiere_chor",
@@ -542,7 +735,8 @@
         "spannung"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "unter_tiere_chor_fade_in",
@@ -556,14 +750,14 @@
       "velocity": null,
       "tags": [
         "chor",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "unter_tiere_chor_fade_out",
@@ -584,7 +778,30 @@
         "unheimlich"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "unter_tiere_chor_out",
+      "label": "Unter-Tiere-Chor",
+      "soundname": "Unter-Tiere-Chor",
+      "action": "out",
+      "description": "Sofort aus — Unter-Tiere-Chor",
+      "ableton_hint": "Unter-Tiere-Chor — out (Note 80)",
+      "midi_note": 80,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "chor",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "unheimlich"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "archiv_rauschen",
@@ -606,7 +823,8 @@
         "neutral"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "archiv_rauschen_fade_in",
@@ -620,14 +838,14 @@
       "velocity": null,
       "tags": [
         "archiv",
-        "fade",
-        "fade_in"
+        "fade"
       ],
       "moods": [
         "melancholisch"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
     },
     {
       "id": "archiv_rauschen_fade_out",
@@ -648,7 +866,53 @@
         "melancholisch"
       ],
       "intensity_min": 0.0,
-      "intensity_max": 1.0
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "archiv_rauschen_out",
+      "label": "Archiv-Rauschen",
+      "soundname": "Archiv-Rauschen",
+      "action": "out",
+      "description": "Sofort aus — Archiv-Rauschen",
+      "ableton_hint": "Archiv-Rauschen — out (Note 81)",
+      "midi_note": 81,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "archiv",
+        "cut",
+        "out"
+      ],
+      "moods": [
+        "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": false
+    },
+    {
+      "id": "alle_sounds_cut",
+      "label": "Alle Sounds",
+      "soundname": "Alle Sounds",
+      "action": "cut_all",
+      "description": "Genereller Cut — alle Sounds sofort aus",
+      "ableton_hint": "Alle Sounds — cut_all (Note 127)",
+      "midi_note": 127,
+      "channel": 1,
+      "velocity": null,
+      "tags": [
+        "cut",
+        "panic",
+        "alle",
+        "cut_all"
+      ],
+      "moods": [
+        "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "dramaturgy_active": true
     }
   ]
 }

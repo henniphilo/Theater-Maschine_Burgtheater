@@ -24,16 +24,38 @@ def test_load_csv_includes_fade_cues() -> None:
     assert "maschinen_grundader" in ids
     assert "maschinen_grundader_fade_in" in ids
     assert "maschinen_grundader_fade_out" in ids
+    assert "maschinen_grundader_out" in ids
+    assert "alle_sounds_cut" in ids
     fade_in = next(c for c in catalog.cues if c.id == "maschinen_grundader_fade_in")
     assert fade_in.midi_note == 52
     assert fade_in.action == "fade_in"
     assert fade_in.soundname == "Maschinen-Grundader"
+    cut_all = next(c for c in catalog.cues if c.id == "alle_sounds_cut")
+    assert cut_all.midi_note == 127
+    assert cut_all.action == "cut_all"
+    assert cut_all.dramaturgy_active is True
+    assert "stallluft_digital" in ids
+    stall = next(c for c in catalog.cues if c.id == "stallluft_digital")
+    assert stall.dramaturgy_active is False
+
+
+def test_dramaturgy_sound_pool_is_filtered() -> None:
+    from app.director.media.database import MediaDatabase
+
+    db = MediaDatabase(repo_data_dir())
+    dram_ids = {s.id for s in db.dramaturgy_sounds}
+    assert "maschinen_grundader" in dram_ids
+    assert "metallseufzer" in dram_ids
+    assert "alle_sounds_cut" in dram_ids
+    assert "kaefigecho_out" in dram_ids
+    assert "stallluft_digital" not in dram_ids
+    assert "archiv_rauschen_out" not in dram_ids
 
 
 def test_catalog_service_loads_from_csv() -> None:
     service = SoundCueCatalogService()
     catalog = service.load()
-    assert len(catalog.cues) >= 24
+    assert len(catalog.cues) >= 41
     mapping = service.to_midi_map(catalog)
     assert mapping["kaefigecho"].note == 37
 

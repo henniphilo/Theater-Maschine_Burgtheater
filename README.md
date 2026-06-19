@@ -15,6 +15,9 @@ Zwei KIs (GPT und Claude) diskutieren live über ein Thema. Während sie spreche
 - [Architektur & Bühnen-Setup (Diagramme)](docs/architektur.md)
 - [Voraussetzungen](#voraussetzungen)
 - [Schnellstart (Docker)](#schnellstart-docker)
+- [Start mit Sound / Ableton (Backend nativ)](#start-mit-sound--ableton-backend-nativ)
+- [Technik-Test](#technik-test)
+- [Sound & Ableton einrichten](#sound--ableton-einrichten)
 - [Konfiguration](#konfiguration)
 - [Bedienung](#bedienung)
 - [Live-Regie (Director)](#live-regie-director)
@@ -161,6 +164,7 @@ docker compose up --force-recreate backend
 | **Stücktext** | http://localhost:3003/stueck |
 | **Aufführung** | http://localhost:3003/auffuehrung |
 | **Live-Regie (Operator)** | http://localhost:3003/director |
+| **Technik-Test** (Video/Sound/Licht einzeln) | http://localhost:3003/technik |
 | **Backend (API)** | http://localhost:8000 |
 | **API-Docs** | http://localhost:8000/docs |
 
@@ -188,7 +192,145 @@ docker compose down
 | 5432 | TCP | PostgreSQL | nein (nur Docker-intern) |
 | 6379 | TCP | Redis | nein (nur Docker-intern) |
 
-Docker: Frontend **3003**, Backend **8000**. Postgres/Redis nur intern in Docker. (Ohne Docker: Frontend **3000** — siehe unten.)
+Docker: Frontend **3003**, Backend **8000**. Postgres/Redis nur intern in Docker — **außer** beim nativen Backend für Sound (siehe unten).
+
+---
+
+## Start mit Sound / Ableton (Backend nativ)
+
+**Wichtig:** Sound geht per **MIDI** an Ableton (IAC-Bus). Das funktioniert **nicht** aus dem Docker-Container — das Backend muss **nativ auf dem Mac** laufen (Python **3.11+**, nicht das System-`python3` 3.9).
+
+### Wann welcher Modus?
+
+| Modus | Wofür | Befehl |
+|-------|--------|--------|
+| **Docker (Standard)** | Debatte, Dramaturgie, Video (Pixera), Licht, TTS | `docker compose up -d --build` |
+| **Backend nativ** | Sound → Ableton (MIDI), optional macOS `say`-TTS | `./backend/run-native.sh` (siehe unten) |
+
+Beides parallel: Postgres, Redis und Frontend in Docker — nur der **Backend-Container** bleibt aus.
+
+### 1. Infrastruktur in Docker (ohne Backend)
+
+Im **Projektroot**:
+
+```bash
+cd Theatermaschine
+docker compose -f docker-compose.yml -f docker-compose.native.yml up -d postgres redis frontend
+docker compose stop backend
+```
+
+`docker-compose.native.yml` mappt Postgres (`5432`) und Redis (`6379`) auf `localhost`, damit das native Backend die DB erreicht.
+
+### 2. Backend nativ starten
+
+```bash
+cd backend
+./run-native.sh
+```
+
+Das Skript:
+
+- legt eine venv mit **`python3.11`** an (falls nötig: `brew install python@3.11`)
+- installiert Abhängigkeiten (`pip install -e .`)
+- setzt `OSC_HOST=127.0.0.1` (für nativen Betrieb; in Docker bleibt `host.docker.internal` in `.env`)
+- startet Uvicorn auf **http://localhost:8000**
+
+**Nicht** `python3` (3.9) und **nicht** globales `uvicorn` aus Homebrew verwenden.
+
+### 3. Prüfen
+
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+Sound-Test: http://localhost:3003/technik → Bereich **Sound** → Cue wählen → **Signal senden**.
+
+Erfolg im Backend-Log:
+
+```text
+[MIDI SEND] [sound] → IAC-Treiber Bus 1 note_on ch=1 note=36 vel=63
+```
+
+Ohne `FEHLER` oder `rtmidi`-Traceback danach.
+
+### 4. Zurück zu vollem Docker
+
+```bash
+# natives Backend beenden (Ctrl+C im Terminal)
+docker compose up -d --build
+```
+
+---
+
+## Technik-Test
+
+Unter **http://localhost:3003/technik** kannst du **Video**, **Sound** und **Licht** jeweils **einzeln** testen (nicht kombiniert):
+
+| Bereich | Aktionen |
+|---------|----------|
+| **Video** | Clip wählen → Signal senden / halten / stoppen (Pixera OSC) |
+| **Sound** | Cue wählen → Signal senden / halten / stoppen (MIDI Note On/Off) |
+| **Licht** | 1. TCP-Verbindung zum Pult → 2. Szene wählen → senden / halten / stoppen |
+
+Sound-Tests setzen voraus, dass das Backend **nativ** läuft (siehe oben).
+
+---
+
+## Sound & Ableton einrichten
+
+Die Maschine spielt **keine WAV/MP3-Dateien** in Ableton ab. Sie sendet **MIDI-Noten** — wie ein Keyboard-Tastendruck. Ableton muss wissen, welcher Sound bei welcher Note läuft.
+
+```text
+Dramaturgie (cue_id)  →  Sound Übersicht.csv  →  MIDI Note  →  Ableton  →  Ton
+  maschinen_grundader         Note 36, Kanal 1      IAC-Bus      Drum Rack Pad C1
+```
+
+Ausführlich: [`docs/ableton_setup.md`](docs/ableton_setup.md) · Mapping: [`media/sound/Sound Übersicht.csv`](media/sound/Sound%20Übersicht.csv)
+
+### Schritt 1: IAC-Treiber (Mac)
+
+1. **Audio-MIDI-Setup** öffnen (Spotlight)
+2. **Fenster → MIDI-Studio** → Doppelklick **IAC-Treiber**
+3. **Gerät ist online** aktivieren
+4. Mindestens **Bus 1** anlegen
+
+Portname auf deutschen Macs: **`IAC-Treiber Bus 1`** (englisch: `IAC Driver Bus 1`). Beides wird vom Backend erkannt.
+
+### Schritt 2: `backend/.env`
+
+```env
+SOUND_OUTPUT=midi
+SOUND_OSC_MIRROR=false
+SOUND_MIDI_PORT="IAC-Treiber Bus 1"
+SOUND_MIDI_CHANNEL=1
+OSC_DRY_RUN=false
+```
+
+`SOUND_MIDI_PORT` leer lassen = erster verfügbarer IAC-Port.
+
+### Schritt 3: Ableton Live
+
+1. **MIDI-Track** anlegen (`Cmd+Shift+T`)
+2. Rechts **`I-O`** aktivieren (sonst siehst du MIDI From / Arm nicht)
+3. **MIDI From:** `IAC-Treiber Bus 1` · **Monitor:** `In` · **Arm:** an (roter Kreis unten am Track)
+4. **Drum Rack** auf den Track ziehen (Browser → Drums)
+5. Pad **C1** (= MIDI-Note **36**) mit Sample belegen — z. B. für `maschinen_grundader`
+
+**Hinweis Oktav-Namen:** Die Maschine zeigt Note 36 als **C2**, Ableton nennt dieselbe Note **C1** — das ist normal, die Nummer **36** zählt.
+
+| cue_id | MIDI-Note | Ableton-Pad |
+|--------|-----------|-------------|
+| maschinen_grundader | 36 | C1 |
+| kaefigecho | 37 | C#1 |
+| maschinen_grundader_fade_in | 52 | E2 |
+
+Pro Soundname gibt es in der CSV drei Zeilen: `play`, `fade_in`, `fade_out` — jeweils eigene Note.
+
+### Schritt 4: Test
+
+1. Backend nativ: `cd backend && ./run-native.sh`
+2. Browser: http://localhost:3003/technik → **Sound** → `Maschinen-Grundader` → **Signal senden**
+3. In Ableton: Pad **C1** blinkt, Sample spielt
 
 ---
 
@@ -250,7 +392,35 @@ OSC_LOG_COMMANDS=true
 | `LIGHT_TCP_PROTOCOL` | `1.0` | JSON-Protokollversion in jeder Nachricht |
 | `DIRECTOR_DATA_DIR` | `data` | Pfad zu `media.json`, `light_scenes.json`, … |
 
-In `docker-compose.yml` ist `OSC_DRY_RUN=false` gesetzt, damit OSC an TouchDesigner gesendet wird. Licht nutzt `LIGHT_TCP_*` (Standard: `10.101.90.112:3032`).
+In `docker-compose.yml` ist `OSC_DRY_RUN=false` gesetzt, damit OSC an TouchDesigner/Pixera gesendet wird. Licht nutzt `LIGHT_TCP_*` (Standard: `10.101.90.112:3032`).
+
+### Sound (MIDI → Ableton)
+
+```env
+SOUND_OUTPUT=midi
+SOUND_OSC_MIRROR=false
+SOUND_MIDI_PORT="IAC-Treiber Bus 1"
+SOUND_MIDI_CHANNEL=1
+```
+
+| Variable | Beschreibung |
+|----------|--------------|
+| `SOUND_OUTPUT` | `midi` (Ableton) · `osc` · `both` |
+| `SOUND_MIDI_PORT` | IAC-Bus — DE: `IAC-Treiber Bus 1`, EN: `IAC Driver Bus 1`; leer = Auto |
+| `SOUND_MIDI_CHANNEL` | MIDI-Kanal 1–16 (Standard: 1) |
+
+Mapping: `media/sound/Sound Übersicht.csv` → Cache `data/sound_cues.json`.  
+**Backend für Sound nativ auf dem Mac** — siehe [Start mit Sound / Ableton](#start-mit-sound--ableton-backend-nativ).
+
+### Video (Pixera)
+
+```env
+VISUAL_OUTPUT=pixera
+OSC_HOST=host.docker.internal   # Docker auf Mac
+# Nativ: OSC_HOST=127.0.0.1 (setzt run-native.sh automatisch)
+```
+
+Clips/Projektoren: `media/video/Video Übersicht.csv`, `media/video/Projektor Übersicht.csv`.
 
 ---
 
@@ -378,6 +548,7 @@ Theatermaschine/
 │   │   └── core/               # Config, Logging
 │   ├── tests/
 │   ├── Dockerfile
+│   ├── run-native.sh           # Backend nativ (MIDI/Ableton, Python 3.11)
 │   └── .env.example
 ├── frontend/                   # Next.js UI
 │   ├── app/
@@ -390,6 +561,7 @@ Theatermaschine/
 ├── touchdesigner/              # TD-Setup-Dokumentation
 ├── logs/                       # Director-Log (generiert, gitignored)
 ├── docker-compose.yml
+├── docker-compose.native.yml   # Postgres/Redis auf localhost (Backend nativ für MIDI)
 ├── PLAN.md                     # Entwicklungsplan Live-Regie
 └── README.md
 ```
@@ -430,7 +602,7 @@ Theatermaschine/
 | [`cues/scheduler.py`](backend/app/director/cues/scheduler.py) | Mindestabstände, Cue-Kollisionen verhindern |
 | [`cues/safety.py`](backend/app/director/cues/safety.py) | `SafetyState` — Autopilot, Overrides, Emergency |
 | [`outputs/touchdesigner.py`](backend/app/director/outputs/touchdesigner.py) | **OSC-Bridge** zu TouchDesigner |
-| [`outputs/sound.py`](backend/app/director/outputs/sound.py) | Sound per OSC (QLab/Ableton) |
+| [`outputs/sound.py`](backend/app/director/outputs/sound.py) | Sound per MIDI (Ableton) oder OSC |
 | [`outputs/lighting.py`](backend/app/director/outputs/lighting.py) | Licht per TCP ans Pult (`light_tcp.py`) oder optional OSC |
 | [`outputs/logger.py`](backend/app/director/outputs/logger.py) | Schreibt Entscheidungen nach `logs/director.log` |
 | [`recording.py`](backend/app/director/recording.py) | Live-Aufnahme Start/Stop (Phase 4) |
@@ -497,8 +669,6 @@ Theatermaschine/
 
 ## Entwicklung & Tests
 
-## Tests & Entwicklung
-
 ### Backend-Tests (Docker — empfohlen)
 
 ```bash
@@ -528,20 +698,27 @@ pip install -e ".[dev]"
 pytest
 ```
 
-### Lokal ohne Docker (optional)
+### Backend nativ (Sound / Ableton / Siri-TTS)
 
-Nur falls du Frontend/Backend nativ starten willst (z. B. macOS Siri-TTS):
+Für MIDI und macOS `say` — **nicht** mit `python3` 3.9:
 
 ```bash
-# Infrastruktur in Docker
-docker compose up -d postgres redis
+# Projektroot: Postgres/Redis/Frontend in Docker, Ports für localhost
+docker compose -f docker-compose.yml -f docker-compose.native.yml up -d postgres redis frontend
+docker compose stop backend
 
-# Backend nativ
-cd backend && source .venv/bin/activate
-python3 -m app.db.init_db
-uvicorn app.main:app --reload --port 8000
+# Backend nativ (Python 3.11)
+cd backend && ./run-native.sh
+```
 
-# Frontend nativ
+Frontend bleibt unter http://localhost:3003 (Docker). Sound-Test: http://localhost:3003/technik
+
+### Lokal ohne Docker (alles nativ, optional)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.native.yml up -d postgres redis
+cd backend && ./run-native.sh
+# zweites Terminal:
 cd frontend && npm install && npm run dev   # → http://localhost:3000
 ```
 
@@ -555,10 +732,15 @@ cd frontend && npm install && npm run dev   # → http://localhost:3000
 | Stücke / Exporte weg nach Rebuild | `data/` ist jetzt gemountet — alte Container ohne Volume hatten Daten nur im Image |
 | Port 8000 belegt | Alten Stack stoppen: `docker stop aidebatte-backend-1 …` oder `docker compose down` im anderen Projekt |
 | Port 3003 oder 8000 belegt | Alten Docker-Stack stoppen: `docker ps` → `docker stop …` |
-| Postgres/Redis-Konflikt | In Docker nicht mehr nach außen gemappt — nur intern |
+| Postgres/Redis-Konflikt | Standard-Docker: Ports nur intern. Für natives Backend: `docker-compose.native.yml` verwenden |
 | TTS nicht verfügbar | `curl localhost:8000/api/v1/tts/status`; in Docker edge-tts, auf Mac `say` |
 | Director sendet kein OSC | `OSC_DRY_RUN=false` setzen; `OSC_HOST=host.docker.internal` in Docker auf Mac |
-| Keine Videoclips | Dateien in `media/video/` ablegen; IDs müssen zu `data/media.json` passen |
+| **Sound: kein MIDI / rtmidi-Fehler** | Backend **nicht** in Docker — `cd backend && ./run-native.sh`. Log: `grep -i midi` |
+| **Sound: Port not found** | Deutscher Mac: `SOUND_MIDI_PORT="IAC-Treiber Bus 1"`; Ableton MIDI From gleich setzen |
+| **Sound: Log OK, kein Ton in Ableton** | Monitor `In`, Arm an, Drum Rack auf **C1** (Note 36), nicht C5 |
+| **python3 / pip Fehler 3.9** | `brew install python@3.11`, dann `./run-native.sh` (nicht System-`python3`) |
+| **OSC_HOST nodename** | Nativ: `OSC_HOST=127.0.0.1` — `run-native.sh` setzt das automatisch |
+| Keine Videoclips | Dateien in `media/video/` ablegen; IDs müssen zur CSV passen |
 | Cues werden blockiert | Operator-UI: Autopilot an? Mindestabstand abgewartet? `/director/status` prüfen |
 | CORS-Fehler | `CORS_ORIGINS='["http://localhost:3003"]'` in `backend/.env` (Docker) |
 

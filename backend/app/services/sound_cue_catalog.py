@@ -84,6 +84,7 @@ class SoundCueCatalogService:
                     moods=cue.moods or ["neutral"],
                     action=cue.action,
                     soundname=cue.soundname or cue.label,
+                    dramaturgy_active=cue.dramaturgy_active,
                 )
             )
         return assets

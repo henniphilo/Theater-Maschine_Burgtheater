@@ -4,7 +4,7 @@ from pathlib import Path
 
 from app.schemas.sound_cues import SoundCueCatalog, SoundCueDefaults, SoundCueEntry
 
-SOUND_ACTIONS = frozenset({"play", "fade_in", "fade_out"})
+SOUND_ACTIONS = frozenset({"play", "fade_in", "fade_out", "out", "cut_all"})
 
 
 def resolve_sound_overview_path(data_dir: Path) -> Path | None:
@@ -24,6 +24,13 @@ def resolve_sound_overview_path(data_dir: Path) -> Path | None:
 
 def _split_list(value: str) -> list[str]:
     return [part.strip() for part in value.split(",") if part.strip()]
+
+
+def _parse_dramaturgy_flag(value: str | None) -> bool:
+    if value is None:
+        return False
+    normalized = value.strip().lower()
+    return normalized in {"ja", "yes", "1", "true", "x"}
 
 
 def _slug_id(value: str) -> str:
@@ -50,7 +57,8 @@ def load_sound_cues_from_csv(path: Path) -> SoundCueCatalog:
             channel = int(channel_raw) if channel_raw else None
             tags = _split_list(row.get("tags", ""))
             moods = _split_list(row.get("stimmungen") or row.get("moods", ""))
-            if action != "play":
+            dramaturgy_active = _parse_dramaturgy_flag(row.get("dramaturgie"))
+            if action not in {"play", "fade_in"}:
                 tags = list(dict.fromkeys([*tags, action]))
             ableton_hint = f"{soundname} — {action} (Note {midi_note})"
             cues.append(
@@ -65,6 +73,7 @@ def load_sound_cues_from_csv(path: Path) -> SoundCueCatalog:
                     channel=channel,
                     tags=tags or [soundname.lower().replace(" ", "_")],
                     moods=moods or ["neutral"],
+                    dramaturgy_active=dramaturgy_active,
                 )
             )
     return SoundCueCatalog(
