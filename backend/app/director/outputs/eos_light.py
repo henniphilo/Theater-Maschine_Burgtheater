@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 EOS_CHAN_FULL = "/eos/chan/{channel}/full"
+EOS_CHAN_AT = "/eos/chan/{channel}/at"
 EOS_KEY_OUT = "/eos/key/out"
-EOS_CHAN_ADDRESS_RE = re.compile(r"^/eos/chan/(\d+)/full$")
+EOS_CHAN_ADDRESS_RE = re.compile(r"^/eos/chan/(\d+)/(full|at)$")
 
 
 def expand_channels(specs: list[str]) -> list[int]:
@@ -30,8 +32,21 @@ def expand_channels(specs: list[str]) -> list[int]:
     return sorted(set(channels))
 
 
-def eos_chan_full(channel: int) -> tuple[str, list[str]]:
+def light_intensity_to_percent(intensity: float) -> int:
+    """Map normalized intensity 0–1 to EOS percentage 0–100."""
+    return max(0, min(100, round(float(intensity) * 100)))
+
+
+def eos_chan_full(channel: int) -> tuple[str, list[float]]:
     return EOS_CHAN_FULL.format(channel=channel), []
+
+
+def eos_chan_level(channel: int, intensity: float = 1.0) -> tuple[str, list[float]]:
+    """Set channel intensity — full at 100%, otherwise /eos/chan/N/at with percent arg."""
+    percent = light_intensity_to_percent(intensity)
+    if percent >= 100:
+        return eos_chan_full(channel)
+    return EOS_CHAN_AT.format(channel=channel), [float(percent)]
 
 
 def eos_key_out() -> tuple[str, list[str]]:
@@ -39,7 +54,20 @@ def eos_key_out() -> tuple[str, list[str]]:
 
 
 def parse_eos_chan_address(address: str) -> int | None:
+    parsed = parse_eos_chan_command(address)
+    if parsed is None:
+        return None
+    return parsed[0]
+
+
+def parse_eos_chan_command(address: str, args: list[Any] | None = None) -> tuple[int, float] | None:
     match = EOS_CHAN_ADDRESS_RE.match(address)
     if not match:
         return None
-    return int(match.group(1))
+    channel = int(match.group(1))
+    kind = match.group(2)
+    if kind == "full":
+        return channel, 1.0
+    if args:
+        return channel, float(args[0]) / 100.0
+    return channel, 1.0

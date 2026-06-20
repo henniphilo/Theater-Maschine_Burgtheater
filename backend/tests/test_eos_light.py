@@ -1,4 +1,12 @@
-from app.director.outputs.eos_light import eos_chan_full, eos_key_out, expand_channels, parse_eos_chan_address
+from app.director.outputs.eos_light import (
+    eos_chan_full,
+    eos_chan_level,
+    eos_key_out,
+    expand_channels,
+    light_intensity_to_percent,
+    parse_eos_chan_address,
+    parse_eos_chan_command,
+)
 
 
 def test_expand_channel_ranges_and_lists() -> None:
@@ -14,9 +22,35 @@ def test_eos_chan_full_format() -> None:
     assert args == []
 
 
+def test_eos_chan_level_partial_and_full() -> None:
+    address, args = eos_chan_level(6, 0.5)
+    assert address == "/eos/chan/6/at"
+    assert args == [50.0]
+
+    address, args = eos_chan_level(6, 1.0)
+    assert address == "/eos/chan/6/full"
+    assert args == []
+
+    address, args = eos_chan_level(6, 0.35)
+    assert address == "/eos/chan/6/at"
+    assert args == [35.0]
+
+
+def test_light_intensity_to_percent() -> None:
+    assert light_intensity_to_percent(0.0) == 0
+    assert light_intensity_to_percent(0.456) == 46
+    assert light_intensity_to_percent(1.0) == 100
+
+
 def test_parse_eos_chan_address() -> None:
     assert parse_eos_chan_address("/eos/chan/6/full") == 6
+    assert parse_eos_chan_address("/eos/chan/6/at") == 6
     assert parse_eos_chan_address("/eos/chan/6=full") is None
+
+
+def test_parse_eos_chan_command() -> None:
+    assert parse_eos_chan_command("/eos/chan/6/full") == (6, 1.0)
+    assert parse_eos_chan_command("/eos/chan/6/at", [75]) == (6, 0.75)
 
     address, args = eos_key_out()
     assert address == "/eos/key/out"

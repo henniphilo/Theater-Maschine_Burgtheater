@@ -34,6 +34,14 @@ pip install -q -e .
 export OSC_HOST="${OSC_HOST:-127.0.0.1}"
 # PIXERA_OSC_* aus backend/.env — hier nicht überschreiben (z. B. 172.27.27.1:8990)
 
+# Nativ auf dem Mac: Siri-Stimmen (say) — nicht edge-tts
+export TTS_PROVIDER="${TTS_PROVIDER:-say}"
+
+# Repo-Daten/Logs (nicht backend/data — dort liegt nur ggf. lokales tts/)
+export DIRECTOR_DATA_DIR="${DIRECTOR_DATA_DIR:-$ROOT/data}"
+export OSC_LOG_PATH="${OSC_LOG_PATH:-$ROOT/logs/osc.log}"
+export DIRECTOR_LOG_PATH="${DIRECTOR_LOG_PATH:-$ROOT/logs/director.log}"
+
 _db_host="${DATABASE_URL:-}"
 if [[ "$_db_host" == *"@localhost:"* ]] || [[ -z "$_db_host" ]]; then
   if ! python - <<'PY'

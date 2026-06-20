@@ -1,12 +1,20 @@
+import logging
 from typing import Any
 
 from app.core.config import settings
-from app.director.cues.cue_models import DramaturgyDecision, OscCommand, VisualAction
+from app.director.cues.cue_models import DramaturgyDecision, LightCue, OscCommand, VisualAction
 from app.director.cues.cue_points import decision_from_cue_point, normalize_cue_points
 from app.director.cues.visual_outputs import resolve_visual_assignments
 from app.director.media.database import MediaDatabase
-from app.director.outputs.eos_light import eos_chan_full, eos_key_out, expand_channels
+from app.director.outputs.eos_light import (
+    eos_chan_level,
+    eos_key_out,
+    expand_channels,
+    parse_eos_chan_command,
+)
 from app.services.video_cue_catalog import get_video_cue_catalog_service
+
+_osc_fail_logger = logging.getLogger("theatermaschine.osc")
 
 
 def _light_osc_target(osc_host: str, osc_port: int) -> tuple[str, int]:
@@ -15,9 +23,16 @@ def _light_osc_target(osc_host: str, osc_port: int) -> tuple[str, int]:
     return osc_host, osc_port
 
 
+def _resolve_light_intensity(light: LightCue, decision: DramaturgyDecision) -> float:
+    if light.intensity is not None:
+        return light.intensity
+    return max(0.0, min(1.0, decision.intensity))
+
+
 def _eos_commands_for_scene(
     scene_id: str,
     *,
+    intensity: float = 1.0,
     osc_host: str,
     osc_port: int,
     is_dry_run: bool,
@@ -26,7 +41,7 @@ def _eos_commands_for_scene(
     scene = next((s for s in MediaDatabase().light_scenes if s.id == scene_id), None)
     commands: list[OscCommand] = []
     for channel in expand_channels(scene.channels if scene else []):
-        address, args = eos_chan_full(channel)
+        address, args = eos_chan_level(channel, intensity)
         commands.append(
             OscCommand(
                 bridge="light",
@@ -264,9 +279,11 @@ def _commands_for_single_decision(
                     )
                 )
         else:
+            light_intensity = _resolve_light_intensity(light, decision)
             commands.extend(
                 _eos_commands_for_scene(
                     light.scene_id,
+                    intensity=light_intensity,
                     osc_host=osc_host,
                     osc_port=osc_port,
                     is_dry_run=is_dry_run,
@@ -377,23 +394,26 @@ def send_osc_commands(commands: list[OscCommand], bridges: dict[str, Any]) -> li
         elif cmd.bridge == "light":
             from app.director.cues.cue_models import LightCue
 
-            if cmd.mirror:
-                sent.append(cmd)
+            try:
+                if cmd.mirror:
+                    sent.append(cmd)
+                    continue
+                if cmd.address == "/eos/key/out":
+                    lighting.blackout(dry_run=cmd.dry_run)
+                elif cmd.address.startswith("/eos/chan/"):
+                    parsed = parse_eos_chan_command(cmd.address, cmd.args)
+                    if parsed is not None:
+                        channel, intensity = parsed
+                        lighting.apply_channel(channel, intensity=intensity, dry_run=cmd.dry_run)
+                elif cmd.address == "/light/blackout":
+                    lighting.blackout(dry_run=cmd.dry_run)
+                elif cmd.address == "/light/set_scene" and len(cmd.args) >= 2:
+                    lighting.execute(
+                        LightCue(scene_id=str(cmd.args[0]), fade_time=float(cmd.args[1])),
+                        dry_run=cmd.dry_run,
+                    )
+            except Exception as exc:
+                _osc_fail_logger.warning("[LIGHT FAILED] %s %s: %s", cmd.address, cmd.args, exc)
                 continue
-            if cmd.address == "/eos/key/out":
-                lighting.blackout(dry_run=cmd.dry_run)
-            elif cmd.address.startswith("/eos/chan/"):
-                from app.director.outputs.eos_light import parse_eos_chan_address
-
-                channel = parse_eos_chan_address(cmd.address)
-                if channel is not None:
-                    lighting.apply_channel(channel, dry_run=cmd.dry_run)
-            elif cmd.address == "/light/blackout":
-                lighting.blackout(dry_run=cmd.dry_run)
-            elif cmd.address == "/light/set_scene" and len(cmd.args) >= 2:
-                lighting.execute(
-                    LightCue(scene_id=str(cmd.args[0]), fade_time=float(cmd.args[1])),
-                    dry_run=cmd.dry_run,
-                )
         sent.append(cmd)
     return sent

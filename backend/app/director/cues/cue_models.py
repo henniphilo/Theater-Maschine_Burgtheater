@@ -1,8 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+
+PerformanceSpeaker = Literal["AI_A", "AI_B", "narrator"]
 
 
 class OscCommand(BaseModel):
@@ -61,6 +63,7 @@ class LightCue(BaseModel):
     action: LightAction = LightAction.SET_SCENE
     scene_id: str | None = None
     fade_time: float = Field(default=4.0, ge=0.0)
+    intensity: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class CuePointTrigger(str, Enum):
@@ -89,6 +92,7 @@ class DramaturgyDecision(BaseModel):
     reason: str = ""
     dramaturgical_reading: str = ""
     cue_points: list[CuePoint] = Field(default_factory=list)
+    performance_speakers: list[PerformanceSpeaker] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     mood: str = "neutral"
     intensity: float = Field(default=0.5, ge=0.0, le=1.0)

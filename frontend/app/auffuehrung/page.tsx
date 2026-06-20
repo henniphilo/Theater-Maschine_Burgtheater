@@ -5,24 +5,29 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
+import { PerformanceTransport, beatIndexFromProgress } from "@/components/show/PerformanceTransport";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
-import { MachineStage } from "@/components/show/MachineStage";
-import { StagePreview } from "@/components/stage/StagePreview";
-import { fetchTTSStatus } from "@/lib/api/client";
-import { fetchMediaCatalog } from "@/lib/api/media";
+import { fetchTTSStatus, setPlaybackPaused, stopPlayback } from "@/lib/api/client";
 import { downloadBlob, exportPerformance, importPerformance } from "@/lib/api/performance";
 import { fetchScript } from "@/lib/api/script";
 import {
+  bufferStatusLabel,
+  isPlaybackBuffered,
+  startScriptBuffer,
+  subscribeScriptBuffer,
+  type ScriptBufferState
+} from "@/features/show/performanceBuffer";
+import {
   INITIAL_PLAYBACK_STATE,
-  prefetchBeatStart,
   runScriptPlayback,
   stopScriptPlayback,
   type PlaybackAudioOptions,
   type PlaybackState
 } from "@/features/show/scriptPlayback";
-import { buildMediaLookup, type MediaCatalog, type MediaLookup } from "@/lib/types/media";
+import { progressFromBeat } from "@/lib/show/performanceTimeline";
+import { fetchMediaCatalog } from "@/lib/api/media";
+import { buildMediaLookup, type MediaLookup } from "@/lib/types/media";
 import type { ProductionScript } from "@/lib/types/script";
-import type { DirectorPayload } from "@/lib/types/director";
 
 function AuffuehrungContent() {
   const router = useRouter();
@@ -31,13 +36,15 @@ function AuffuehrungContent() {
   const importInputRef = useRef<HTMLInputElement>(null);
   const [script, setScript] = useState<ProductionScript | null>(null);
   const [playback, setPlayback] = useState<PlaybackState>(INITIAL_PLAYBACK_STATE);
-  const [mediaCatalog, setMediaCatalog] = useState<MediaCatalog | null>(null);
   const [media, setMedia] = useState<MediaLookup | undefined>();
   const [ttsAvailable, setTtsAvailable] = useState(false);
+  const [ttsHint, setTtsHint] = useState("");
+  const [ttsProvider, setTtsProvider] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [bufferState, setBufferState] = useState<ScriptBufferState | null>(null);
   const abortRef = useRef(false);
   const playbackGenRef = useRef(0);
 
@@ -60,19 +67,19 @@ function AuffuehrungContent() {
   useEffect(() => {
     void load();
     fetchTTSStatus()
-      .then((s) => setTtsAvailable(s.available))
-      .catch(() => undefined);
-    fetchMediaCatalog()
-      .then((catalog) => {
-        setMediaCatalog(catalog);
-        setMedia(buildMediaLookup(catalog));
+      .then((s) => {
+        setTtsAvailable(s.available);
+        setTtsHint(s.hint ?? "");
+        setTtsProvider(s.provider ?? "");
       })
       .catch(() => undefined);
+    fetchMediaCatalog()
+      .then((catalog) => setMedia(buildMediaLookup(catalog)))
+      .catch(() => undefined);
+    return subscribeScriptBuffer(setBufferState);
   }, [load]);
 
   const ready = script?.status === "ready";
-  const canPlay = ready || Boolean(script?.has_rendered_audio);
-
   const playbackAudio: PlaybackAudioOptions = useMemo(
     () => ({
       ttsAvailable,
@@ -81,32 +88,29 @@ function AuffuehrungContent() {
     }),
     [ttsAvailable, script?.id, script?.has_rendered_audio]
   );
+  const bufferReady = script ? isPlaybackBuffered(script.id, playbackAudio) : false;
+  const scriptReady = ready || Boolean(script?.has_rendered_audio);
+  const canPlay = scriptReady && bufferReady;
+  const beatCount = script?.beats.length ?? 0;
+  const showBufferStatus =
+    scriptReady &&
+    !script?.has_rendered_audio &&
+    ttsAvailable &&
+    bufferState?.scriptId === script?.id &&
+    bufferState.status !== "idle" &&
+    !bufferReady;
+  const playBlockedReason =
+    scriptReady && !bufferReady && ttsAvailable && !script?.has_rendered_audio
+      ? bufferState?.scriptId === script?.id && bufferState.status === "buffering"
+        ? bufferStatusLabel(bufferState)
+        : "Stimmen werden vorbereitet …"
+      : undefined;
 
   useEffect(() => {
-    if (!script || !canPlay) return;
-    const beat = script.beats[playback.beatIndex];
-    if (beat) prefetchBeatStart(beat, playbackAudio);
-  }, [script, canPlay, playback.beatIndex, playbackAudio]);
-
-  const currentBeat = playback.beatIndex >= 0 ? script?.beats[playback.beatIndex] : undefined;
-  const canResume = playback.paused && !playback.completed && playback.beatIndex >= 0;
-  const inDiscussion = playback.segmentPhase === "discussion";
-  const discussionTurn =
-    inDiscussion && currentBeat?.discussion_turns && playback.discussionTurnIndex !== undefined
-      ? currentBeat.discussion_turns[playback.discussionTurnIndex]
-      : undefined;
-
-  const directorPayload: DirectorPayload | undefined =
-    currentBeat?.dramaturgy && !inDiscussion
-      ? {
-          event: {},
-          decision: currentBeat.dramaturgy,
-          executed: playback.showPhase === "sent",
-          blocked_reason: null,
-          planned_commands: currentBeat.planned_commands,
-          osc_commands: []
-        }
-      : undefined;
+    if (!script || !scriptReady) return;
+    if (bufferReady) return;
+    startScriptBuffer(script, playbackAudio);
+  }, [script, scriptReady, bufferReady, playbackAudio]);
 
   const playFrom = useCallback(
     async (startIndex: number) => {
@@ -114,7 +118,17 @@ function AuffuehrungContent() {
       const gen = ++playbackGenRef.current;
       setError("");
       abortRef.current = false;
-      setPlayback((prev) => ({ ...prev, beatIndex: startIndex, paused: false, completed: false }));
+      setPlaybackPaused(false);
+      setPlayback((prev) => ({
+        ...prev,
+        beatIndex: startIndex,
+        paused: false,
+        completed: false,
+        running: true,
+        timelineProgress: progressFromBeat(startIndex, script.beats.length, 0)
+      }));
+
+      if (gen !== playbackGenRef.current || abortRef.current) return;
 
       await runScriptPlayback(
         script.beats,
@@ -125,19 +139,34 @@ function AuffuehrungContent() {
             setPlayback((prev) => ({ ...prev, ...update }));
           }
         },
-        () => abortRef.current
+        () => abortRef.current,
+        script.title
       );
     },
     [script, canPlay, playbackAudio]
   );
 
-  function handleStart() {
-    const from = canResume ? playback.beatIndex : playback.beatIndex >= 0 ? playback.beatIndex : 0;
-    if (script) {
-      const beat = script.beats[from];
-      if (beat) prefetchBeatStart(beat, playbackAudio);
+  function handlePlay() {
+    if (!script || !canPlay) return;
+    if (playback.running && playback.paused) {
+      setPlaybackPaused(false);
+      setPlayback((prev) => ({ ...prev, paused: false }));
+      return;
     }
+    if (playback.running) return;
+    const from =
+      playback.paused && playback.beatIndex >= 0
+        ? playback.beatIndex
+        : playback.beatIndex >= 0
+          ? playback.beatIndex
+          : 0;
     void playFrom(from);
+  }
+
+  function handlePause() {
+    if (!playback.running || playback.paused) return;
+    setPlaybackPaused(true);
+    setPlayback((prev) => ({ ...prev, paused: true }));
   }
 
   function handleStop() {
@@ -153,17 +182,28 @@ function AuffuehrungContent() {
     }));
   }
 
-  function handleJumpToBeat(index: number) {
-    if (!script || index < 0 || index >= script.beats.length) return;
-    prefetchBeatStart(script.beats[index], playbackAudio);
-    setPlayback((prev) => ({ ...prev, beatIndex: index, paused: true, completed: false }));
+  function handleSeek(progress: number) {
+    if (!script || beatCount === 0) return;
+    const index = beatIndexFromProgress(progress, beatCount);
+    setPlayback((prev) => ({
+      ...prev,
+      beatIndex: index,
+      timelineProgress: progressFromBeat(index, beatCount, 0),
+      paused: prev.running ? prev.paused : true,
+      completed: false
+    }));
 
     if (playback.running) {
       abortRef.current = true;
       playbackGenRef.current += 1;
       stopScriptPlayback();
+      setPlaybackPaused(false);
       void playFrom(index);
     }
+  }
+
+  function handleJumpToBeat(index: number) {
+    handleSeek(progressFromBeat(index, beatCount, 0));
   }
 
   async function handleExport() {
@@ -199,28 +239,19 @@ function AuffuehrungContent() {
   }
 
   return (
-    <main className="container col">
+    <main className={`container col${script ? " pageWithPerformanceTransport" : ""}`}>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
         <h1 style={{ margin: 0 }}>Aufführung</h1>
         <AppNav />
       </div>
       <p className="textMuted">
-        Pro Abschnitt: Dramaturgen-Gespräch, dann Stücktext mit Cues. Aufführung als{" "}
-        <code>.tmshow.zip</code> exportieren (Text, Stimmen, Cues) und später ohne Dramaturgie importieren.
+        Pro Abschnitt: Dramaturgen-Gespräch, dann Stücktext mit Cues. Steuerung unten auf der Zeitspur.
       </p>
 
       <section className="card col">
         <h2>Aufführung laden / speichern</h2>
-        <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-          Import: ZIP mit Stücktext, Regie-Cues und vorgerenderten Stimmen. Export: rendert alle Stimmen und lädt
-          ein portables Paket herunter.
-        </p>
         <div className="row">
-          <button
-            type="button"
-            onClick={() => importInputRef.current?.click()}
-            disabled={importing}
-          >
+          <button type="button" onClick={() => importInputRef.current?.click()} disabled={importing}>
             {importing ? "Import läuft …" : "Aufführung importieren (.zip)"}
           </button>
           <input
@@ -240,11 +271,25 @@ function AuffuehrungContent() {
           <p className="textMuted" style={{ fontSize: "0.85rem" }}>
             Vorgespeicherte Stimmen aktiv — Wiedergabe ohne Live-TTS.
           </p>
-        ) : null}
+        ) : ttsAvailable ? (
+          <p className="textMuted" style={{ fontSize: "0.85rem" }}>
+            Live-TTS: {ttsProvider === "say" ? "Siri / macOS say" : ttsProvider}
+            {ttsHint ? ` · ${ttsHint}` : ""}
+          </p>
+        ) : (
+          <p className="textError" style={{ fontSize: "0.85rem" }}>
+            Keine Stimmen verfügbar — Backend nativ starten (<code>./run-native.sh</code>) oder Aufführung mit
+            exportierten Stimmen importieren.
+          </p>
+        )}
       </section>
 
       {loading ? <p className="textFaint">Lade Stück …</p> : null}
-      {error ? <div className="textError" role="alert">{error}</div> : null}
+      {error ? (
+        <div className="textError" role="alert">
+          {error}
+        </div>
+      ) : null}
       {!scriptId && !loading ? (
         <p className="textFaint">
           Kein Stück geladen — oben importieren oder <Link href="/dramaturgie">Dramaturgie</Link> starten.
@@ -255,77 +300,26 @@ function AuffuehrungContent() {
         <>
           <section className="card col">
             <h2>{script.title}</h2>
-            {mediaCatalog ? (
-              <p className="textMuted" style={{ fontSize: "0.85rem" }}>
-                Medien-Datenbank: <code>{mediaCatalog.data_dir}/media.json</code> · TouchDesigner OSC{" "}
-                <code>
-                  {mediaCatalog.touchdesigner.osc_host}:{mediaCatalog.touchdesigner.osc_port}
-                </code>
-                {mediaCatalog.touchdesigner.osc_dry_run ? " (DRY-RUN)" : ""}
-              </p>
-            ) : null}
-            <StagePreview
-              beats={script.beats}
-              activeBeatIndex={playback.beatIndex}
-              activeOscBridge={playback.activeOscBridge}
-              segmentPhase={playback.segmentPhase}
-              running={playback.running}
-              paused={playback.paused}
-              onBeatSelect={canPlay ? handleJumpToBeat : undefined}
-              media={media}
-            />
-            <div className="row">
-              <button
-                type="button"
-                className="machineStartBtn"
-                onClick={handleStart}
-                disabled={!canPlay || playback.running}
-              >
-                {playback.running
-                  ? "Läuft …"
-                  : canResume
-                    ? `Fortsetzen ab Abschnitt ${playback.beatIndex + 1}`
-                    : playback.beatIndex > 0
-                      ? `Starten ab Abschnitt ${playback.beatIndex + 1}`
-                      : "Maschine starten"}
-              </button>
-              {playback.running || playback.paused ? (
-                <button type="button" className="machineStopBtn" onClick={handleStop} disabled={!playback.running}>
-                  Stoppen
-                </button>
-              ) : null}
-            </div>
-            {!canPlay ? (
+            {!scriptReady ? (
               <p className="textFaint">
                 Stück noch nicht bereit — Dramaturgie abschließen oder gespeicherte Aufführung importieren.
               </p>
+            ) : showBufferStatus && bufferState ? (
+              <p className="textMuted">{bufferStatusLabel(bufferState)}</p>
+            ) : bufferReady && !script?.has_rendered_audio ? (
+              <p className="textMuted" style={{ fontSize: "0.9rem" }}>
+                Stimmen bereit — Play startet ohne Wartezeit.
+              </p>
             ) : null}
             {playback.completed ? (
-              <p className="textMuted">Aufführung beendet. Erneut starten oder Abschnitt wählen.</p>
+              <p className="textMuted">Aufführung beendet — Zeitspur nutzen zum erneuten Starten.</p>
             ) : null}
           </section>
 
-          <MachineStage
-            running={playback.running}
-            beatIndex={Math.max(playback.beatIndex, 0)}
-            beatTotal={script.beats.length}
-            segmentPhase={playback.segmentPhase}
-            discussionTurnIndex={playback.discussionTurnIndex}
-            discussionText={discussionTurn?.content}
-            dramaturgSpeaker={playback.dramaturgSpeaker}
-            performanceSpeaker={playback.performanceSpeaker}
-            director={directorPayload}
-            showPhase={playback.showPhase}
-            activeOscBridge={playback.activeOscBridge}
-            activeOscCommand={playback.activeOscCommand}
-            onStop={handleStop}
-          />
-
           <section className="card col scriptDocument">
-            <h2>Stücktext (klickbar)</h2>
+            <h2>Stücktext</h2>
             <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-              Klick startet ab Dramaturgen-Gespräch des Abschnitts
-              {playback.running ? " und setzt die Wiedergabe fort" : ""}.
+              Klick auf einen Abschnitt springt dorthin (Zeitspur).
             </p>
             {script.beats.map((beat, index) => (
               <ScriptBeatBlock
@@ -343,6 +337,31 @@ function AuffuehrungContent() {
               />
             ))}
           </section>
+
+          <PerformanceTransport
+            beats={script.beats}
+            beatIndex={playback.beatIndex}
+            beatCount={beatCount}
+            timelineProgress={
+              playback.timelineProgress >= 0
+                ? playback.timelineProgress
+                : progressFromBeat(Math.max(playback.beatIndex, 0), beatCount, 0)
+            }
+            running={playback.running}
+            paused={playback.paused}
+            completed={playback.completed}
+            canPlay={canPlay}
+            playBlockedReason={playBlockedReason}
+            segmentPhase={playback.segmentPhase}
+            discussionTurnIndex={playback.discussionTurnIndex}
+            sentenceIndex={playback.sentenceIndex}
+            showPhase={playback.showPhase}
+            activeOscBridge={playback.activeOscBridge}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onStop={handleStop}
+            onSeek={handleSeek}
+          />
         </>
       ) : null}
     </main>

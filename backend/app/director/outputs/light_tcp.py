@@ -1,4 +1,5 @@
 import json
+import logging
 import socket
 import struct
 import threading
@@ -7,6 +8,15 @@ import time
 from app.core.config import settings
 
 _SESSION_COMMANDS = frozenset({"connect", "disconnect"})
+_light_logger = logging.getLogger("theatermaschine.osc")
+
+
+class LightDeskConnectionError(OSError):
+    """Raised when the venue light desk TCP endpoint is unreachable."""
+
+
+def log_light_failure(message: str) -> None:
+    _light_logger.warning("[LIGHT FAILED] %s", message)
 
 
 def build_light_message(
@@ -240,10 +250,14 @@ class LightTcpSession:
     def _ensure_connected_unlocked(self) -> None:
         if self._conn is not None:
             return
-        conn = socket.create_connection(
-            (settings.light_tcp_host, settings.light_tcp_port),
-            timeout=settings.light_tcp_timeout,
-        )
+        host = settings.light_tcp_host
+        port = settings.light_tcp_port
+        try:
+            conn = socket.create_connection((host, port), timeout=settings.light_tcp_timeout)
+        except (TimeoutError, OSError) as exc:
+            raise LightDeskConnectionError(
+                f"Light desk unreachable at {host}:{port}: {exc}"
+            ) from exc
         conn.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self._conn = conn
 

@@ -34,6 +34,12 @@ export function ScriptBeatBlock({
     <>
       <header className="scriptBeatHeader">
         <span className="scriptBeatMeta">
+          {beat.scene_title ? (
+            <>
+              <strong>{beat.scene_title}</strong>
+              {" · "}
+            </>
+          ) : null}
           [{editable ? (
             <select
               value={beat.speaker}
@@ -51,6 +57,11 @@ export function ScriptBeatBlock({
           {" · "}
           {mood}]
         </span>
+        {d?.performance_speakers?.length ? (
+          <span className="textMuted" style={{ fontSize: "0.85rem", marginLeft: "0.5rem" }}>
+            Stück-Stimmen: {d.performance_speakers.map((s) => speakerLabel(s)).join(", ")}
+          </span>
+        ) : null}
       </header>
 
       {turns.length > 0 ? (

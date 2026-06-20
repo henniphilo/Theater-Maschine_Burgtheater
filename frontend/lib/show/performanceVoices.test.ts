@@ -17,4 +17,11 @@ describe("speakerForPerformanceSentence", () => {
       expect(speaker).not.toBe("anthropic");
     }
   });
+
+  it("uses dramaturgy performance_speakers pool when provided", () => {
+    const speakers = Array.from({ length: 4 }, (_, i) =>
+      speakerForPerformanceSentence("AI_A", i, 0, ["AI_A", "AI_B"])
+    );
+    expect(speakers).toEqual(["AI_A", "AI_B", "AI_A", "AI_B"]);
+  });
 });

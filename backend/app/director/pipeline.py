@@ -1,3 +1,4 @@
+import logging
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -18,6 +19,7 @@ from app.director.outputs.sound import SoundBridge
 from app.director.outputs.touchdesigner import TouchDesignerBridge
 
 CUE_STAGGER_SECONDS = 0.15
+_execute_logger = logging.getLogger("theatermaschine.osc")
 
 
 @dataclass
@@ -152,7 +154,15 @@ class DirectorPipeline:
             if stagger and last_bridge is not None and cmd.bridge != last_bridge:
                 time.sleep(CUE_STAGGER_SECONDS)
             last_bridge = cmd.bridge
-            send_osc_commands([cmd], bridges)
+            try:
+                send_osc_commands([cmd], bridges)
+            except Exception as exc:
+                _execute_logger.warning(
+                    "[CUE FAILED] bridge=%s address=%s: %s",
+                    cmd.bridge,
+                    cmd.address,
+                    exc,
+                )
             sent.append(cmd)
         return sent
 

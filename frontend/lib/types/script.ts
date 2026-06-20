@@ -7,12 +7,14 @@ export type DramaturgSpeaker = "openai" | "anthropic";
 export type DiscussionTurn = {
   speaker: DramaturgSpeaker;
   content: string;
+  proposed_decision?: DramaturgyDecision | null;
 };
 
 export type ScriptBeat = {
   id: string;
   order: number;
   text: string;
+  scene_title?: string | null;
   speaker: ScriptSpeaker;
   dramaturgy: DramaturgyDecision | null;
   planned_commands: OscCommand[];

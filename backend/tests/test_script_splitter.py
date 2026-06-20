@@ -47,6 +47,32 @@ def test_build_beats_alternates_speakers() -> None:
     assert beats[1].speaker == "AI_B"
 
 
+def test_extract_scene_title_from_heading_line() -> None:
+    from app.services.script_splitter import extract_scene_title_and_body
+
+    title, body = extract_scene_title_and_body(
+        "Szene 1: Im Keller\n\nVielleicht ist Erinnerung nur eine Störung."
+    )
+    assert title == "Szene 1: Im Keller"
+    assert "Erinnerung" in body
+
+
+def test_build_beats_splits_scene_title() -> None:
+    beats = build_beats_from_text("IM KELLER\n\nErster Satz hier.\nZweiter Satz.\nDritter Satz.\nVierter Satz.")
+    assert len(beats) == 1
+    assert beats[0].scene_title == "IM KELLER"
+    assert "Erster Satz" in beats[0].text
+
+
+def test_dramaturgy_quote_excerpts() -> None:
+    from app.services.script_splitter import dramaturgy_quote_excerpts
+
+    text = "Erster Satz mit Inhalt. Zweiter Satz mit mehr Text. Dritter Satz als Schluss."
+    quotes = dramaturgy_quote_excerpts(text)
+    assert len(quotes) >= 2
+    assert quotes[0].startswith("Erster Satz")
+
+
 def test_clamp_statement_at_sentence_boundary() -> None:
     long = ". ".join([f"Satz Nummer {i} mit Inhalt" for i in range(80)])
     clamped = _clamp_statement(long, max_chars=450)

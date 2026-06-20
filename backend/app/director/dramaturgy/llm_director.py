@@ -112,6 +112,7 @@ class LLMDirector:
                 "Unterschiedliche Videos: pro output_id eigene clip_id in outputs[].",
                 "Ohne outputs[] gilt clip_id nur für RZ21 (Frontprojektor).",
                 "Licht: nur scene_id aus lights[] — Kanäle laut Kanal-Übersicht.",
+                "Licht-Intensität: light.intensity 0.0–1.0 (0.35 = dezent, 1.0 = voll); fehlt → cue_point.intensity.",
                 "Sound: nur cue_id aus sounds[] (play / fade_in / fade_out / out) — MIDI an Ableton.",
                 "Sound sofort aus (ein Layer): cue_id mit _out (z. B. kaefigecho_out).",
                 "Alle Sounds sofort aus: cue_id alle_sounds_cut.",
@@ -156,6 +157,7 @@ class LLMDirector:
             "Pro Textabschnitt: mehrere cue_points (start, keyword, sentence_end, time). "
             "Jeder cue_point braucht visual, sound UND light — aktiv oder bewusst aus "
             "(stop_clip, stop_cue, fade_blackout). "
+            "performance_speakers: 1–3 Stimmen aus [AI_A, AI_B, narrator] für den Stücktext. "
             "Keine Illustration, keine Schauspielanweisungen. "
             "Antworte ausschließlich mit gültigem JSON ohne Markdown.\n\n"
             f"=== DRAMATURGIE-REGELWERK ===\n{rules}"
@@ -172,9 +174,10 @@ class LLMDirector:
             '{"trigger":"start","time_offset_sec":0,"function":"überlagern","intensity":0.45,'
             '"visual":{"action":"play_clip","clip_id":"clyde","outputs":[{"output_id":"rz21","clip_id":"clyde"},{"output_id":"adam","clip_id":"black"}],"opacity":0.8,"fade_time":4},'
             '"sound":{"action":"trigger_cue","cue_id":"...","volume":0.4},'
-            '"light":{"action":"set_scene","scene_id":"...","fade_time":5}},'
+            '"light":{"action":"set_scene","scene_id":"...","fade_time":5,"intensity":0.65}},'
             '{"trigger":"keyword","keyword":"Schuld","function":"entlarven","intensity":0.7,...}'
-            '],"reason":"...","tags":[],"mood":"...","intensity":0.5,"timestamp":0}'
+            '],"reason":"...","tags":[],"mood":"...","intensity":0.5,"timestamp":0,'
+            '"performance_speakers":["AI_A","AI_B"]}'
         )
         return await self.ai.generate(
             "openai",
@@ -268,3 +271,9 @@ class LLMDirector:
             raise DramaturgyValidationError(f"Unknown cue_id: {decision.sound.cue_id}")
         if decision.light and decision.light.scene_id and decision.light.scene_id not in light_ids:
             raise DramaturgyValidationError(f"Unknown scene_id: {decision.light.scene_id}")
+
+        allowed_speakers = {"AI_A", "AI_B", "narrator"}
+        if decision.performance_speakers:
+            invalid = [s for s in decision.performance_speakers if s not in allowed_speakers]
+            if invalid:
+                raise DramaturgyValidationError(f"Unknown performance_speakers: {invalid}")

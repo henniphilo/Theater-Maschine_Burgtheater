@@ -20,3 +20,11 @@ def test_performance_speaker_rotates_across_sentences() -> None:
         performance_speaker_for_sentence("AI_A", i, beat_order=0) for i in range(6)
     ]
     assert speakers == ["AI_A", "AI_B", "narrator", "AI_A", "AI_B", "narrator"]
+
+
+def test_performance_speaker_uses_custom_pool() -> None:
+    speakers = [
+        performance_speaker_for_sentence("AI_A", i, beat_order=0, pool=["AI_A", "AI_B"])
+        for i in range(4)
+    ]
+    assert speakers == ["AI_A", "AI_B", "AI_A", "AI_B"]

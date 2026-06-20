@@ -75,8 +75,14 @@ class PerformanceBundleService:
 
         if beat.text.strip():
             sentences = split_sentences(beat.text)
+            pool = beat.dramaturgy.performance_speakers if beat.dramaturgy else None
             for sentence_index, sentence in enumerate(sentences):
-                speaker = performance_speaker_for_sentence(beat.speaker, sentence_index, beat.order)
+                speaker = performance_speaker_for_sentence(
+                    beat.speaker,
+                    sentence_index,
+                    beat.order,
+                    pool=pool or None,
+                )
                 src = await self.tts.synthesize(sentence, speaker)
                 ext = src.suffix.lstrip(".")
                 rel = f"audio/{prefix}-performance-{sentence_index}.{ext}"

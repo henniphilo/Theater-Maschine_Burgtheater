@@ -43,7 +43,7 @@ def get_media_catalog() -> dict:
                 "stop_clip": "/visual/stop_clip",
                 "blackout": "/visual/blackout",
                 "sound_trigger": "/sound/trigger",
-                "light_scene": "/eos/chan/{channel}/full",
+                "light_scene": "/eos/chan/{channel}/full | /eos/chan/{channel}/at (0–100%)",
                 "light_blackout": "/eos/key/out",
             },
             "docs": "touchdesigner/README_touchdesigner_setup.md",

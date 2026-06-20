@@ -6,7 +6,7 @@
 #   3003 — Frontend
 #   8000 — Backend API
 # Intern: postgres:5432, redis:6379
-# OSC (TouchDesigner): 7000 UDP — backend/.env OSC_PORT
+# OSC (Pixera Video): 172.27.27.1:8990 UDP — PIXERA_OSC_* in backend/.env
 
 services:
   postgres:
@@ -51,9 +51,12 @@ services:
       LIGHT_OSC_TCP_FRAMING: length_prefix
       SOUND_OUTPUT: midi
       SOUND_MIDI_CHANNEL: "1"
+      VISUAL_OUTPUT: pixera
+      PIXERA_OSC_HOST: "172.27.27.1"
+      PIXERA_OSC_PORT: "8990"
     command: >
       sh -c "python -m app.db.init_db &&
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/app"
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/app --no-access-log --log-level warning"
     volumes:
       - ./backend/app:/app/app
       - ./backend/tests:/app/tests

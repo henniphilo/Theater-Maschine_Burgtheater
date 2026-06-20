@@ -80,13 +80,26 @@ class MediaDatabase:
 
         module_root = Path(__file__).resolve()
         search_roots = [
+            module_root.parents[4],  # repo root (local dev)
             module_root.parents[3],  # /app in Docker, backend/ locally
-            module_root.parents[4],  # repo root locally
             Path.cwd(),
+            Path.cwd().parent,
         ]
+        seen: set[Path] = set()
+        roots: list[Path] = []
         for root in search_roots:
+            resolved = root.resolve()
+            if resolved not in seen:
+                seen.add(resolved)
+                roots.append(resolved)
+
+        for root in roots:
             candidate = root / configured
-            if candidate.exists():
+            if (candidate / "light_scenes.json").is_file():
+                return candidate
+        for root in roots:
+            candidate = root / configured
+            if candidate.is_dir():
                 return candidate
         return Path.cwd() / configured
 

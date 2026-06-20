@@ -105,6 +105,7 @@ tests/test_llm_director.py
 tests/test_media_api.py
 tests/test_media_inventory.py
 tests/test_media_selector.py
+tests/test_neutral_reset.py
 tests/test_performance_bundle.py
 tests/test_pixera_video.py
 tests/test_script_api.py

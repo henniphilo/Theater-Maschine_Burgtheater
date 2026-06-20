@@ -12,6 +12,13 @@ import {
   type DramaturgyChatLine
 } from "@/features/dramaturgy/session";
 import { createScript, streamDramaturgyWorkshop } from "@/lib/api/script";
+import {
+  bufferStatusLabel,
+  isPlaybackBuffered,
+  startScriptBuffer,
+  subscribeScriptBuffer,
+  type ScriptBufferState
+} from "@/features/show/performanceBuffer";
 import { fetchTTSStatus } from "@/lib/api/client";
 import type { DirectorPayload } from "@/lib/types/director";
 import type { ProductionScript, WorkshopStreamEvent } from "@/lib/types/script";
@@ -31,6 +38,8 @@ export default function DramaturgiePage() {
   const [openaiModel, setOpenaiModel] = useState<string>(OPENAI_MODELS[0]);
   const [anthropicModel, setAnthropicModel] = useState<string>(ANTHROPIC_MODELS[0]);
   const [ttsHint, setTtsHint] = useState("");
+  const [ttsAvailable, setTtsAvailable] = useState(false);
+  const [bufferState, setBufferState] = useState<ScriptBufferState | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -57,8 +66,12 @@ export default function DramaturgiePage() {
     }
     setHydrated(true);
     fetchTTSStatus()
-      .then((s) => setTtsHint(s.hint))
+      .then((s) => {
+        setTtsHint(s.hint);
+        setTtsAvailable(s.available);
+      })
       .catch(() => undefined);
+    return subscribeScriptBuffer(setBufferState);
   }, []);
 
   useEffect(() => {
@@ -72,6 +85,15 @@ export default function DramaturgiePage() {
       anthropicModel
     });
   }, [hydrated, title, sourceText, script?.id, chat, openaiModel, anthropicModel]);
+
+  useEffect(() => {
+    if (!script || script.status !== "ready") return;
+    startScriptBuffer(script, {
+      ttsAvailable,
+      scriptId: script.id,
+      hasRenderedAudio: Boolean(script.has_rendered_audio)
+    });
+  }, [script, ttsAvailable]);
 
   function handleWorkshopEvent(event: WorkshopStreamEvent) {
     if (event.type === "thinking" && event.speaker) {
@@ -152,6 +174,19 @@ export default function DramaturgiePage() {
   }
 
   const canOpenScript = script && script.beats.length > 0;
+  const bufferReady = script
+    ? isPlaybackBuffered(script.id, {
+        ttsAvailable,
+        scriptId: script.id,
+        hasRenderedAudio: Boolean(script.has_rendered_audio)
+      })
+    : false;
+  const showBufferStatus =
+    script?.status === "ready" &&
+    !script.has_rendered_audio &&
+    ttsAvailable &&
+    bufferState?.scriptId === script.id &&
+    bufferState.status !== "idle";
 
   return (
     <main className="container col">
@@ -176,7 +211,7 @@ export default function DramaturgiePage() {
           rows={10}
           value={sourceText}
           onChange={(e) => setSourceText(e.target.value)}
-          placeholder={"Abschnitte mit Leerzeile oder --- trennen.\n\nVielleicht ist Erinnerung nur eine technische Störung."}
+          placeholder={"Abschnitte mit Leerzeile oder --- trennen.\n\nSzene 1: Im Keller\n\nVielleicht ist Erinnerung nur eine technische Störung."}
           disabled={loading}
         />
 
@@ -207,6 +242,18 @@ export default function DramaturgiePage() {
           <Link className="machineStartBtn" href={`/stueck?id=${script!.id}`} style={{ display: "inline-block", textAlign: "center", textDecoration: "none" }}>
             Stücktext ansehen →
           </Link>
+        ) : null}
+
+        {showBufferStatus && bufferState ? (
+          <p className={bufferState.status === "error" ? "textError" : "textMuted"} style={{ fontSize: "0.9rem" }}>
+            {bufferStatusLabel(bufferState)}
+            {bufferReady ? (
+              <>
+                {" · "}
+                <Link href={`/auffuehrung?id=${script!.id}`}>Zur Aufführung →</Link>
+              </>
+            ) : null}
+          </p>
         ) : null}
 
         {ttsHint ? <p className="textMuted" style={{ fontSize: "0.9rem" }}>{ttsHint}</p> : null}

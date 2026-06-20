@@ -5,8 +5,13 @@ from pythonosc import udp_client
 from app.core.config import settings
 from app.director.cues.cue_models import LightCue
 from app.director.media.database import MediaDatabase
-from app.director.outputs.eos_light import eos_chan_full, eos_key_out, expand_channels
-from app.director.outputs.light_tcp import close_light_tcp, get_light_tcp_session
+from app.director.outputs.eos_light import eos_chan_level, eos_key_out, expand_channels
+from app.director.outputs.light_tcp import (
+    LightDeskConnectionError,
+    close_light_tcp,
+    get_light_tcp_session,
+    log_light_failure,
+)
 from app.director.outputs.osc_log import log_osc_command
 
 
@@ -35,14 +40,14 @@ class LightingBridge:
             self.blackout(dry_run=dry_run)
             return
 
-        if settings.light_output == "tcp":
-            get_light_tcp_session().open_session(dry_run=dry_run)
+        if settings.light_output == "tcp" and not self._open_tcp_session(dry_run=dry_run):
+            return
 
         self.send_scene(cue, dry_run=dry_run)
 
     def connect_desk(self, dry_run: bool = False) -> None:
         if settings.light_output == "tcp":
-            get_light_tcp_session().open_session(dry_run=dry_run)
+            self._open_tcp_session(dry_run=dry_run)
 
     def disconnect_desk(self, dry_run: bool = False) -> None:
         if settings.light_output == "tcp":
@@ -57,9 +62,16 @@ class LightingBridge:
         fade = cue.fade_time if cue.fade_time else (scene.fade_time if scene else 4.0)
 
         if settings.light_output == "tcp" and not get_light_tcp_session().connected:
-            raise RuntimeError("Light desk TCP session not connected")
+            if dry_run:
+                pass
+            else:
+                return
 
-        self._apply_scene_channels(scene.channels if scene else [], dry_run=dry_run)
+        self._apply_scene_channels(
+            scene.channels if scene else [],
+            intensity=cue.intensity if cue.intensity is not None else 1.0,
+            dry_run=dry_run,
+        )
 
         if settings.light_osc_mirror:
             self._send_td_osc("/light/set_scene", cue.scene_id, fade, dry_run=dry_run)
@@ -84,16 +96,30 @@ class LightingBridge:
     def hold(self, cue: LightCue, dry_run: bool = False) -> None:
         self.send_scene(cue, dry_run=dry_run)
 
-    def _apply_scene_channels(self, channel_specs: list[str], *, dry_run: bool) -> None:
+    def _apply_scene_channels(
+        self,
+        channel_specs: list[str],
+        *,
+        intensity: float = 1.0,
+        dry_run: bool,
+    ) -> None:
         for channel in expand_channels(channel_specs):
-            address, args = eos_chan_full(channel)
+            address, args = eos_chan_level(channel, intensity)
             self._send_desk_osc(address, *args, dry_run=dry_run)
 
-    def apply_channel(self, channel: int, dry_run: bool = False) -> None:
-        if settings.light_output == "tcp":
-            get_light_tcp_session().open_session(dry_run=dry_run)
-        address, args = eos_chan_full(channel)
+    def apply_channel(self, channel: int, *, intensity: float = 1.0, dry_run: bool = False) -> None:
+        if settings.light_output == "tcp" and not self._open_tcp_session(dry_run=dry_run):
+            return
+        address, args = eos_chan_level(channel, intensity)
         self._send_desk_osc(address, *args, dry_run=dry_run)
+
+    def _open_tcp_session(self, *, dry_run: bool) -> bool:
+        try:
+            get_light_tcp_session().open_session(dry_run=dry_run)
+            return True
+        except LightDeskConnectionError as exc:
+            log_light_failure(str(exc))
+            return False
 
     def _desk_osc_target(self) -> tuple[str, int]:
         if settings.light_output == "tcp":
@@ -103,7 +129,10 @@ class LightingBridge:
     def _send_desk_osc(self, address: str, *args: object, dry_run: bool = False) -> None:
         is_dry_run = dry_run or settings.osc_dry_run
         if settings.light_output == "tcp":
-            get_light_tcp_session().send_osc(address, list(args), dry_run=is_dry_run)
+            try:
+                get_light_tcp_session().send_osc(address, list(args), dry_run=is_dry_run)
+            except (LightDeskConnectionError, RuntimeError, OSError) as exc:
+                log_light_failure(f"{address}: {exc}")
             return
         host, port = self._desk_osc_target()
         log_osc_command(

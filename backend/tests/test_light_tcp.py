@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.director.outputs.light_tcp import (
+    LightDeskConnectionError,
     LightTcpSession,
     build_light_message,
     build_light_osc_message,
@@ -132,4 +133,16 @@ def test_close_session_json_handshake_sends_disconnect(
 
     disconnect_call = sock.sendall.call_args_list[-1][0][0].decode("utf-8")
     assert "disconnect" in disconnect_call
+    assert session.connected is False
+
+
+@patch("app.director.outputs.light_tcp.socket.create_connection")
+def test_open_session_raises_when_desk_unreachable(mock_conn: MagicMock) -> None:
+    mock_conn.side_effect = TimeoutError("timed out")
+    close_light_tcp()
+    session = LightTcpSession()
+
+    with pytest.raises(LightDeskConnectionError, match="10.101.90.112"):
+        session.open_session(dry_run=False)
+
     assert session.connected is False

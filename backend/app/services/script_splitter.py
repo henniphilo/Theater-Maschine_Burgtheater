@@ -5,6 +5,18 @@ from app.schemas.script import ScriptBeat, ScriptSpeaker
 
 MIN_BEAT_LINES = 4
 MAX_BEAT_CHARS = 1800
+MAX_SCENE_TITLE_CHARS = 80
+
+_SCENE_TITLE_PATTERN = re.compile(
+    r"^(?:"
+    r"szene\s[\dIVXLC]+[.:].*|"
+    r"szene[.:].*|"
+    r"akt\s[\dIVXLC]+[.:].*|"
+    r"\d+\.\s*(?:szene|scene).*|"
+    r"#+\s*.+"
+    r")$",
+    re.IGNORECASE,
+)
 
 
 def split_source_text(source_text: str) -> list[str]:
@@ -100,6 +112,72 @@ def default_speaker(order: int) -> ScriptSpeaker:
     return "AI_B"
 
 
+def extract_scene_title_and_body(text: str) -> tuple[str | None, str]:
+    """Split an optional scene heading from the beat body."""
+    trimmed = text.strip()
+    if not trimmed:
+        return None, trimmed
+
+    lines = trimmed.splitlines()
+    first = lines[0].strip()
+    rest = "\n".join(lines[1:]).strip()
+
+    if not first:
+        return None, trimmed
+
+    if _SCENE_TITLE_PATTERN.match(first):
+        title = first.rstrip(":")
+        return title, rest if rest else trimmed
+
+    if rest and len(first) <= MAX_SCENE_TITLE_CHARS:
+        if first.endswith(":"):
+            return first.rstrip(":"), rest
+        letters = [c for c in first if c.isalpha()]
+        if letters and first.isupper() and len(first) <= 60:
+            return first, rest
+        if len(first.split()) <= 10 and not first.endswith((".", "!", "?")):
+            second = lines[1].strip() if len(lines) > 1 else ""
+            if second and (second[0].islower() or len(second) > len(first) * 2):
+                return first, rest
+
+    return None, trimmed
+
+
+def beat_scene_label(beat: ScriptBeat) -> str:
+    if beat.scene_title:
+        return beat.scene_title
+    return f"Abschnitt {beat.order + 1}"
+
+
+def dramaturgy_quote_excerpts(
+    text: str,
+    *,
+    max_excerpts: int = 4,
+    max_chars: int = 100,
+) -> list[str]:
+    sentences = [s.strip() for s in split_sentences(text) if len(s.strip()) >= 12]
+    if not sentences:
+        return []
+
+    indices: list[int] = [0]
+    if len(sentences) > 2:
+        indices.append(len(sentences) // 2)
+    if len(sentences) > 1:
+        indices.append(len(sentences) - 1)
+
+    excerpts: list[str] = []
+    for index in dict.fromkeys(indices):
+        excerpt = sentences[index]
+        if len(excerpt) > max_chars:
+            cut = excerpt[: max_chars - 1]
+            last_space = cut.rfind(" ")
+            excerpt = (cut[:last_space] if last_space >= max_chars // 2 else cut).strip() + "…"
+        excerpts.append(excerpt)
+        if len(excerpts) >= max_excerpts:
+            break
+    return excerpts
+
+
 def build_beats_from_text(source_text: str) -> list[ScriptBeat]:
     chunks = merge_short_chunks(split_source_text(source_text))
     expanded: list[str] = []
@@ -108,11 +186,13 @@ def build_beats_from_text(source_text: str) -> list[ScriptBeat]:
 
     beats: list[ScriptBeat] = []
     for index, chunk in enumerate(expanded):
+        scene_title, body = extract_scene_title_and_body(chunk)
         beats.append(
             ScriptBeat(
                 id=str(uuid.uuid4()),
                 order=index,
-                text=chunk,
+                text=body,
+                scene_title=scene_title,
                 speaker=default_speaker(index),
             )
         )

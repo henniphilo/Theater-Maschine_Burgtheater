@@ -328,7 +328,7 @@ export function OscTestPanel() {
       <h3 style={{ margin: "0 0 0.5rem" }}>Licht</h3>
       <p className="textMuted" style={{ marginTop: 0 }}>
         EOS TCP <code>{lightTcpTarget}</code>: Socket verbinden, dann binäres OSC (4-Byte-Längenpräfix) auf
-        derselben Verbindung — <code>/eos/chan/N/full</code> · Stopp: <code>/eos/key/out</code>
+        derselben Verbindung — <code>/eos/chan/N/full</code> oder <code>/eos/chan/N/at</code> (0–100&nbsp;%) · Stopp: <code>/eos/key/out</code>
       </p>
 
       <p className={lightConnected ? "oscTestActive" : "textMuted"} role="status">

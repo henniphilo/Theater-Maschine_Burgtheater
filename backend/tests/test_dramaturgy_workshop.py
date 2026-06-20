@@ -41,6 +41,8 @@ def workshop(monkeypatch: pytest.MonkeyPatch) -> DramaturgyWorkshopService:
     llm = MagicMock()
     llm.catalog_allowlist.return_value = {"videos": [], "sounds": [], "lights": []}
     llm.decide = AsyncMock(return_value=_sample_decision())
+    llm.rule_engine = MagicMock()
+    llm.rule_engine.decide.return_value = _sample_decision()
 
     return DramaturgyWorkshopService(ai_service=ai, llm_director=llm)
 
@@ -100,9 +102,35 @@ def test_workshop_clamps_long_statements(monkeypatch: pytest.MonkeyPatch) -> Non
     llm = MagicMock()
     llm.catalog_allowlist.return_value = {"videos": [], "sounds": [], "lights": []}
     llm.decide = AsyncMock(return_value=_sample_decision())
+    llm.rule_engine = MagicMock()
+    llm.rule_engine.decide.return_value = _sample_decision()
     service = DramaturgyWorkshopService(ai_service=ai, llm_director=llm)
 
     events = asyncio.run(_collect_events(service))
     turn = next(e for e in events if e.type == "discussion_turn")
     assert turn.content is not None
     assert len(turn.content) <= 80
+
+
+def test_workshop_stores_proposed_decision_on_turns(workshop: DramaturgyWorkshopService) -> None:
+    events = asyncio.run(_collect_events(workshop))
+    decision = next(e for e in events if e.type == "dramaturgy_decision")
+    assert decision.discussion_turns is not None
+    for turn in decision.discussion_turns:
+        assert turn.get("proposed_decision") is not None
+        assert turn["proposed_decision"]["reason"] == "Testentscheidung"
+
+
+def test_discussion_prompt_includes_scene_title_and_quotes() -> None:
+    beat = ScriptBeat(
+        id="beat-1",
+        order=0,
+        scene_title="Szene 1: Im Keller",
+        text="Vielleicht ist Erinnerung nur eine technische Störung. Das sagt er oft.",
+        speaker="AI_A",
+    )
+    service = DramaturgyWorkshopService(ai_service=MagicMock(), llm_director=MagicMock())
+    prompt = service._discussion_user_prompt(beat, "Teststück", "videos: []", [], role="openai")
+    assert "Szentitel: Szene 1: Im Keller" in prompt
+    assert "Formulierungen zum Zitieren" in prompt
+    assert "Erinnerung" in prompt

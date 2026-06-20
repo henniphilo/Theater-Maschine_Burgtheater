@@ -92,8 +92,27 @@ export async function fetchSpeechBlob(
 }
 
 let currentAudio: HTMLAudioElement | null = null;
+let playbackPaused = false;
+
+export function isPlaybackPaused(): boolean {
+  return playbackPaused;
+}
+
+export function setPlaybackPaused(paused: boolean): void {
+  playbackPaused = paused;
+  if (paused && currentAudio) {
+    currentAudio.pause();
+  } else if (!paused && currentAudio && currentAudio.paused && !currentAudio.ended) {
+    void currentAudio.play();
+  }
+}
 
 export function stopPlayback(): void {
+  playbackPaused = false;
+  stopCurrentAudio();
+}
+
+function stopCurrentAudio(): void {
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
@@ -103,10 +122,14 @@ export function stopPlayback(): void {
 
 export function playBlob(
   blob: Blob,
-  hooks?: { onPlay?: () => void; onTimeUpdate?: (currentTime: number, duration: number) => void }
+  hooks?: {
+    onPlay?: () => void;
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
+    shouldAbort?: () => boolean;
+  }
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    stopPlayback();
+    stopCurrentAudio();
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     currentAudio = audio;
@@ -126,6 +149,38 @@ export function playBlob(
       if (currentAudio === audio) currentAudio = null;
       reject(new Error("Audio playback failed"));
     };
-    void audio.play().catch(reject);
+
+    const startPlayback = async () => {
+      if (playbackPaused) {
+        const ok = await waitWhilePlaybackPaused(hooks?.shouldAbort ?? (() => false));
+        if (!ok) {
+          URL.revokeObjectURL(url);
+          if (currentAudio === audio) currentAudio = null;
+          reject(new Error("Playback aborted"));
+          return;
+        }
+      }
+      try {
+        await audio.play();
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        if (currentAudio === audio) currentAudio = null;
+        reject(err instanceof Error ? err : new Error("Audio playback failed"));
+      }
+    };
+
+    void startPlayback();
   });
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Block until pause is cleared or playback stops. */
+export async function waitWhilePlaybackPaused(shouldAbort: () => boolean): Promise<boolean> {
+  while (playbackPaused && !shouldAbort()) {
+    await sleep(80);
+  }
+  return !shouldAbort();
 }

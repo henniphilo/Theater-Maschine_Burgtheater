@@ -19,9 +19,11 @@ def test_normalize_legacy_decision_to_cue_points() -> None:
 def test_build_osc_commands_from_multiple_cue_points() -> None:
     decision = DramaturgyDecision(
         reason="multi",
+        intensity=1.0,
         cue_points=[
             CuePoint(
                 trigger="start",
+                intensity=1.0,
                 visual=VisualCue(action=VisualAction.PLAY_CLIP, clip_id="clyde"),
                 sound=SoundCue(cue_id="maschinen_grundader"),
                 light=LightCue(scene_id="vorbuehnenzug"),
@@ -29,6 +31,7 @@ def test_build_osc_commands_from_multiple_cue_points() -> None:
             CuePoint(
                 trigger="keyword",
                 keyword="Schuld",
+                intensity=0.5,
                 visual=VisualCue(action=VisualAction.PLAY_CLIP, clip_id="fuchs"),
                 sound=SoundCue(cue_id="dummy_stinger"),
                 light=LightCue(scene_id="cyc_fluter"),
@@ -38,8 +41,24 @@ def test_build_osc_commands_from_multiple_cue_points() -> None:
     commands = build_osc_commands(decision, dry_run=True)
     light_cmds = [c for c in commands if c.bridge == "light" and not c.mirror]
     assert len(light_cmds) == 10
-    assert all(c.address.endswith("/full") for c in light_cmds)
-    assert all(c.args == [] for c in light_cmds)
+    full_cmds = [c for c in light_cmds if c.address.endswith("/full")]
+    at_cmds = [c for c in light_cmds if c.address.endswith("/at")]
+    assert len(full_cmds) == 9
+    assert len(at_cmds) == 1
+    assert at_cmds[0].args == [50.0]
+
+
+def test_build_osc_commands_light_explicit_intensity() -> None:
+    decision = DramaturgyDecision(
+        reason="dezent",
+        intensity=1.0,
+        light=LightCue(scene_id="vorbuehnenzug", intensity=0.4),
+    )
+    commands = build_osc_commands(decision, dry_run=True)
+    light_cmds = [c for c in commands if c.bridge == "light" and not c.mirror]
+    assert light_cmds
+    assert all(c.address.endswith("/at") for c in light_cmds)
+    assert all(c.args == [40.0] for c in light_cmds)
 
 
 def test_min_cue_points_scales_with_text_length() -> None:

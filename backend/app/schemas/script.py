@@ -12,12 +12,14 @@ DramaturgSpeaker = Literal["openai", "anthropic"]
 class DiscussionTurn(BaseModel):
     speaker: DramaturgSpeaker
     content: str = Field(min_length=1)
+    proposed_decision: DramaturgyDecision | None = None
 
 
 class ScriptBeat(BaseModel):
     id: str
     order: int
     text: str
+    scene_title: str | None = None
     speaker: ScriptSpeaker = "AI_A"
     dramaturgy: DramaturgyDecision | None = None
     planned_commands: list[OscCommand] = Field(default_factory=list)

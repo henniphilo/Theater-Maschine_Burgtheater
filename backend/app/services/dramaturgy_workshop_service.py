@@ -11,6 +11,7 @@ from app.director.dramaturgy.llm_director import LLMDirector
 from app.director.outputs.osc_commands import build_osc_commands
 from app.schemas.script import DiscussionTurn, ScriptBeat
 from app.services.ai_service import AIService
+from app.services.script_splitter import beat_scene_label, dramaturgy_quote_excerpts
 
 
 @lru_cache(maxsize=1)
@@ -20,8 +21,10 @@ def _dramaturgy_system_prompt() -> str:
     return f"""Ihr seid zwei KI-Dramaturgen (GPT und Claude) im Gespräch über die Bühne Unter Tieren.
 Ihr ordnet den Textabschnitt inhaltlich ein und plant die Regie (Video, Sound, Licht).
 Sprecht euch direkt an (Du-Form), nennt euch gegenseitig beim Namen (Dramaturg A / Dramaturg B).
+Bezieht euch auf den Szentitel und den Text — mindestens ein kurzes wörtliches Zitat pro Beitrag (in «…»).
+Der erste Beitrag zu einem Abschnitt nennt den Szentitel einmal beim Namen; danach reicht ein Bezug im Du-Gespräch.
 Keine Illustration, keine Schauspielanweisungen, keine erfundenen Medien.
-Jeder Beitrag: maximal {max_chars} Zeichen, 2–3 kurze Sätze — konkret zur dramaturgischen Lesart, noch keine technische Cue-Liste.
+Jeder Beitrag: maximal {max_chars} Zeichen, 2–3 kurze Sätze — wie am Regietisch, nicht abstrakt.
 
 === DRAMATURGIE-REGELWERK (Auszug) ===
 {rules}"""
@@ -88,19 +91,28 @@ class DramaturgyWorkshopService:
     ) -> str:
         context = "\n\n".join(prior) if prior else "(noch keine Diskussion)"
         min_cues = min_cue_points_for_text(beat.text)
+        scene_label = beat_scene_label(beat)
+        quotes = dramaturgy_quote_excerpts(beat.text)
+        quote_block = (
+            "\n".join(f"- «{quote}»" for quote in quotes)
+            if quotes
+            else "- (kurze Formulierungen direkt aus dem Abschnitt wählen)"
+        )
         if role == "openai":
             action = (
-                "Du bist Dramaturg A (GPT). Ordne den Abschnitt inhaltlich ein "
-                "und skizziere, wie Video, Sound und Licht darauf reagieren sollen."
+                "Du bist Dramaturg A (GPT). Nimm Bezug auf den Szentitel und zitiere mindestens "
+                "eine Formulierung aus dem Text. Skizziere, wie Video, Sound und Licht darauf reagieren sollen."
             )
         else:
             action = (
-                "Du bist Dramaturg B (Claude). Antworte direkt an Dramaturg A: "
-                "ergänze, widersprich oder schärfe die Lesart — konkret zu diesem Text."
+                "Du bist Dramaturg B (Claude). Antworte direkt an Dramaturg A: ergänze, widersprich "
+                "oder schärfe die Lesart — mit Bezug zum Szentitel und mindestens einem Textzitat."
             )
         return (
             f"Stück: {title}\n"
+            f"Szentitel: {scene_label}\n"
             f"Textabschnitt ({len(beat.text)} Zeichen):\n{beat.text}\n\n"
+            f"Formulierungen zum Zitieren:\n{quote_block}\n\n"
             f"Ziel für die spätere Regie: mindestens {min_cues} Cue-Punkte.\n"
             f"Medien-Katalog (Auszug):\n{catalog_hint}\n\n"
             f"Bisheriges Gespräch:\n{context}\n\n"
@@ -133,6 +145,25 @@ class DramaturgyWorkshopService:
             max_tokens=settings.dramaturgy_discussion_max_tokens,
         )
         return _clamp_statement(raw)
+
+    def _proposed_decision_for_turn(
+        self,
+        *,
+        beat: ScriptBeat,
+        turn_speaker: str,
+        turn_content: str,
+        title: str,
+    ):
+        try:
+            event = build_dialogue_event(
+                speaker=turn_speaker,
+                text=turn_content,
+                topic=f"{title}: {beat.text[:240]}",
+                created_at=datetime.now(UTC),
+            )
+            return self.llm_director.rule_engine.decide(event)
+        except Exception:
+            return None
 
     async def run_stream(
         self,
@@ -168,7 +199,15 @@ class DramaturgyWorkshopService:
                             model=openai_model,
                         )
                         discussion_lines.append(f"{OPENAI_DRAMATURGE}: {gpt}")
-                        discussion_turns.append(DiscussionTurn(speaker="openai", content=gpt))
+                        proposed = self._proposed_decision_for_turn(
+                            beat=beat,
+                            turn_speaker="openai",
+                            turn_content=gpt,
+                            title=title,
+                        )
+                        discussion_turns.append(
+                            DiscussionTurn(speaker="openai", content=gpt, proposed_decision=proposed)
+                        )
                         openai_count += 1
                         yield WorkshopEvent(
                             type="discussion_turn",
@@ -194,7 +233,15 @@ class DramaturgyWorkshopService:
                         model=anthropic_model,
                     )
                     discussion_lines.append(f"{ANTHROPIC_DRAMATURGE}: {claude}")
-                    discussion_turns.append(DiscussionTurn(speaker="anthropic", content=claude))
+                    proposed = self._proposed_decision_for_turn(
+                        beat=beat,
+                        turn_speaker="anthropic",
+                        turn_content=claude,
+                        title=title,
+                    )
+                    discussion_turns.append(
+                        DiscussionTurn(speaker="anthropic", content=claude, proposed_decision=proposed)
+                    )
                     anthropic_count += 1
                     yield WorkshopEvent(
                         type="discussion_turn",

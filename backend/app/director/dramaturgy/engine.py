@@ -48,6 +48,7 @@ class DramaturgyEngine:
             light_cue = LightCue(
                 scene_id=light.id,
                 fade_time=light.fade_time,
+                intensity=round(0.25 + event.intensity * 0.75, 2),
             )
 
         decision = DramaturgyDecision(

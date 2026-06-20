@@ -23,6 +23,8 @@ export type CuePoint = {
   light?: DramaturgyDecision["light"];
 };
 
+export type PerformanceSpeaker = "AI_A" | "AI_B" | "narrator";
+
 export type DramaturgyDecision = {
   visual?: VisualCue | null;
   sound?: {
@@ -34,10 +36,12 @@ export type DramaturgyDecision = {
     action: string;
     scene_id?: string | null;
     fade_time?: number;
+    intensity?: number | null;
   } | null;
   reason: string;
   dramaturgical_reading?: string;
   cue_points?: CuePoint[];
+  performance_speakers?: PerformanceSpeaker[];
   tags: string[];
   mood: string;
   intensity: number;

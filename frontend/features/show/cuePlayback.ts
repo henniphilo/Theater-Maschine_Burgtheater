@@ -1,7 +1,25 @@
-import type { CuePoint, DramaturgyDecision } from "@/lib/types/director";
+import type { CuePoint, DramaturgyDecision, OscCommand } from "@/lib/types/director";
 import { postDirectorExecute } from "@/lib/api/director";
-import type { OscCommand } from "@/lib/types/director";
 import { splitSentences } from "@/lib/text/splitSentences";
+
+/** Execute cues without aborting playback when the director/OSC path fails. */
+export async function executeCueSafely(
+  decision: DramaturgyDecision,
+  onCommands: (commands: OscCommand[]) => Promise<void>,
+  shouldAbort: () => boolean
+): Promise<boolean> {
+  if (shouldAbort()) return false;
+  try {
+    const result = await postDirectorExecute(decision, { force: true, stagger: true });
+    if (!shouldAbort() && result.osc_commands.length > 0) {
+      await onCommands(result.osc_commands);
+    }
+    return result.executed;
+  } catch (err) {
+    console.warn("Cue execute failed (playback continues):", err);
+    return false;
+  }
+}
 
 export function normalizeCuePoints(dramaturgy: DramaturgyDecision): CuePoint[] {
   if (dramaturgy.cue_points?.length) {
@@ -56,10 +74,7 @@ export async function fireCuePoint(ctx: CuePlaybackContext, point: CuePoint): Pr
   if (ctx.fired.has(key) || ctx.shouldAbort()) return;
   ctx.fired.add(key);
   const decision = decisionFromCuePoint(ctx.dramaturgy, point);
-  const result = await postDirectorExecute(decision, { force: true, stagger: true });
-  if (!ctx.shouldAbort()) {
-    await ctx.onCommands(result.osc_commands);
-  }
+  await executeCueSafely(decision, ctx.onCommands, ctx.shouldAbort);
 }
 
 export async function fireStartCues(ctx: CuePlaybackContext): Promise<void> {
@@ -118,4 +133,25 @@ export function createCuePlaybackContext(
 
 export function sentencesForBeat(text: string): string[] {
   return splitSentences(text);
+}
+
+export function neutralResetDecision(): DramaturgyDecision {
+  return {
+    visual: { action: "fade_to_black", fade_time: 2, opacity: 0 },
+    sound: { action: "trigger_cue", cue_id: "alle_sounds_cut", volume: 0 },
+    light: { action: "fade_blackout", fade_time: 2 },
+    reason: "Neutrale Ausgangslage vor Stücktext",
+    tags: [],
+    mood: "neutral",
+    intensity: 0,
+    timestamp: 0,
+    cue_points: []
+  };
+}
+
+export async function fireNeutralReset(
+  onCommands: (commands: OscCommand[]) => Promise<void>,
+  shouldAbort: () => boolean
+): Promise<void> {
+  await executeCueSafely(neutralResetDecision(), onCommands, shouldAbort);
 }
