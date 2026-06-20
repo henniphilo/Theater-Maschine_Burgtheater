@@ -78,6 +78,8 @@ class Settings(BaseSettings):
     visual_output: Literal["pixera", "touchdesigner", "both"] = "pixera"
     pixera_osc_host: str | None = None
     pixera_osc_port: int | None = None
+    uvicorn_access_log: bool = False
+    app_log_level: str = "warning"
 
 
 settings = Settings()
