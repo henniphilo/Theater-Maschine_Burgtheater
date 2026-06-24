@@ -1,3 +1,4 @@
+from app.core.config import settings
 from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision, LightCue, SoundCue, VisualCue, VisualAction
 from app.director.cues.cue_points import normalize_cue_points
 from app.director.media.database import MediaDatabase
@@ -81,3 +82,16 @@ def test_build_osc_commands_light_explicit_intensity() -> None:
     assert len(key_outs) == 1
     assert at_cmds
     assert all(c.args == [40.0] for c in at_cmds)
+
+
+def test_light_osc_commands_use_desk_not_video_port() -> None:
+    decision = DramaturgyDecision(
+        reason="routing",
+        intensity=1.0,
+        light=LightCue(scene_id=_SCENE_PARTIAL),
+    )
+    commands = build_osc_commands(decision, dry_run=True, host="127.0.0.1", port=7000)
+    light_cmds = [c for c in commands if c.bridge == "light" and not c.mirror]
+    assert light_cmds
+    assert all(c.host == settings.light_tcp_host for c in light_cmds)
+    assert all(c.port == settings.light_tcp_port for c in light_cmds)

@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.director.cues.cue_models import SoundCue
 from app.director.outputs.osc_log import log_osc_command
 from app.director.outputs.sound_midi import get_sound_midi_bridge
+from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 
 
 class SoundBridge:
@@ -18,6 +19,11 @@ class SoundBridge:
 
     def execute(self, cue: SoundCue, dry_run: bool = False) -> None:
         if cue.cue_id is None:
+            return
+        catalog = get_sound_cue_catalog_service().load()
+        entry = next((c for c in catalog.cues if c.id == cue.cue_id), None)
+        if entry is not None and entry.action == "cut_all":
+            self.stop_all(dry_run=dry_run)
             return
         if cue.action.value == "trigger_cue":
             self._trigger(cue.cue_id, cue.volume, dry_run=dry_run)

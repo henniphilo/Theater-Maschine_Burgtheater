@@ -75,7 +75,10 @@ function AuffuehrungContent() {
   const performancePart = script
     ? resolvePerformancePart(script.performance_part, Boolean(script.part1_selection))
     : "part1_baerenklau";
-  const part1OnlyBeats = script ? part1Beats(script.beats) : [];
+  const part1OnlyBeats = useMemo(
+    () => (script ? part1Beats(script.beats) : []),
+    [script]
+  );
   const activeBeatCount = performancePart === "part1_baerenklau" ? part1OnlyBeats.length : beatCount;
 
   const load = useCallback(async () => {
@@ -137,24 +140,24 @@ function AuffuehrungContent() {
   );
   const bufferReady = script ? isPlaybackBuffered(script.id, playbackAudio) : false;
   const scriptReady = ready || Boolean(script?.has_rendered_audio);
+  const teil2Ready =
+    Boolean(corpus?.composition?.moments?.length) &&
+    (isInszenierungBuffered(corpus!.id, ttsAvailable) || !ttsAvailable);
   const canPlayTeil1 = scriptReady && bufferReady && !anarchyPlayback.running;
   const canPlayTeil2 =
     Boolean(corpus?.composition?.moments?.length) &&
     teil2Ready &&
     !playback.running;
-  const teil2Ready =
-    Boolean(corpus?.composition?.moments?.length) &&
-    (isInszenierungBuffered(corpus!.id, ttsAvailable) || !ttsAvailable);
   const showBufferStatus =
     scriptReady &&
     !script?.has_rendered_audio &&
     ttsAvailable &&
     bufferState?.scriptId === script?.id &&
-    bufferState.status !== "idle" &&
+    bufferState?.status !== "idle" &&
     !bufferReady;
   const playBlockedReason =
     scriptReady && !bufferReady && ttsAvailable && !script?.has_rendered_audio
-      ? bufferState?.scriptId === script?.id && bufferState.status === "buffering"
+      ? bufferState?.scriptId === script?.id && bufferState?.status === "buffering" && bufferState
         ? bufferStatusLabel(bufferState)
         : "Stimmen werden vorbereitet …"
       : undefined;

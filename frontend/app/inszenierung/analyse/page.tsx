@@ -37,12 +37,14 @@ function AnalyseContent() {
             setThinking(event.speaker === "openai" ? "ChatGPT denkt …" : "Claude denkt …");
           }
           if (event.type === "discussion_turn" && event.content && event.speaker) {
+            const turnContent = event.content;
+            const turnSpeaker = event.speaker;
             setThinking(null);
             setChat((prev) => [
               ...prev,
               {
-                speaker: event.speaker === "openai" ? "ChatGPT" : "Claude",
-                content: event.content
+                speaker: turnSpeaker === "openai" ? "ChatGPT" : "Claude",
+                content: turnContent
               }
             ]);
           }
@@ -136,7 +138,11 @@ function AnalyseContent() {
       ) : null}
 
       {error ? <div className="textError">{error}</div> : null}
-      <Link href={`/inszenierung${corpusId ? `?id=${corpusId}` : ""}`}>← Korpus</Link>
+      {corpusId ? (
+        <Link href={`/inszenierung?id=${corpusId}`}>← Korpus</Link>
+      ) : (
+        <Link href="/inszenierung">← Korpus</Link>
+      )}
     </main>
   );
 }

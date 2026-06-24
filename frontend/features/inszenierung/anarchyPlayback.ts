@@ -130,9 +130,12 @@ export async function runAnarchyPlayback(
       await postDirectorExecuteLayered(
         {
           reason: "Teil 2 Kollaps",
-          visual: { clip_id: "black", blend_mode: "replace" },
-          light: { scene_id: "blackout", replace_previous: true },
-          intensity: 1
+          visual: { action: "play_clip", clip_id: "black" },
+          light: { action: "set_scene", scene_id: "blackout", replace_previous: true },
+          tags: ["teil2", "kollaps"],
+          mood: "collapse",
+          intensity: 1,
+          timestamp: Date.now()
         },
         { anarchy_level: 1, stack: false, skip_interval_check: true, stagger: false }
       );

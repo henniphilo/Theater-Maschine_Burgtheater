@@ -72,8 +72,8 @@ def get_media_catalog() -> dict:
             "tcp_host": settings.light_tcp_host,
             "tcp_port": settings.light_tcp_port,
             "tcp_protocol": settings.light_tcp_protocol,
-            "osc_host": settings.light_tcp_host if settings.light_output == "tcp" else (settings.light_osc_host or settings.light_tcp_host),
-            "osc_port": settings.light_tcp_port if settings.light_output == "tcp" else settings.light_osc_port,
+            "osc_host": settings.light_desk_host(),
+            "osc_port": settings.light_desk_port(),
         },
         "sound": {
             "output": settings.sound_output,

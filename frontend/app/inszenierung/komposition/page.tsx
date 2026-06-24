@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { AppNav } from "@/components/layout/AppNav";
 import { RegieCard } from "@/components/show/RegieCard";
 import { momentSpeechLabel } from "@/features/inszenierung/inszenierungBuffer";
+import { fetchCorpus, streamKomposition } from "@/lib/api/inszenierung";
 import type { CompositionMoment, KompositionStreamEvent, SceneCorpus } from "@/lib/types/inszenierung";
 import type { DirectorPayload } from "@/lib/types/director";
 

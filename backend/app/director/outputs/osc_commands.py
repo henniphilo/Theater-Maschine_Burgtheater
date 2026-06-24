@@ -20,9 +20,8 @@ _osc_fail_logger = logging.getLogger("theatermaschine.osc")
 
 
 def _light_osc_target(osc_host: str, osc_port: int) -> tuple[str, int]:
-    if settings.light_output == "tcp":
-        return settings.light_tcp_host, settings.light_tcp_port
-    return osc_host, osc_port
+    del osc_host, osc_port
+    return settings.light_desk_host(), settings.light_desk_port()
 
 
 def _resolve_light_intensity(light: LightCue, decision: DramaturgyDecision) -> float:

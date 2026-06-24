@@ -28,7 +28,10 @@ class LightingBridge:
         self._desk_osc_client: udp_client.SimpleUDPClient | None = None
         self._td_osc_client: udp_client.SimpleUDPClient | None = None
         if settings.light_output == "osc":
-            self._desk_osc_client = udp_client.SimpleUDPClient(settings.osc_host, settings.osc_port)
+            self._desk_osc_client = udp_client.SimpleUDPClient(
+                settings.light_desk_host(),
+                settings.light_desk_port(),
+            )
         if settings.light_osc_mirror:
             self._td_osc_client = udp_client.SimpleUDPClient(
                 settings.osc_host,
@@ -144,9 +147,7 @@ class LightingBridge:
             return False
 
     def _desk_osc_target(self) -> tuple[str, int]:
-        if settings.light_output == "tcp":
-            return settings.light_tcp_host, settings.light_tcp_port
-        return settings.osc_host, settings.osc_port
+        return settings.light_desk_host(), settings.light_desk_port()
 
     def _send_desk_osc(self, address: str, *args: object, dry_run: bool = False) -> None:
         is_dry_run = dry_run or settings.osc_dry_run

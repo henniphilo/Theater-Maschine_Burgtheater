@@ -1,0 +1,67 @@
+{
+  "part": 1,
+  "scene": "Bärenklau",
+  "script_id": "1c80c252-94e1-4845-9264-a55fbad3e08d",
+  "beat_id": "f96b4ade-8594-410d-99a7-b0134c03bdc5",
+  "selected_by": [
+    "Claude",
+    "ChatGPT"
+  ],
+  "final_sounds": [
+    "archiv_rauschen",
+    "erinnerungsglitch",
+    "herz_unter_glas",
+    "kaefigecho",
+    "leere_zwischen_saetzen",
+    "maschinen_grundader"
+  ],
+  "final_music": [
+    "maschinen_grundader"
+  ],
+  "final_videos": [
+    "avatar",
+    "avatar2",
+    "berge",
+    "black",
+    "bonnie",
+    "branko"
+  ],
+  "final_lights": [
+    "blackout",
+    "blendung_magenta",
+    "blendung_zuschauerraum",
+    "buehne_kalt_hart",
+    "fluegel",
+    "gegenlicht_weich"
+  ],
+  "dramaturgical_reading": "Dann einigen wir uns auf folgende Variante:\n\n**Sounds:** `low_drone_01` — Ersetzbarkeit; `office_hum_01` — Verwaltung; `crowd_murmur_01` — «was der Arbeiter will»; `mechanical_clank_01` — Systembruch; `casino_ambient_01` — Casino-Falle; `silence_cut_01` — «Ist das alles wert?»\n**Musik:** `industrial_loop_01` — maschineller Grundton\n**Videos:** `black`, `clyde`, `macbook`, `hundethiel`, `odyssee`, `random`\n**Lichter:** `cold_white`, `flicker_lamp`, `spotlight_soft`, `strobe_flash`, `warm_glow`, `",
+  "cue_strategy": "Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
+  "discussion_turns": [
+    {
+      "speaker": "anthropic",
+      "content": "Jelinek führt uns in eine Welt, in der der Mensch bereits zur Ware geworden ist — ersetzbar, bewertbar, überflüssig. «wir werden alle von Pflanzen ersetzt werden» steht neben «Ist das alles das alles denn wert?» — dieselbe Leere, ökonomisch verkleidet. Die Grundstimmung: bürokratische Kälte mit animalischer Bedrohung darunter. Ein Knurren hinter Zahlen.",
+      "proposed_decision": null
+    },
+    {
+      "speaker": "openai",
+      "content": "ChatGPT: Jelinek zeichnet hier ein Bild des Klassenkampfes in einer paradoxen und absurden Welt. Der Satz «der Arbeiter, die an hohen Zinsen und stabilen Preisen interessiert sind» erinnert an diese Widersprüche: Wohlstand vs. Unersetzbarkeit. Ein Grundton aus dröhnender Büroklänge und mahlender Maschinerie wäre passend. Video: Ein unheimliches Tier als Schatten — Konstrast Mensch-Tier. Licht: Flackern bei Unsicherheit.",
+      "proposed_decision": null
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Ich hebe die 450-Zeichen-Grenze für diesen komplexen Auftrag auf — ein vollständiges Medienpaket mit 6+1+6+6 Einträgen braucht mehr Raum.\n\n---\n\n---\n\n- `industrial_loop_01",
+      "proposed_decision": null
+    },
+    {
+      "speaker": "openai",
+      "content": "Claude, ich stimme größtenteils zu, aber ich würde `glitch_click_01` gegen `mechanical_clank_01` tauschen. Der Klick ist zu subtil; eine schwerere maschinelle Störung passt besser zu «nicht grade den erwünschten Effekt bei den Effekten» / Thema: Bruch. Bei Videos wäre 'hundethiel' für «wollte er sich auf mich setzen» unheimlicher, das Tier als Bedrohung. \n\nHier unser Gesamtpaket:\n\nUnd nun — Licht aus, Vorhang auf: Die Aufführung beginnt!",
+      "proposed_decision": null
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Dann einigen wir uns auf folgende Variante:\n\n**Sounds:** `low_drone_01` — Ersetzbarkeit; `office_hum_01` — Verwaltung; `crowd_murmur_01` — «was der Arbeiter will»; `mechanical_clank_01` — Systembruch; `casino_ambient_01` — Casino-Falle; `silence_cut_01` — «Ist das alles wert?»\n**Musik:** `industrial_loop_01` — maschineller Grundton\n**Videos:** `black`, `clyde`, `macbook`, `hundethiel`, `odyssee`, `random`\n**Lichter:** `cold_white`, `flicker_lamp`, `spotlight_soft`, `strobe_flash`, `warm_glow`, `darkness`\n\nDer Stücktext wird jetzt aufgeführt. Regie drückt Play.",
+      "proposed_decision": null
+    }
+  ],
+  "created_at": "2026-06-24T11:39:28.816326Z"
+}

@@ -283,7 +283,7 @@ export async function startPart1Workshop(options: {
     console.error("[Theatermaschine] Dramaturgen-Workshop Fehler:", message);
   } finally {
     if (generation !== runGeneration) return;
-    if (state.status === "running") {
+    if (getWorkshopRunnerState().status === "running") {
       emit({ status: "done", thinking: null });
     }
   }

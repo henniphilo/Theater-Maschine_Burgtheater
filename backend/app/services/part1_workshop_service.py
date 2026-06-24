@@ -6,8 +6,8 @@ from datetime import UTC, datetime
 from typing import AsyncIterator, Literal
 
 from app.core.config import settings
-from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision, LightCue, SoundCue, VisualCue
-from app.director.cues.cue_points import min_cue_points_for_text
+from app.director.cues.cue_models import DramaturgyDecision
+from app.services.sound_designer import dramaturgy_with_sound_design
 from app.director.dramaturgy.llm_director import LLMDirector
 from app.director.dramaturgy.rules_text import dramaturgy_rules_excerpt
 from app.director.outputs.osc_commands import build_osc_commands
@@ -71,6 +71,8 @@ def _system_prompt() -> str:
 Analysiert den **gesamten** Stücktext als Ganzes (nicht in Abschnitte zerlegen).
 Führt ein lebendiges Gespräch auf Deutsch: Thema, Stimmung, mindestens 2 Zitate aus verschiedenen Stellen.
 Begründet **jede einzelne** Medienwahl dramaturgisch mit «Zitat aus dem Text» oder Thema: … (z. B. Kälte, Verwaltung, Ökonomie).
+**Sounds:** Diskutiert ausführlich, welche Geräusche und Musikstücke aus dem Katalog zum Text passen — Grundton, Akzente, Stille-Momente.
+Die technische Mischung (Einblenden, Layern, Ausblenden, Cut) übernimmt später ein Sounddesigner automatisch; ihr wählt nur die **play**-IDs.
 Format pro Medium: - sound_id — «Zitat» / Thema: …
 Kein JSON in den ersten beiden Beiträgen. Ab dem Medienpaket-Vorschlag am Ende optional ein JSON-Block:
 ```json
@@ -132,33 +134,7 @@ def dramaturgy_from_part1_selection(
     selection: Part1BaerenklauSelection,
     beat: ScriptBeat,
 ) -> DramaturgyDecision:
-    points: list[CuePoint] = []
-    sentences = max(1, min_cue_points_for_text(beat.text))
-    for index in range(sentences):
-        sound_id = selection.final_sounds[index % len(selection.final_sounds)]
-        video_id = selection.final_videos[index % len(selection.final_videos)]
-        light_id = selection.final_lights[index % len(selection.final_lights)]
-        music_id = selection.final_music[index % len(selection.final_music)] if selection.final_music else None
-        trigger = CuePointTrigger.START if index == 0 else CuePointTrigger.SENTENCE_END
-        point = CuePoint(
-            trigger=trigger,
-            sentence_index=index if index else None,
-            function="verstärken",
-            intensity=0.2 + (index / sentences) * 0.15,
-            visual=VisualCue(clip_id=video_id, blend_mode="replace"),
-            sound=SoundCue(cue_id=sound_id, volume=0.55),
-            light=LightCue(scene_id=light_id, intensity=0.45),
-        )
-        if music_id and index == 0:
-            point.sound = SoundCue(cue_id=music_id, volume=0.5)
-        points.append(point)
-    return DramaturgyDecision(
-        reason=selection.dramaturgical_reading or selection.cue_strategy,
-        dramaturgical_reading=selection.dramaturgical_reading,
-        cue_points=points,
-        intensity=0.25,
-        mood="kontrolliert",
-    )
+    return dramaturgy_with_sound_design(selection, beat)
 
 
 class Part1WorkshopService:
@@ -372,6 +348,8 @@ class Part1WorkshopService:
                 instruction=(
                     f"Du bist {CLAUDE_LABEL}. Schlage ein konkretes Medienpaket für den **gesamten** Text vor: "
                     "6 Sounds, 1 Musik, 6 Videos, 6 Lichtstimmungen. "
+                    "Bei Sounds: besprecht welche Geräusche wann dramaturgisch wirken (Grundton, Akzent, Stille) — "
+                    "nur **play**-IDs aus dem Katalog; Ein-/Ausblenden und Layering macht der Sounddesigner. "
                     "Begründe **jede einzelne** Wahl mit «Zitat» oder Thema: … im Format `- sound_id — «…» / Thema: …`. "
                     "Reihenfolge: Sounds/Musik, Videos, Licht."
                 ),
@@ -477,7 +455,7 @@ class Part1WorkshopService:
                 final_videos=final_lists.videos,
                 final_lights=final_lists.lights,
                 dramaturgical_reading=spoken_discussion_text(final_raw)[:500],
-                cue_strategy="Teil 1 — Gesamttext, finale KI-Einigung nach Dramaturgen-Gespräch",
+                cue_strategy="Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
                 discussion_turns=discussion_turns,
                 created_at=datetime.now(UTC),
             )

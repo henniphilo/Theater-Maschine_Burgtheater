@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     osc_log_commands: bool = True
     osc_log_path: str = "logs/osc.log"
     light_output: Literal["tcp", "osc"] = "tcp"
-    light_osc_mirror: bool = True
+    light_osc_mirror: bool = False
     light_tcp_host: str = "10.101.90.112"
     light_tcp_port: int = 3032
     light_tcp_protocol: str = "1.0"
@@ -88,6 +88,16 @@ class Settings(BaseSettings):
     pixera_osc_port: int | None = None
     uvicorn_access_log: bool = False
     app_log_level: str = "warning"
+
+    def light_desk_host(self) -> str:
+        if self.light_output == "tcp":
+            return self.light_tcp_host
+        return self.light_osc_host or self.light_tcp_host
+
+    def light_desk_port(self) -> int:
+        if self.light_output == "tcp":
+            return self.light_tcp_port
+        return self.light_osc_port
 
 
 settings = Settings()

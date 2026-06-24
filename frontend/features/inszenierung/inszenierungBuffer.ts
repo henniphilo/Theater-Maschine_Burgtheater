@@ -26,7 +26,7 @@ const momentBlobCache = new Map<string, Promise<Blob>>();
 
 function emit(patch: Partial<InszenierungBufferState>): void {
   state = { ...state, ...patch };
-  for (const listener of listeners) listeners(state);
+  for (const listener of listeners) listener(state);
 }
 
 export function subscribeInszenierungBuffer(listener: Listener): () => void {
