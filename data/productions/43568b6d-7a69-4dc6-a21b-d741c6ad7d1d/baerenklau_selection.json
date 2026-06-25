@@ -1,0 +1,315 @@
+{
+  "part": 1,
+  "scene": "Bärenklau",
+  "script_id": "43568b6d-7a69-4dc6-a21b-d741c6ad7d1d",
+  "beat_id": "bfb3199f-46f3-43fe-9049-feb6685371d3",
+  "selected_by": [
+    "Claude",
+    "ChatGPT"
+  ],
+  "final_sounds": [
+    "tierstimme_verzerrt",
+    "archiv_rauschen",
+    "erinnerungsglitch",
+    "herz_unter_glas",
+    "kaefigecho",
+    "leere_zwischen_saetzen"
+  ],
+  "final_music": [
+    "maschinen_grundader"
+  ],
+  "final_videos": [
+    "kaefer",
+    "macbook",
+    "branko",
+    "clyde",
+    "odyssee",
+    "black"
+  ],
+  "final_lights": [
+    "buehne_kalt_hart",
+    "spot_tisch",
+    "blendung_zuschauerraum",
+    "blendung_magenta",
+    "fluegel",
+    "gegenlicht_weich"
+  ],
+  "dramaturgical_reading": "Dann einigen wir uns auf folgende Variante für den gesamten Text «20. Der Bärenklau»:\n\n---\n\n---\n\nDer Stücktext ist bereit zur Aufführung. Teil 2 (Anarchie) startet separat zu einem späteren Zeitpunkt. **Die Regie drückt Play — wenn sie bereit ist.**",
+  "cue_strategy": "Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
+  "discussion_turns": [
+    {
+      "speaker": "anthropic",
+      "content": "Claude eröffnet:.\nJelinek entblößt hier die Ökonomie als Tierkampf-Arena: «die Produkte stehen sich gegenüber und knurren einander an» — aber das Knurren ist nur Maskierung einer totalen Resignation. Am Ende steht die nackte Frage: «Ist das alles das alles denn wert?» — ein Satz, der sich selbst zerfrisst. Grundstimmung: bürokratisch-kalt, mit einem unterschwelligen Wutgrollen, das nie zur Explosion wird.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "openai",
+      "content": "ChatGPT: Ein weiterer zentraler Aspekt ist der immerwährende Klassenkampf, der als eine Art endlose Schleife dargestellt wird: «Ein Konflikt zwischen Schuldnern und Schöpfern?». Diese Zerrissenheit zwischen den Klassen spiegelt eine zynische Kälte wider. Für die Umsetzung sollten Geräusche von unerträglicher Leichtigkeit und nervtötender Bürokratie kombiniert werden. Visuell könnten Flächen von Unendlichkeit angedeutet werden, welche die Monotonie und Ausweglosigkeit dieses Kampfes verstärken.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude schlägt das Medienpaket vor:.\nJelineks Text ist eine Sprachmaschine, die Ökonomie als Tierkampf verkleidet und dann wieder entkleidet. Das Medienpaket folgt dieser Logik: kalter Grundton, mechanische Akzente, Momente echter Stille als Entlarvung.\n---\nSOUNDS.\nSound erinnerungsglitch. «Handeln Sie jetzt rasch!» / Thema: Verwaltung, bürokratischer Akzent auf dem Imperativ.\nSound leere zwischen saetzen. «muß er auf der Ersatzbank im Wartesaal sitzenbleiben» / Thema: Kälte, institutionelle Lee.\nSound leere zwischen saetzen. «Ist das alles das alles denn wert?» / Thema: Stille-Moment, körperlicher Restpuls nach de.\nMUSIK.\n---\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» / Thema: Tier als Ersatz, unheimliche Verdin.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» / Thema: Technik, bürokratischer B.\nVideo branko. «niemand hat es je gewußt» / Thema: Figur als Platzhalter des Arbeiters, der nie gehört wi.\nVideo inge. «Ich weiß es trotzdem immer noch nicht» / Thema: Melancholie, Figur im Zustand des Nicht-W.\nVideo odyssee. «müßte nur noch warten, daß ihn wer in eine richtige Bank holt» / Thema: Reise als Illusio.\nVideo black. «Ist das alles das alles denn wert?» / Thema: Blackout als einzige Antwort auf die selbstv.\n---\nLICHT.\nLicht buehne kalt hart. Grundstimmung: bürokratische Kälte, flaches weißes Licht ohne Wärme.\nLicht spot tisch. «Handeln Sie jetzt rasch!» / Thema: Verhörlicht, Imperative isolieren.\nLicht blendung zuschauerraum. «ein Konflikt zwischen Schuldnern und Schöpfern?» / Thema: Instabilität, Systemzittern.\nLicht warme buehnenflaeche. «wollte er sich auf mich setzen» / Thema: kurzer ironischer Wärmemoment, der sofort wieder.\nLicht blendung zuschauerraum. «dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden» / Thema: Kälte, Res.\n---\n{\n\"sounds\": [\"growl\", \"cash_register\", \"typewriter\", \"waiting_room\", \"heartbeat\", \"static_noise\"],\n\"music\": [\"minimal_piano\"],\n\"videos\": [\"kaefer\", \"macbook\", \"branko\", \"inge\", \"odyssee\", \"black\"],\n\"lights\": [\"cold_low\", \"narrow_spot\", \"flicker\", \"warm_dim\", \"blackout\", \"blue_wash\"]\n}\n---\nDer Text steht bereit. Die Regie drückt Play — wenn sie bereit ist.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 266
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "muß er auf der Ersatzbank im Wartesaal sitzenbleiben",
+          "char_offset": 380
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 502
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 643
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 749
+        },
+        {
+          "medium": "video",
+          "media_id": "branko",
+          "keyword": "niemand hat es je gewußt",
+          "char_offset": 856
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "Ich weiß es trotzdem immer noch nicht",
+          "char_offset": 962
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten, daß ihn wer in eine richtige Bank holt",
+          "char_offset": 1066
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1173
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1289
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 1382
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "ein Konflikt zwischen Schuldnern und Schöpfern?",
+          "char_offset": 1471
+        },
+        {
+          "medium": "light",
+          "media_id": "warme_buehnenflaeche",
+          "keyword": "wollte er sich auf mich setzen",
+          "char_offset": 1589
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden",
+          "char_offset": 1709
+        }
+      ]
+    },
+    {
+      "speaker": "openai",
+      "content": "Claude hat bereits ein sehr starkes Medienpaket vorgeschlagen. Jelineks Text ist voller Zynismus und tiefer gesellschaftlicher Ironie, und das vorgeschlagene Paket spiegelt dies gut wider. Einige Punkte würde ich jedoch verfeinern, um bestimmte Aspekte des Textes noch deutlicher hervorzurufen.\nErgänzungen und Veränderungen:.\n- Für die Geräusche würde ich „waiting_room“ durch „phone_dial“ ersetzen. Das Geräusch eines Telefons, das ewig wählt, könnte den Eindruck verstärken, dass der Arbeiter den Monologen der Wirtschaft oder den neuen Kreditvergaben vergeblich hinterherläuft («muß er auf der Ersatzbank im Wartesaal sitzenbleiben»).\nSound maschinen grundader. der Musik würde ich „minimalpiano“ beibehalten, da sie die frustrierende Kälte und Leere g.\nVideo clyde. den Videos passt „inge“ sehr gut zu „Ich weiß es trotzdem immer noch nicht“, allerdings kö.\nVideo bonnie. Licht, anstelle von „warmdim“ für die kurze Wärmemoment-Ironie, würde ich „reddim“ vorschl.\nHier das endgültige Medienpaket mit Begründungen:\nSOUNDS.\n- growl — «die Produkte stehen sich gegenüber und knurren einander an»\n- cash_register — «Handeln Sie jetzt rasch!»\n- typewriter — «von Lohnrunde zu Lohnrunde mehr, aber immer weniger mehr»\n- phone_dial — «muß er auf der Ersatzbank im Wartesaal sitzenbleiben»\n- heartbeat — «Ist das alles das alles denn wert?»\n- static_noise — «Ich weiß nicht, was das bringen soll»\nMUSIK.\n- minimal_piano — Kälte, Reduktion\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden».\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?».\nVideo branko. «niemand hat es je gewußt».\nVideo clyde. «die Produkte stehen sich gegenüber und knurren einander an».\nVideo odyssee. «müßte nur noch warten, daß ihn wer in eine richtige Bank holt».\nVideo black. «Ist das alles das alles denn wert?».\nLICHT.\nLicht buehne kalt hart. Bürokratische Kälte.\nLicht spot tisch. «Handeln Sie jetzt rasch!».\nLicht blendung zuschauerraum. «ein Konflikt zwischen Schuldnern und Schöpfern?».\n- red_dim — Wärmemoment als Ironie\n- blackout — «Ist das alles das alles denn wert?»\nLicht blendung zuschauerraum. «dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden».\n{\n\"sounds\": [\"growl\", \"cash_register\", \"typewriter\", \"phone_dial\", \"heartbeat\", \"static_noise\"],\n\"music\": [\"minimal_piano\"],\n\"videos\": [\"kaefer\", \"macbook\", \"branko\", \"clyde\", \"odyssee\", \"black\"],\n\"lights\": [\"cold_low\", \"narrow_spot\", \"flicker\", \"red_dim\", \"blackout\", \"blue_wash\"]\n}\nDie Übergänge sind gesetzt, die Regie kann Play drücken, sobald sie bereit ist.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": null,
+          "char_offset": 639
+        },
+        {
+          "medium": "video",
+          "media_id": "clyde",
+          "keyword": "Die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 758
+        },
+        {
+          "medium": "video",
+          "media_id": "bonnie",
+          "keyword": null,
+          "char_offset": 863
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 1444
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 1505
+        },
+        {
+          "medium": "video",
+          "media_id": "branko",
+          "keyword": "niemand hat es je gewußt",
+          "char_offset": 1577
+        },
+        {
+          "medium": "video",
+          "media_id": "clyde",
+          "keyword": "die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 1619
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten, daß ihn wer in eine richtige Bank holt",
+          "char_offset": 1694
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1774
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1832
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 1877
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "ein Konflikt zwischen Schuldnern und Schöpfern?",
+          "char_offset": 1923
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden",
+          "char_offset": 2089
+        }
+      ]
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude fasst zusammen:.\nDann einigen wir uns auf folgende Variante für den gesamten Text «20. Der Bärenklau»:\n---\nSOUNDS.\n- growl — «die Produkte stehen sich gegenüber und knurren einander an» / tierische Ökonomie als Grundrauschen\nSound erinnerungsglitch. «Handeln Sie jetzt rasch!» / bürokratischer Akzent auf dem Imperativ.\n- typewriter — «von Lohnrunde zu Lohnrunde mehr, aber immer weniger mehr» / mechanische Wiederholungsschleife\n- phone_dial — «muß er auf der Ersatzbank im Wartesaal sitzenbleiben» / vergebliches Warten, nie abgehobener Hörer\nSound herz unter glas. «Ist das alles das alles denn wert?» / körperlicher Restpuls nach dem Sprachzusammenbruch.\n- static_noise — «Ich weiß nicht, was das bringen soll» / Rauschen als institutionelle Leerstelle\nMUSIK.\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» / Verdinglichung, unheimliche Ersetzung.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» / Bildschirm als Ort der Kapitalve.\nVideo branko. «niemand hat es je gewußt» / Figur als stummer Platzhalter des Arbeiters.\nVideo clyde. «die Produkte stehen sich gegenüber und knurren einander an» / Tier als ökonomischer Spieg.\nVideo odyssee. «müßte nur noch warten, daß ihn wer in eine richtige Bank holt» / Reise als Illusion, Wart.\nVideo black. «Ist das alles das alles denn wert?» / Blackout als einzige ehrliche Antwort.\nLICHT.\nLicht buehne kalt hart. Thema: bürokratische Kälte als Dauerzustand.\nLicht spot tisch. «Handeln Sie jetzt rasch!» / Verhörlicht, Imperative isolieren.\nLicht blendung zuschauerraum. «Ein Konflikt zwischen Schuldnern und Schöpfern?» / Systemzittern, Instabilität.\nLicht lautsprecher buehne. «wollte er sich auf mich setzen» / Wärmemoment der Ironie entlarven.\n- blackout — «Ist das alles das alles denn wert?» / totale Auslöschung\nLicht blendung zuschauerraum. «dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden» / Resignation, inst.\n---\nDer Stücktext ist bereit zur Aufführung. Teil 2 (Anarchie) startet separat zu einem späteren Zeitpunkt. Die Regie drückt Play — wenn sie bereit ist.\n{\n\"sounds\": [\"growl\", \"cash_register\", \"typewriter\", \"phone_dial\", \"heartbeat\", \"static_noise\"],\n\"music\": [\"minimal_piano\"],\n\"videos\": [\"kaefer\", \"macbook\", \"branko\", \"clyde\", \"odyssee\", \"black\"],\n\"lights\": [\"cold_low\", \"narrow_spot\", \"flicker\", \"red_dim\", \"blackout\", \"blue_wash\"]\n}",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 232
+        },
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 552
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 779
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 880
+        },
+        {
+          "medium": "video",
+          "media_id": "branko",
+          "keyword": "niemand hat es je gewußt",
+          "char_offset": 987
+        },
+        {
+          "medium": "video",
+          "media_id": "clyde",
+          "keyword": "die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 1075
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten, daß ihn wer in eine richtige Bank holt",
+          "char_offset": 1180
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1287
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "bürokratische Kälte als Dauerzustand",
+          "char_offset": 1385
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 1454
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "Ein Konflikt zwischen Schuldnern und Schöpfern?",
+          "char_offset": 1536
+        },
+        {
+          "medium": "light",
+          "media_id": "lautsprecher_buehne",
+          "keyword": "wollte er sich auf mich setzen",
+          "char_offset": 1647
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "dann müssen wir uns leider wieder dem Produzenten der Waren zuwenden",
+          "char_offset": 1814
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-06-25T07:56:06.251903Z"
+}

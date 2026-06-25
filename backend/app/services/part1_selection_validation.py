@@ -9,6 +9,7 @@ from app.schemas.part1_selection import (
     MediaSelectionLists,
     Part1BaerenklauSelection,
 )
+from app.services.catalog_media_resolver import normalize_media_lists
 from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 from app.services.video_cue_catalog import get_video_cue_catalog_service
 
@@ -32,8 +33,8 @@ def _play_sound_ids() -> set[str]:
     return {c.id for c in catalog.cues if c.action == "play"}
 
 
-def _video_clip_ids() -> set[str]:
-    catalog = get_video_cue_catalog_service().load()
+def _video_clip_ids(*, scope: str = "part1") -> set[str]:
+    catalog = get_video_cue_catalog_service().load(scope)  # type: ignore[arg-type]
     return {c.id for c in catalog.clips}
 
 
@@ -42,6 +43,7 @@ def _light_scene_ids() -> set[str]:
 
 
 def validate_media_lists(lists: MediaSelectionLists, *, require_minimums: bool = True) -> MediaSelectionLists:
+    lists = normalize_media_lists(lists)
     play_sounds = _play_sound_ids()
     music_ids = _music_cue_ids()
     video_ids = _video_clip_ids()

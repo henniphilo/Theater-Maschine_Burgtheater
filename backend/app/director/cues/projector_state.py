@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 from app.director.cues.cue_models import ProjectorTarget, VideoType, VisualCue
 
-PROJECTORS: tuple[ProjectorTarget, ...] = ("adam", "eva", "rz21")
+PROJECTORS: tuple[ProjectorTarget, ...] = ("adam", "eva", "rz21", "led")
 
 
 def estimate_avatar_duration_ms(text: str | None, duration_ms: int | None) -> int:

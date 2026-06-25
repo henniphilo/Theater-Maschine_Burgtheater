@@ -21,7 +21,7 @@ export type PreviewCue = {
   target_scene: "Bärenklau";
   medium: "sound" | "music" | "video" | "light";
   medium_id: string;
-  projector?: "adam" | "eva" | "rz21" | null;
+  projector?: "adam" | "eva" | "rz21" | "led" | null;
   duration_sec: number;
 };
 

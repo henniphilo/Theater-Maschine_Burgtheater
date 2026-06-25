@@ -9,6 +9,14 @@ export type DiscussionTurn = {
   speaker: DramaturgSpeaker;
   content: string;
   proposed_decision?: DramaturgyDecision | null;
+  media_mentions?: MediaMention[];
+};
+
+export type MediaMention = {
+  medium: "sound" | "music" | "video" | "light";
+  media_id: string;
+  keyword?: string | null;
+  char_offset: number;
 };
 
 export type ScriptBeat = {

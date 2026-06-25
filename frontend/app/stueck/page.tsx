@@ -40,7 +40,7 @@ function StueckContent() {
 
   useEffect(() => {
     void load();
-    fetchMediaCatalog()
+    fetchMediaCatalog("part1")
       .then((c) => setMedia(buildMediaLookup(c)))
       .catch(() => undefined);
   }, [load]);

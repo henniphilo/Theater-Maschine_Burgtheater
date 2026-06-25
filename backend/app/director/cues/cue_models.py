@@ -4,7 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-ProjectorTarget = Literal["adam", "eva", "rz21"]
+ProjectorTarget = Literal["adam", "eva", "rz21", "led"]
 VideoType = Literal["avatar", "atmosphere", "regie"]
 PerformanceSpeaker = Literal["AI_A", "AI_B", "narrator"]
 

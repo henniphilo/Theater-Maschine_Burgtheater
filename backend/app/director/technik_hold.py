@@ -113,10 +113,7 @@ class TechnikHoldManager:
         dry_run = self._dry_run()
         if state.send_visual:
             if settings.visual_output in ("pixera", "both"):
-                from app.services.video_cue_catalog import get_video_cue_catalog_service
-
-                cue_name = get_video_cue_catalog_service().pixera_cue_name("rz21", state.clip_id)
-                self._pipeline.pixera.apply_cue(cue_name)
+                self._send_pixera_clip(state.clip_id)
             if settings.visual_output in ("touchdesigner", "both"):
                 self._pipeline.touchdesigner.play_clip(state.clip_id, state.opacity, fade_time=0.0)
         if state.send_sound:
@@ -124,6 +121,20 @@ class TechnikHoldManager:
                 SoundCue(action=SoundAction.TRIGGER_CUE, cue_id=state.sound_cue_id, volume=state.volume),
                 dry_run=dry_run,
             )
+
+    def _send_pixera_clip(self, clip_id: str) -> None:
+        from app.director.cues.cue_models import VisualAction, VisualCue
+        from app.director.cues.visual_outputs import resolve_visual_assignments
+        from app.services.video_cue_catalog import get_video_cue_catalog_service
+
+        service = get_video_cue_catalog_service()
+        visual = VisualCue(action=VisualAction.PLAY_CLIP, clip_id=clip_id)
+        for output_id, resolved_clip_id, _ in resolve_visual_assignments(visual, video_scope="part2"):
+            try:
+                cue_name = service.pixera_cue_name(output_id, resolved_clip_id, scope="part2")
+            except KeyError:
+                continue
+            self._pipeline.pixera.apply_cue(cue_name)
 
     def _send_hold(self, state: TechnikHoldState) -> None:
         dry_run = self._dry_run()

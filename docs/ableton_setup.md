@@ -86,7 +86,8 @@ Abgeleitet (automatisch): `data/sound_cues.json`
 | Cue stoppen (`stop_cue`) | **Note Off** (gleiche Note) |
 | Fade In (`fade_in` cue_id) | **Note On** auf Fade-In-Note |
 | Fade Out (`fade_out` cue_id) | **Note On** auf Fade-Out-Note |
-| Alles aus (`stop_all`) | **All Notes Off** (CC 123) |
+| Alles aus (`alle_sounds_cut` / `cut_all`) | **Note On** Note **127** (Kanal 1) |
+| Fallback ohne Mapping | **All Notes Off** (CC 123) |
 
 ---
 

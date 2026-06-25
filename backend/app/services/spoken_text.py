@@ -35,6 +35,17 @@ def _media_list_fallback() -> str:
     )
 
 
+def needs_discussion_sanitization(raw: str) -> bool:
+    """True when raw LLM output still has catalog bullets or JSON — skip for pre-built TTS."""
+    if not raw.strip():
+        return False
+    if _MEDIA_BULLET_RE.search(raw):
+        return True
+    if '"sounds"' in raw or "```json" in raw.lower():
+        return True
+    return False
+
+
 def spoken_discussion_text(raw: str) -> str:
     """Spoken version for TTS: no JSON, no media-catalog bullet lines."""
     if not raw.strip():

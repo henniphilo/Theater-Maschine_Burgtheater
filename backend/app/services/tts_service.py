@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.services.tts.edge_provider import EdgeTTSProvider
 from app.services.tts.mac_say import MacSayProvider
 from app.services.tts.voice_map import VoiceProfile, default_profile_for_speaker, voice_for_speaker
-from app.services.spoken_text import spoken_discussion_text
+from app.services.spoken_text import spoken_discussion_text, needs_discussion_sanitization
 
 
 class TTSService:
@@ -72,7 +72,7 @@ class TTSService:
     ) -> Path:
         provider = self.resolve_provider()
         resolved = profile or default_profile_for_speaker(speaker)
-        if resolved == "dramaturg":
+        if resolved == "dramaturg" and needs_discussion_sanitization(text):
             text = spoken_discussion_text(text)
         voice = voice_for_speaker(speaker, provider=provider, profile=resolved)
         if provider == "say":

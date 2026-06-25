@@ -262,6 +262,7 @@ def _light_desk_status_response() -> LightDeskStatusResponse:
         tcp_connected=status.tcp_connected,
         scene_id=status.scene_id,
         hold_active=status.hold_active,
+        intensity=status.intensity,
     )
 
 
@@ -298,7 +299,10 @@ def post_light_send(payload: LightSendRequest) -> LightDeskStatusResponse:
     if payload.light_scene_id not in {s.id for s in MediaDatabase().light_scenes}:
         raise HTTPException(status_code=400, detail=f"Unknown light_scene_id: {payload.light_scene_id}")
     try:
-        status = get_light_desk_test_manager(_pipeline).send_scene(payload.light_scene_id)
+        status = get_light_desk_test_manager(_pipeline).send_scene(
+            payload.light_scene_id,
+            intensity=payload.intensity,
+        )
     except LightDeskNotConnectedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return _light_desk_status_response_from(status)
@@ -313,7 +317,10 @@ def post_light_hold_start(payload: LightSendRequest) -> LightDeskStatusResponse:
     if payload.light_scene_id not in {s.id for s in MediaDatabase().light_scenes}:
         raise HTTPException(status_code=400, detail=f"Unknown light_scene_id: {payload.light_scene_id}")
     try:
-        status = get_light_desk_test_manager(_pipeline).start_hold(payload.light_scene_id)
+        status = get_light_desk_test_manager(_pipeline).start_hold(
+            payload.light_scene_id,
+            intensity=payload.intensity,
+        )
     except LightDeskNotConnectedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return _light_desk_status_response_from(status)
@@ -333,6 +340,7 @@ def _light_desk_status_response_from(status) -> LightDeskStatusResponse:
         tcp_connected=status.tcp_connected,
         scene_id=status.scene_id,
         hold_active=status.hold_active,
+        intensity=status.intensity,
     )
 
 

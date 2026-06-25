@@ -14,6 +14,20 @@ import {
   fireTimeCues,
   sentencesForBeat
 } from "@/features/show/cuePlayback";
+import {
+  createDiscussionCueContext,
+  fireDiscussionMentionsAtPosition,
+  scheduleDiscussionCue,
+  textPositionForPlayback
+} from "@/features/show/discussionCuePlayback";
+import type { MediaCatalog } from "@/lib/types/media";
+import {
+  allowlistFromPart1Selection,
+  resolveTurnPlayback,
+  type MediaAliasIndex,
+  type MediaAllowlist
+} from "@/features/show/mediaMentions";
+import type { Part1BaerenklauSelection } from "@/lib/types/part1";
 
 const OSC_HIGHLIGHT_MS = 150;
 const DISCUSSION_FALLBACK_MS = 1500;
@@ -25,6 +39,9 @@ export type PlaybackAudioOptions = {
   ttsAvailable: boolean;
   scriptId?: string;
   hasRenderedAudio?: boolean;
+  mediaAllowlist?: MediaAllowlist | null;
+  mediaAliasIndex?: MediaAliasIndex | null;
+  mediaCatalog?: MediaCatalog | null;
 };
 
 export type PlaybackState = {
@@ -128,11 +145,28 @@ async function resolvePerformanceSpeechBlob(
   return getCachedSpeech(sentenceText, speaker, { profile: "performance" });
 }
 
+function discussionTextForTurn(
+  turn: DiscussionTurn,
+  options: PlaybackAudioOptions,
+  part1Selection?: Part1BaerenklauSelection | null
+): { spoken: string; mentions: import("@/lib/types/script").MediaMention[] } {
+  const allowlist =
+    options.mediaAllowlist ??
+    (part1Selection ? allowlistFromPart1Selection(part1Selection) : null);
+  return resolveTurnPlayback(
+    turn,
+    allowlist,
+    options.mediaAliasIndex ?? undefined,
+    options.mediaCatalog ?? undefined
+  );
+}
+
 function prefetchDiscussionTurn(
   options: PlaybackAudioOptions,
   beatId: string,
   turn: DiscussionTurn,
-  turnIndex: number
+  turnIndex: number,
+  part1Selection?: Part1BaerenklauSelection | null
 ): void {
   if (options.hasRenderedAudio && options.scriptId) {
     void prefetchPrerenderedSpeech(
@@ -140,46 +174,53 @@ function prefetchDiscussionTurn(
     );
     return;
   }
-  if (options.ttsAvailable) prefetchSpeech(turn.content, turn.speaker);
+  if (options.ttsAvailable) {
+    const { spoken } = discussionTextForTurn(turn, options, part1Selection);
+    prefetchSpeech(spoken, turn.speaker);
+  }
 }
 
 function prefetchAllDiscussionTurns(
   options: PlaybackAudioOptions,
-  beat: ScriptBeat
+  beat: ScriptBeat,
+  part1Selection?: Part1BaerenklauSelection | null
 ): void {
   const turns = beat.discussion_turns ?? [];
   for (let i = 0; i < turns.length; i++) {
-    prefetchDiscussionTurn(options, beat.id, turns[i], i);
+    prefetchDiscussionTurn(options, beat.id, turns[i], i, part1Selection);
   }
 }
 
 /** Buffer TTS for the beat; resolves when the first spoken line is ready. */
 export async function warmBeatPlayback(
   beat: ScriptBeat,
-  options: PlaybackAudioOptions
+  options: PlaybackAudioOptions,
+  part1Selection?: Part1BaerenklauSelection | null
 ): Promise<void> {
   prefetchPerformanceSentences(options, beat, beat.order);
   if (!audioReady(options)) return;
 
   const turns = beat.discussion_turns ?? [];
   if (turns.length > 0) {
-    prefetchAllDiscussionTurns(options, beat);
+    prefetchAllDiscussionTurns(options, beat, part1Selection);
+    const firstTurn = discussionTextForTurn(turns[0], options, part1Selection);
     const first = resolveDiscussionSpeechBlob(
       options,
       beat.id,
       0,
-      turns[0].content,
+      firstTurn.spoken,
       turns[0].speaker
     );
-    const rest = turns.slice(1).map((turn, index) =>
-      resolveDiscussionSpeechBlob(
+    const rest = turns.slice(1).map((turn, index) => {
+      const { spoken } = discussionTextForTurn(turn, options, part1Selection);
+      return resolveDiscussionSpeechBlob(
         options,
         beat.id,
         index + 1,
-        turn.content,
+        spoken,
         turn.speaker
-      )
-    );
+      );
+    });
     await first;
     void Promise.all(rest);
     return;
@@ -208,6 +249,7 @@ export async function warmScriptPlayback(
   options: PlaybackAudioOptions,
   onProgress?: (progress: ScriptBufferProgress) => void
 ): Promise<void> {
+  const part1Selection = script.part1_selection ?? null;
   if (options.hasRenderedAudio || !audioReady(options)) {
     onProgress?.({ loaded: 0, total: 0 });
     return;
@@ -219,12 +261,13 @@ export async function warmScriptPlayback(
 
     const turns = beat.discussion_turns ?? [];
     for (let i = 0; i < turns.length; i++) {
+      const { spoken } = discussionTextForTurn(turns[i], options, part1Selection);
       tasks.push(
         resolveDiscussionSpeechBlob(
           options,
           beat.id,
           i,
-          turns[i].content,
+          spoken,
           turns[i].speaker
         ).then(() => undefined)
       );
@@ -320,11 +363,23 @@ async function playDiscussionPhase(
   options: PlaybackAudioOptions,
   onState: (state: Partial<PlaybackState>) => void,
   shouldAbort: () => boolean,
-  topic: string
+  topic: string,
+  part1Selection?: Part1BaerenklauSelection | null
 ): Promise<boolean> {
   if (turns.length === 0) return true;
 
-  await warmBeatPlayback(beat, options);
+  await warmBeatPlayback(beat, options, part1Selection);
+
+  const discussionCueCtx = createDiscussionCueContext(
+    async (commands) => {
+      await highlightOscSequence(
+        commands,
+        (cmd, bridge) => onState({ activeOscCommand: cmd, activeOscBridge: bridge, showPhase: "cues_active" }),
+        shouldAbort
+      );
+    },
+    shouldAbort
+  );
 
   onState({
     beatIndex,
@@ -343,7 +398,7 @@ async function playDiscussionPhase(
 
     const turn = turns[turnIndex];
     const next = turns[turnIndex + 1];
-    if (next) prefetchDiscussionTurn(options, beat.id, next, turnIndex + 1);
+    if (next) prefetchDiscussionTurn(options, beat.id, next, turnIndex + 1, part1Selection);
 
     onState({
       discussionTurnIndex: turnIndex,
@@ -355,9 +410,17 @@ async function playDiscussionPhase(
       )
     });
 
-    // Discussion = voices only; machine cues fire in the performance phase after Play.
+    const { spoken, mentions } = discussionTextForTurn(turn, options, part1Selection);
+    const firedMentions = new Set<string>();
+    scheduleDiscussionCue(discussionCueCtx, turn, beat.text, topic);
 
     if (!audioReady(options)) {
+      await fireDiscussionMentionsAtPosition(
+        discussionCueCtx,
+        mentions,
+        spoken.length,
+        firedMentions
+      );
       await sleep(DISCUSSION_FALLBACK_MS);
       continue;
     }
@@ -367,11 +430,28 @@ async function playDiscussionPhase(
         options,
         beat.id,
         turnIndex,
-        turn.content,
+        spoken,
         turn.speaker
       );
       if (shouldAbort()) return false;
-      await playBlob(blob, { shouldAbort });
+      await playBlob(blob, {
+        shouldAbort,
+        onTimeUpdate: (current, duration) => {
+          const textPosition = textPositionForPlayback(current, duration, spoken.length);
+          void fireDiscussionMentionsAtPosition(
+            discussionCueCtx,
+            mentions,
+            textPosition,
+            firedMentions
+          );
+        }
+      });
+      await fireDiscussionMentionsAtPosition(
+        discussionCueCtx,
+        mentions,
+        spoken.length,
+        firedMentions
+      );
     } catch (err) {
       console.warn("Discussion TTS failed:", err);
       if (!shouldAbort()) onState({ showPhase: "blocked" });
@@ -598,7 +678,8 @@ async function playBeat(
   options: PlaybackAudioOptions,
   onState: (state: Partial<PlaybackState>) => void,
   shouldAbort: () => boolean,
-  topic: string
+  topic: string,
+  part1Selection?: Part1BaerenklauSelection | null
 ): Promise<boolean> {
   if (!beat.dramaturgy) return true;
 
@@ -618,7 +699,8 @@ async function playBeat(
       options,
       onState,
       shouldAbort,
-      topic
+      topic,
+      part1Selection
     );
     if (!discussionOk) return false;
 
@@ -660,10 +742,11 @@ export async function runPart1ScriptPlayback(
   startBeatIndex: number,
   onState: (state: Partial<PlaybackState>) => void,
   shouldAbort: () => boolean,
-  topic = "Teil 1 — Bärenklau"
+  topic = "Teil 1 — Bärenklau",
+  part1Selection?: Part1BaerenklauSelection | null
 ): Promise<void> {
   const part1 = part1Beats(beats);
-  return runScriptPlayback(part1, options, startBeatIndex, onState, shouldAbort, topic);
+  return runScriptPlayback(part1, options, startBeatIndex, onState, shouldAbort, topic, part1Selection);
 }
 
 export async function runScriptPlayback(
@@ -672,7 +755,8 @@ export async function runScriptPlayback(
   startBeatIndex: number,
   onState: (state: Partial<PlaybackState>) => void,
   shouldAbort: () => boolean,
-  topic = "Aufführung"
+  topic = "Aufführung",
+  part1Selection?: Part1BaerenklauSelection | null
 ): Promise<void> {
   const start = Math.max(0, Math.min(startBeatIndex, beats.length - 1));
   onState({
@@ -702,7 +786,7 @@ export async function runScriptPlayback(
       return;
     }
 
-    const ok = await playBeat(beats[index], index, beats, options, onState, shouldAbort, topic);
+    const ok = await playBeat(beats[index], index, beats, options, onState, shouldAbort, topic, part1Selection);
     if (!ok) {
       onState({
         running: false,

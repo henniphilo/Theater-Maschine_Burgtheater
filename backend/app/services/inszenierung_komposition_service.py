@@ -266,7 +266,7 @@ class InszenierungKompositionService:
                     light=decision.light,
                 )
             ]
-        build_osc_commands(decision, dry_run=True)
+        build_osc_commands(decision, dry_run=True, video_scope="part2")
         return decision
 
     def _avatar_catalog_excerpt(self, *, max_chars: int = 120) -> str:
@@ -343,14 +343,18 @@ class InszenierungKompositionService:
             decision.visual = avatar_cue
         atmosphere: list[VisualCue] = []
         if moment.anarchy_level >= 0.35 and decision.cue_points:
+            atmosphere_projectors = [p for p in ("rz21", "adam", "eva", "led") if p != projector]
+            atmo_index = 0
             for point in decision.cue_points:
                 if point.visual and point.visual.clip_id and point.visual.clip_id != clip_id:
+                    target = atmosphere_projectors[atmo_index % len(atmosphere_projectors)]
+                    atmo_index += 1
                     atmo = point.visual.model_copy(
                         update={
                             "video_type": "atmosphere",
-                            "projector": "rz21",
+                            "projector": target,  # type: ignore[arg-type]
                             "lock_until_finished": False,
-                            "outputs": [{"output_id": "rz21", "clip_id": point.visual.clip_id}],
+                            "outputs": [{"output_id": target, "clip_id": point.visual.clip_id}],
                         }
                     )
                     atmosphere.append(atmo)

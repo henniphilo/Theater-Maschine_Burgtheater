@@ -52,7 +52,13 @@ def parse_osc_befehlliste(path: Path) -> list[tuple[str, str]]:
     return pairs
 
 
-def resolve_osc_befehlliste_path(data_dir: Path) -> Path | None:
+OSC_PART1_FILENAME = "OSCBefehllisteOhneAvatare.txt"
+OSC_PART2_AVATAR_FILENAME = "OSCBefehllisteAvatare.txt"
+OSC_LEGACY_FILENAME = "OSCBefehlliste.txt"
+
+
+def resolve_osc_befehlliste_path(data_dir: Path, *, filename: str | None = None) -> Path | None:
+    target_name = filename or OSC_LEGACY_FILENAME
     resolved_data = data_dir.resolve() if data_dir.is_absolute() else (Path.cwd() / data_dir).resolve()
     roots = [
         resolved_data.parent,
@@ -62,10 +68,37 @@ def resolve_osc_befehlliste_path(data_dir: Path) -> Path | None:
         Path("/app"),
     ]
     for root in roots:
-        candidate = root / "media" / "video" / "OSCBefehlliste.txt"
+        candidate = root / "media" / "video" / target_name
         if candidate.is_file():
             return candidate.resolve()
     return None
+
+
+def resolve_osc_befehlliste_paths_for_scope(data_dir: Path, scope: str) -> list[Path]:
+    """part1 → ohne Avatare; part2 → ohne + Erzähler-Avatare (Vereinigung)."""
+    part1_path = resolve_osc_befehlliste_path(data_dir, filename=OSC_PART1_FILENAME)
+    avatar_path = resolve_osc_befehlliste_path(data_dir, filename=OSC_PART2_AVATAR_FILENAME)
+    if scope == "part1":
+        if part1_path:
+            return [part1_path]
+        legacy = resolve_osc_befehlliste_path(data_dir, filename=OSC_LEGACY_FILENAME)
+        return [legacy] if legacy else []
+    paths: list[Path] = []
+    if part1_path:
+        paths.append(part1_path)
+    if avatar_path:
+        paths.append(avatar_path)
+    if paths:
+        return paths
+    legacy = resolve_osc_befehlliste_path(data_dir, filename=OSC_LEGACY_FILENAME)
+    return [legacy] if legacy else []
+
+
+def parse_osc_befehlliste_files(paths: list[Path]) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for path in paths:
+        pairs.extend(parse_osc_befehlliste(path))
+    return pairs
 
 
 def load_video_cues_from_csv(

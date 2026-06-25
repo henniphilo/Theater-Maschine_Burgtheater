@@ -337,6 +337,44 @@ select:focus {
   font-weight: 600;
 }
 
+.oscTestIntensity input[type="range"] {
+  width: 100%;
+}
+
+.oscTestIntensityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.oscTestIntensityToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.oscTestIntensityMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.oscTestIntensityPresets {
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.oscTestIntensityPresets button {
+  min-width: 3rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
 .oscTestActions {
   flex-wrap: wrap;
   gap: 0.5rem;

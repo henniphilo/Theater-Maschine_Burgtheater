@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.director.media.database import VideoAsset
 from app.director.media.video_inventory import load_video_cues_from_csv, resolve_video_overview_paths
 from app.schemas.video_cues import VideoCueCatalog
+from app.services.video_scope import VideoScope, build_video_catalog, osc_availability_by_clip
 
 
 def _repo_roots() -> list[Path]:
@@ -38,17 +39,24 @@ def catalog_json_path() -> Path:
 
 
 class VideoCueCatalogService:
-    def load(self) -> VideoCueCatalog:
+    def __init__(self) -> None:
+        self._cache: dict[VideoScope, VideoCueCatalog] = {}
+
+    def load(self, scope: VideoScope = "part2") -> VideoCueCatalog:
+        if scope in self._cache:
+            return self._cache[scope]
+
         clips_path, projectors_path = resolve_video_overview_paths(_data_dir())
         if clips_path is not None:
-            catalog = load_video_cues_from_csv(clips_path, projectors_path)
-            self._write_json_cache(catalog, source=str(clips_path))
-            return catalog
+            base = load_video_cues_from_csv(clips_path, projectors_path)
+            self._write_json_cache(base, source=str(clips_path))
 
-        path = catalog_json_path()
-        if path.is_file():
-            return VideoCueCatalog.model_validate_json(path.read_text(encoding="utf-8"))
-        return VideoCueCatalog()
+        catalog = build_video_catalog(scope)
+        self._cache[scope] = catalog
+        return catalog
+
+    def clear_cache(self) -> None:
+        self._cache.clear()
 
     @staticmethod
     def _write_json_cache(catalog: VideoCueCatalog, *, source: str) -> None:
@@ -64,29 +72,57 @@ class VideoCueCatalogService:
         }
         path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    def projector_by_id(self, output_id: str, catalog: VideoCueCatalog | None = None) -> str | None:
-        catalog = catalog or self.load()
+    def projector_by_id(
+        self,
+        output_id: str,
+        catalog: VideoCueCatalog | None = None,
+        *,
+        scope: VideoScope = "part2",
+    ) -> str | None:
+        catalog = catalog or self.load(scope)
         normalized = output_id.strip().lower()
         for projector in catalog.projectors:
             if projector.id == normalized:
                 return projector.pixera_prefix
         return None
 
-    def clip_by_id(self, clip_id: str, catalog: VideoCueCatalog | None = None):
-        catalog = catalog or self.load()
+    def clip_by_id(self, clip_id: str, catalog: VideoCueCatalog | None = None, *, scope: VideoScope = "part2"):
+        catalog = catalog or self.load(scope)
         normalized = clip_id.strip().lower()
         return next((clip for clip in catalog.clips if clip.id == normalized), None)
 
-    def pixera_cue_name(self, output_id: str, clip_id: str, catalog: VideoCueCatalog | None = None) -> str:
-        catalog = catalog or self.load()
-        prefix = self.projector_by_id(output_id, catalog)
-        clip = self.clip_by_id(clip_id, catalog)
+    def projectors_for_clip(
+        self,
+        clip_id: str,
+        catalog: VideoCueCatalog | None = None,
+        *,
+        scope: VideoScope = "part2",
+    ) -> list[str]:
+        catalog = catalog or self.load(scope)
+        normalized = clip_id.strip().lower()
+        available = osc_availability_by_clip(scope).get(normalized)
+        if available:
+            order = [p.id for p in catalog.projectors]
+            return [output_id for output_id in order if output_id in available]
+        return [p.id for p in catalog.projectors]
+
+    def pixera_cue_name(
+        self,
+        output_id: str,
+        clip_id: str,
+        catalog: VideoCueCatalog | None = None,
+        *,
+        scope: VideoScope = "part2",
+    ) -> str:
+        catalog = catalog or self.load(scope)
+        prefix = self.projector_by_id(output_id, catalog, scope=scope)
+        clip = self.clip_by_id(clip_id, catalog, scope=scope)
         if not prefix or not clip:
             raise KeyError(f"Unknown projector {output_id!r} or clip {clip_id!r}")
         return f"{prefix}.{clip.pixera_name}"
 
-    def to_video_assets(self, catalog: VideoCueCatalog | None = None) -> list[VideoAsset]:
-        catalog = catalog or self.load()
+    def to_video_assets(self, catalog: VideoCueCatalog | None = None, *, scope: VideoScope = "part2") -> list[VideoAsset]:
+        catalog = catalog or self.load(scope)
         assets: list[VideoAsset] = []
         for clip in catalog.clips:
             assets.append(

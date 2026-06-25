@@ -106,11 +106,16 @@ def test_part1_workshop_discussion_before_preview(workshop: Part1WorkshopService
     assert "```json" not in turns[0].discussion_turns[0]["content"]
 
 
-def test_part1_workshop_media_turn_spoken_without_bullets(workshop: Part1WorkshopService) -> None:
+def test_part1_workshop_media_turn_spoken_with_catalog_cues(workshop: Part1WorkshopService) -> None:
+    workshop.llm.catalog_allowlist.return_value = {
+        "sounds": [{"id": "maschinen_grundader", "tags": []}],
+        "videos": [{"id": "macbook", "tags": []}],
+        "lights": [],
+    }
     media_with_bullets = (
         "Paket für den Gesamttext:\n"
-        "- low_drone — «billiger» / Thema: Kälte\n"
-        "- macbook — «Kredit» / Thema: Finanz\n"
+        "- `maschinen_grundader` — «billiger» / Thema: Kälte\n"
+        "- `macbook` — «Kredit» / Thema: Finanz\n"
         + _media_json()
     )
     ai = workshop.ai
@@ -138,9 +143,13 @@ def test_part1_workshop_media_turn_spoken_without_bullets(workshop: Part1Worksho
 
     events = asyncio.run(run())
     turns = [e for e in events if e.type == "discussion_turn"]
-    spoken = turns[2].discussion_turns[2]["content"]
-    assert "low_drone" not in spoken
-    assert "macbook" not in spoken
+    stored = turns[2].discussion_turns[2]
+    spoken = stored["content"]
+    assert "maschinen grundader" in spoken.lower() or "maschinen_grundader" in spoken
+    assert "macbook" in spoken.lower()
+    mentions = stored["media_mentions"]
+    assert len(mentions) >= 2
+    assert all(m["char_offset"] < len(spoken) for m in mentions)
 
 
 def test_part1_workshop_prompt_includes_full_text(workshop: Part1WorkshopService) -> None:

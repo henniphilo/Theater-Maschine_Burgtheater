@@ -11,6 +11,7 @@ from app.director.dramaturgy.rules_text import dramaturgy_rules_excerpt, load_dr
 from app.director.media.database import MediaDatabase
 from app.services.ai_service import AIService
 from app.services.video_cue_catalog import get_video_cue_catalog_service
+from app.services.video_scope import VideoScope
 
 
 class DramaturgyValidationError(ValueError):
@@ -27,11 +28,13 @@ class LLMDirector:
         self.ai = ai_service or AIService()
         self.rule_engine = DramaturgyEngine(self.media_db)
 
-    def catalog_allowlist(self, *, compact: bool = False) -> dict[str, Any]:
-        video_catalog = get_video_cue_catalog_service().load()
+    def catalog_allowlist(self, *, compact: bool = False, video_scope: VideoScope = "part2") -> dict[str, Any]:
+        video_catalog = get_video_cue_catalog_service().load(video_scope)
+        allowed_video_ids = {clip.id for clip in video_catalog.clips}
+        videos = [v for v in self.media_db.videos if v.id in allowed_video_ids]
         if compact:
             return {
-                "videos": [{"id": v.id, "tags": v.tags[:4], "moods": v.moods[:3]} for v in self.media_db.videos],
+                "videos": [{"id": v.id, "tags": v.tags[:4], "moods": v.moods[:3]} for v in videos],
                 "projectors": [
                     {"id": p.id, "name": p.name, "pixera_prefix": p.pixera_prefix}
                     for p in video_catalog.projectors
@@ -57,7 +60,7 @@ class LLMDirector:
         return {
             "videos": [
                 {"id": v.id, "path": v.path, "tags": v.tags, "moods": v.moods}
-                for v in self.media_db.videos
+                for v in videos
             ],
             "projectors": [
                 {
@@ -110,7 +113,9 @@ class LLMDirector:
                 "Video: mehrere Projektoren (projectors[]) erlaubt — visual.outputs mit output_id + clip_id.",
                 "Gleiches Video auf mehreren Projektoren: gleiche clip_id, verschiedene output_id.",
                 "Unterschiedliche Videos: pro output_id eigene clip_id in outputs[].",
-                "Ohne outputs[] gilt clip_id nur für RZ21 (Frontprojektor).",
+                "Ohne outputs[] und ohne projector: clip_id auf allen Beamern (RZ21, Adam, Eva, LED), sofern in der OSC-Liste vorhanden.",
+                "Teil 1: nur Atmosphären-Clips (OSCBefehllisteOhneAvatare). Teil 2: zusätzlich Erzähler-Avatare (Inge, Sebastian, …).",
+                "Nur ein Beamer: visual.projector setzen oder outputs[] mit genau einem output_id.",
                 "Licht: nur scene_id aus lights[] — Kanäle laut Kanal-Übersicht.",
                 "Licht kombinieren: light.scene_ids mit mehreren IDs (z. B. [\"musiker\", \"warme_buehnenflaeche\"]).",
                 "Jeder neue Licht-Cue ersetzt den vorherigen (Key Out, dann neue Kanäle/Gruppen).",

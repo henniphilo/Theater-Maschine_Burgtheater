@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from app.core.config import settings
 from app.director.media.database import MediaDatabase
@@ -8,6 +8,7 @@ from app.schemas.video_cues import VideoCueCatalog
 from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 from app.services.video_cue_catalog import get_video_cue_catalog_service
 from app.services.avatar_speech_catalog import get_avatar_speech_catalog_service
+from app.services.video_scope import VideoScope
 
 router = APIRouter(prefix="/media", tags=["media"])
 _sound_catalog = get_sound_cue_catalog_service()
@@ -21,8 +22,8 @@ def get_sound_cues() -> SoundCueCatalog:
 
 
 @router.get("/video-cues", response_model=VideoCueCatalog)
-def get_video_cues() -> VideoCueCatalog:
-    return _video_catalog.load()
+def get_video_cues(video_scope: VideoScope = Query(default="part2")) -> VideoCueCatalog:
+    return _video_catalog.load(video_scope)
 
 
 @router.get("/avatar-speech", response_model=AvatarSpeechCatalog)
@@ -31,11 +32,12 @@ def get_avatar_speech() -> AvatarSpeechCatalog:
 
 
 @router.get("/catalog")
-def get_media_catalog() -> dict:
+def get_media_catalog(video_scope: VideoScope = Query(default="part2")) -> dict:
     db = MediaDatabase()
-    video_catalog = _video_catalog.load()
+    video_catalog = _video_catalog.load(video_scope)
+    allowed_video_ids = {clip.id for clip in video_catalog.clips}
     return {
-        "videos": [v.model_dump() for v in db.videos],
+        "videos": [v.model_dump() for v in db.videos if v.id in allowed_video_ids],
         "projectors": [p.model_dump() for p in video_catalog.projectors],
         "recordings": [r.model_dump() for r in db.recordings],
         "sounds": [s.model_dump() for s in db.sounds],
@@ -51,7 +53,7 @@ def get_media_catalog() -> dict:
                 "stop_clip": "/visual/stop_clip",
                 "blackout": "/visual/blackout",
                 "sound_trigger": "/sound/trigger",
-                "light_scene": "/eos/chan/{channel}/full | /eos/chan/{channel}/at (0–100%)",
+                "light_scene": "/eos/chan/{channel}/full | /eos/chan/{channel} (0–100 %)",
                 "light_blackout": "/eos/key/out",
             },
             "docs": "touchdesigner/README_touchdesigner_setup.md",

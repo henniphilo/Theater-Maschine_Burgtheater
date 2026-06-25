@@ -1,0 +1,309 @@
+{
+  "part": 1,
+  "scene": "Bärenklau",
+  "script_id": "ce22a04b-5d6d-4d1e-83ac-d88e76b4148a",
+  "beat_id": "ff405b75-2579-438b-988d-94e87c00d74a",
+  "selected_by": [
+    "Claude",
+    "ChatGPT"
+  ],
+  "final_sounds": [
+    "archiv_rauschen",
+    "erinnerungsglitch",
+    "herz_unter_glas",
+    "leere_zwischen_saetzen",
+    "kaefigecho",
+    "maschinen_grundader"
+  ],
+  "final_music": [
+    "maschinen_grundader"
+  ],
+  "final_videos": [
+    "macbook",
+    "ipad",
+    "hundethiel",
+    "clyde",
+    "inge",
+    "black"
+  ],
+  "final_lights": [
+    "buehne_kalt_hart",
+    "blendung_magenta",
+    "blendung_zuschauerraum",
+    "fluegel",
+    "spot_tisch",
+    "lautsprecher_buehne"
+  ],
+  "dramaturgical_reading": "**Claude:** Dann einigen wir uns auf folgende Variante für den Gesamttext *„Der Bärenklau\"*:\n\n---\n\n---\n\nDer Stücktext *„Der Bärenklau\"* liegt jetzt vollständig vor. Teil 2 (*Anarchie*) startet separat und erhält ein eigenes Medienpaket. **Die Regie drückt Play, wenn sie bereit ist.**",
+  "cue_strategy": "Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
+  "discussion_turns": [
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Jelinek führt uns durch eine zynische Ökonomie-Elegie: Das Subjekt — Mensch, Arbeiter, Tier — wird zur Ware, verrechenbar, ersetzbar. *„wir werden alle von Pflanzen ersetzt werden, weil die billiger in der Anschaffung sind\"* trifft auf *„Ist das alles das alles denn wert?\"* — Anfang und Ende spiegeln sich. Die Grundstimmung ist bürokratisch-kalt, mit einem Unterton aus Erschöpfung und bitterem Witz. Kein Ausweg, nur Kreislauf.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "openai",
+      "content": "ChatGPT: Ja, Claude, und der Text strotzt nur so vor wirtschaftlicher Zerrissenheit. Der Satz \"Ein Konflikt zwischen Schuldnern und Schöpfern? Das klingt ernst.\" eröffnet eine vielschichtige Analyse kapitalistischer Strukturen. Für die Dramaturgie könnten Schichten von Soundebenen genutzt werden, die Distanz schaffen und dennoch aufbrechen. Ein dunkles, widerhallendes Lichtspiel könnte die Unsicherheiten des Textes unterstreichen, während kontrastreiche Videos Projektionen von Bürokratien und modernen Technologien zeigen.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Gut, ChatGPT — hier mein konkretes Paket. Der Text funktioniert als Maschinerie: kalt anlaufen, knurren, stocken, leer auslaufen.\n---\nSOUNDS — Grundton, Akzente, Stille-Momente:\nSound maschinen grundader. «leicht verderblich geworden» / Thema: organischer Körper als Restgröße im System; biologi.\nSound erinnerungsglitch. «von Lohnrunde zu Lohnrunde» / Thema: bürokratische Wiederholung; Akzent auf jede Zählung.\nSound herz unter glas. «Kreditkapazitäten, also die Geldmengen ausweiten» / Thema: Geld als Mechanismus, nicht al.\nSound leere zwischen saetzen. «Ich weiß nicht, was das bringen soll» / Thema: Wissens-Lücke, Leerstelle; Stille-Moment n.\nSound erinnerungsglitch. «die Produkte stehen sich gegenüber und knurren einander an» / direktes Textzitat; tierisc.\nSound erinnerungsglitch. «könnte er gleich ins Casino gehen» / direktes Zitat; ironischer Akzent, der den Arbeiter .\nMUSIK:.\nSound maschinen grundader. Thema: Erschöpfung, Kreislauf; ein anhaltender Unterton, der die gesamte Ökonomie-Elegie t.\nVIDEOS:.\nVideo macbook. «Kreditkapazitäten, also die Geldmengen ausweiten» / Thema: Finanzbildschirm als Bühne der.\nVideo ipad. «Handeln Sie jetzt rasch!» / Thema: digitaler Imperativ, Konsum-Interface.\nVideo hundethiel. «knurren einander an» / Thema: tierisch-unheimliche Unterströmung des Klassenkampfs.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» / Thema: Insekt als Restlebewesen nach der E.\nVideo inge. «ich weiß nicht, was der Arbeiter will» / Thema: melancholische Figur als stumme Stellvert.\nVideo black. «Ist das alles das alles denn wert?» / Thema: finaler Blackout, Auslöschung nach der letzt.\nLICHT:.\nSound leere zwischen saetzen. «wir werden alle von Pflanzen ersetzt» / Thema: Kälte der Ersetzbarkeit, weite Leere.\nSound leere zwischen saetzen. «Ein Konflikt zwischen Schuldnern und Schöpfern?» / Thema: Verhör-Atmosphäre, Entlarvung d.\n---\n{\n\"sounds\": [\"atmen\", \"schreibmaschine\", \"geldautomat\", \"stille\", \"knurren\", \"casino\"],\n\"music\": [\"grundton\"],\n\"videos\": [\"macbook\", \"ipad\", \"hundethiel\", \"kaefer\", \"inge\", \"black\"],\n\"lights\": [\"kalt_weit\", \"verhoer\", \"flicker\", \"buero\", \"spot_eng\", \"dunkel_warm\"]\n}\n---\nÜbergang: Das Paket steht. Der Text von Jelinek liegt bereit — als Sprachfläche, nicht als Geschichte. Die Regie drückt Play, wenn sie bereit ist.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "leicht verderblich geworden",
+          "char_offset": 186
+        },
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "von Lohnrunde zu Lohnrunde",
+          "char_offset": 305
+        },
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": "Kreditkapazitäten, also die Geldmengen ausweiten",
+          "char_offset": 421
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "Ich weiß nicht, was das bringen soll",
+          "char_offset": 536
+        },
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 658
+        },
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "könnte er gleich ins Casino gehen",
+          "char_offset": 775
+        },
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "Erschöpfung, Kreislauf; ein anhaltender Unterton, der die gesamte Ökonomie-Elegi",
+          "char_offset": 900
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Kreditkapazitäten, also die Geldmengen ausweiten",
+          "char_offset": 1028
+        },
+        {
+          "medium": "video",
+          "media_id": "ipad",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 1135
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 1222
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 1325
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "ich weiß nicht, was der Arbeiter will",
+          "char_offset": 1431
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1535
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "wir werden alle von Pflanzen ersetzt",
+          "char_offset": 1648
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "Ein Konflikt zwischen Schuldnern und Schöpfern?",
+          "char_offset": 1764
+        }
+      ]
+    },
+    {
+      "speaker": "openai",
+      "content": "Claude hat ein beeindruckendes Medienpaket zusammengestellt, das perfekt zur textlichen Maschinerie von Jelineks *Unter Tieren* passt. Der textliche Fokus auf Ökonomie und Ersetzbarkeit spiegelt sich in einer Mischung aus kalten, mechanischen Klängen und unheimlichen, dystopischen Bildern wider. Ich stimme der meisten Auswahl zu, würde aber kleine Anpassungen vorschlagen, um die Stimmung noch weiter zu vertiefen.\nFür Sounds, stimme ich den organischen und mechanischen Rhythmen zu. Der *'geldautomat'* betont die Frage nach dem Wert von Geld und *'knurren'* reflektiert den Konflikt. Allerdings denke ich, dass *'schatten_atmen'* für eine unbehagliche, beklemmende Atmosphäre sorgen könnte, die die allgegenwärtige Unsicherheit verstärkt.\nFür Musik passt der *'grundton'* als musikalische Untermalung der Ökonomie-Elegie. Es erzeugt eine konstante Spannung, die den gesamten Text untermalt.\nBei Videos ist Claudes Auswahl hervorragend, besonders bei *“macbook”* und *“black”*. *“clyde”* könnte anstelle von *“kaefer”* eingefügt werden, um Tiere ins Spiel zu bringen und so das Szenario der Ersetzbarkeit durch Pflanzen zu markieren.\nLicht betreffend, stimme ich den kühlen (*'kalt_weit'*) und instabilen (*'flicker'*) Akzenten zu, um die Kälte und die Unsicherheit zu unterstreichen. *'verhoer'* entlarvt die Spannung des Konflikts. Ein Wechsel von *'dunkel_warm'* zu *'dunkel_kalt'* könnte die Bedrückung besser einfangen.\nMedienpaket (Claude und ChatGPT abgestimmt):.\nSounds:.\n- atmen — «leicht verderblich geworden» / organische Komponente\n- schatten_atmen — verstärkt unbehagliche Atmosphäre\n- geldautomat — «Kreditkapazitäten, also die Geldmengen ausweiten» / maschineller Puls\n- stille — «Ich weiß nicht, was das bringen soll» / Wissens-Lücke\n- knurren — «die Produkte stehen sich gegenüber und knurren an» / tierischer Konflikt\n- casino — «könnte er gleich ins Casino gehen» / ironischer Akzent\nMusik:.\nLicht zwei spots. Thema: konstante Spannung, Zyklus der Ökonomie.\nVideos:.\nVideo macbook. «Kreditkapazitäten, also die Geldmengen ausweiten» / digital-finanzielle Macht.\nVideo ipad. «Handeln Sie jetzt rasch!» / digitaler Imperativ.\nVideo hundethiel. «knurren einander an» / unheimlicher Aspekt.\nVideo clyde. ersetzt kaefer / Tiersymbolik der Ersetzbarkeit.\nVideo inge. «ich weiß nicht, was der Arbeiter will» / stummer Stellvertreter.\nVideo black. «Ist das alles das alles denn wert?» / finaler Blackout.\nLicht:.\nLicht buehne kalt hart. «wir werden alle von Pflanzen ersetzt» / Kälte.\n- verhoer — «Ein Konflikt zwischen Schuldnern und Schöpfern?» / Entlarvung\nLicht blendung zuschauerraum. instabil / textueller Spiegel.\n- buero — Büro-Kälte, Verwaltung\nLicht spot tisch. Isolationssymbolik.\nLicht buehne kalt hart. statt dunkelwarm / Bedrückung.\n{\n\"sounds\": [\"atmen\", \"schatten_atmen\", \"geldautomat\", \"stille\", \"knurren\", \"casino\"],\n\"music\": [\"grundton\"],\n\"videos\": [\"macbook\", \"ipad\", \"hundethiel\", \"clyde\", \"inge\", \"black\"],\n\"lights\": [\"kalt_weit\", \"verhoer\", \"flicker\", \"buero\", \"spot_eng\", \"dunkel_kalt\"]\n}\nÜbergang: Das abgestimmte Paket ist bereit, um Jelineks Text erlebbar zu machen. Die Medien sind gesetzt. Regie, Play drücken!",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "light",
+          "media_id": "zwei_spots",
+          "keyword": "konstante Spannung, Zyklus der Ökonomie",
+          "char_offset": 1914
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Kreditkapazitäten, also die Geldmengen ausweiten",
+          "char_offset": 1989
+        },
+        {
+          "medium": "video",
+          "media_id": "ipad",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 2084
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 2146
+        },
+        {
+          "medium": "video",
+          "media_id": "clyde",
+          "keyword": null,
+          "char_offset": 2209
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "ich weiß nicht, was der Arbeiter will",
+          "char_offset": 2271
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 2349
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "wir werden alle von Pflanzen ersetzt",
+          "char_offset": 2427
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": null,
+          "char_offset": 2574
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": null,
+          "char_offset": 2668
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 2706
+        }
+      ]
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Dann einigen wir uns auf folgende Variante für den Gesamttext *„Der Bärenklau\"*:\n---\nSOUNDS.\n- atmen — «leicht verderblich geworden» / organischer Körper als Restgröße im System\n- schreibmaschine — «von Lohnrunde zu Lohnrunde» / bürokratische Wiederholung als Takt\n- geldautomat — «Kreditkapazitäten, also die Geldmengen ausweiten» / Geld als Mechanismus ohne Wert\nSound leere zwischen saetzen. «Ich weiß nicht, was das bringen soll» / Leerstelle nach jedem rhetorischen Einbruch.\n- knurren — «die Produkte stehen sich gegenüber und knurren einander an» / tierischer Konflikt im Klassenkampf\n- casino — «könnte er gleich ins Casino gehen» / ironische Entlarvung des Arbeiters als Spieler\nMUSIK.\nMusik maschinen grundader. Thema: Erschöpfung und Kreislauf; trägt die gesamte Ökonomie-Elegie als stiller Unterton.\nVIDEOS.\nVideo macbook. «Kreditkapazitäten, also die Geldmengen ausweiten» / Finanzbildschirm als Bühne abstrakter.\nVideo ipad. «Handeln Sie jetzt rasch!» / digitaler Imperativ, Konsum-Interface.\nVideo hundethiel. «knurren einander an» / unheimliche Tierlichkeit im Klassenkonflikt.\nVideo clyde. «wir werden alle von Pflanzen ersetzt» / Tier als verdrängte Restgröße.\nVideo inge. «ich weiß nicht, was der Arbeiter will» / melancholische Figur des Nicht-Wissens.\nVideo black. «Ist das alles das alles denn wert?» / finaler Blackout, Auslöschung.\nLICHT.\nLicht buehne kalt hart. «wir werden alle von Pflanzen ersetzt» / Kälte der Ersetzbarkeit.\nLicht warme buehnenflaeche. «Ein Konflikt zwischen Schuldnern und Schöpfern?» / Entlarvung der Machtfrage.\nLicht blendung zuschauerraum. «immer weniger mehr. Kriegen tut er dann etwas mehr als weniger» / instabiles Flackern als.\n- buero — «von Lohnrunde zu Lohnrunde» / fluoreszente Verwaltungskälte\nLicht spot tisch. «auf der Ersatzbank im Wartesaal sitzenbleiben» / Isolation der Ersetzbarkeit.\nLicht buehne kalt hart. «wollte er sich auf mich setzen» / Nähe, die keine Wärme trägt.\n---\nDer Stücktext *„Der Bärenklau\"* liegt jetzt vollständig vor. Teil 2 (*Anarchie*) startet separat und erhält ein eigenes Medienpaket. Die Regie drückt Play, wenn sie bereit ist.\n{\n\"sounds\": [\"atmen\", \"schreibmaschine\", \"geldautomat\", \"stille\", \"knurren\", \"casino\"],\n\"music\": [\"grundton\"],\n\"videos\": [\"macbook\", \"ipad\", \"hundethiel\", \"clyde\", \"inge\", \"black\"],\n\"lights\": [\"kalt_weit\", \"verhoer\", \"flicker\", \"buero\", \"spot_eng\", \"dunkel_kalt\"]\n}",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "Ich weiß nicht, was das bringen soll",
+          "char_offset": 373
+        },
+        {
+          "medium": "music",
+          "media_id": "maschinen_grundader",
+          "keyword": "Erschöpfung und Kreislauf; trägt die gesamte Ökonomie-Elegie als stiller Unterto",
+          "char_offset": 703
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Kreditkapazitäten, also die Geldmengen ausweiten",
+          "char_offset": 828
+        },
+        {
+          "medium": "video",
+          "media_id": "ipad",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 935
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 1015
+        },
+        {
+          "medium": "video",
+          "media_id": "clyde",
+          "keyword": "wir werden alle von Pflanzen ersetzt",
+          "char_offset": 1102
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "ich weiß nicht, was der Arbeiter will",
+          "char_offset": 1187
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1281
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "wir werden alle von Pflanzen ersetzt",
+          "char_offset": 1371
+        },
+        {
+          "medium": "light",
+          "media_id": "warme_buehnenflaeche",
+          "keyword": "Ein Konflikt zwischen Schuldnern und Schöpfern?",
+          "char_offset": 1461
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "immer weniger mehr. Kriegen tut er dann etwas mehr als weniger",
+          "char_offset": 1568
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "auf der Ersatzbank im Wartesaal sitzenbleiben",
+          "char_offset": 1761
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "wollte er sich auf mich setzen",
+          "char_offset": 1858
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-06-25T09:06:02.275745Z"
+}

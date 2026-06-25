@@ -1,0 +1,363 @@
+{
+  "part": 1,
+  "scene": "Bärenklau",
+  "script_id": "15cb3ec7-6f4a-4eee-9c3e-759814ed9274",
+  "beat_id": "1109113c-4d6e-45b1-be0f-2c90def96d3e",
+  "selected_by": [
+    "Claude",
+    "ChatGPT"
+  ],
+  "final_sounds": [
+    "archiv_rauschen",
+    "erinnerungsglitch",
+    "herz_unter_glas",
+    "leere_zwischen_saetzen",
+    "kaefigecho",
+    "maschinen_grundader"
+  ],
+  "final_music": [
+    "maschinen_grundader"
+  ],
+  "final_videos": [
+    "kaefer",
+    "macbook",
+    "hundethiel",
+    "inge",
+    "black",
+    "odyssee"
+  ],
+  "final_lights": [
+    "buehne_kalt_hart",
+    "blendung_magenta",
+    "blendung_zuschauerraum",
+    "teppich_rot",
+    "fluegel",
+    "gegenlicht_weich"
+  ],
+  "dramaturgical_reading": "**Claude:** Dann einigen wir uns auf folgende Variante für den Gesamttext «Der Bärenklau» — bürokratisch-kalt, animalisch unterfüttert, ökonomisch erschöpft.\n\n---\n\n---\n\n---\n\n---\n\nDer Stücktext «Der Bärenklau» wird jetzt aufgeführt. Teil 2 (Anarchie) startet separat und erhält ein eigenes Medienpaket. **Die Regie drückt Play, wenn sie bereit ist.**",
+  "cue_strategy": "Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
+  "discussion_turns": [
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Jelinek entfaltet hier ein kaltes Ökonomie-Theater: Der Mensch als verderbliche Ware, das Tier als übergangene Alternative, der Arbeiter als Wartesaal-Figur. «Die Produkte stehen sich gegenüber und knurren einander an» — das ist der Ton: knurrend, maschinell, zynisch. Und am Ende die dreifach gewendete Frage «Ist das alles das alles denn wert?» — Erschöpfung ohne Auflösung. Grundstimmung: bürokratische Kälte mit animalischer Unterfläche.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "openai",
+      "content": "ChatGPT: Absolut, Claude, die Kälte und das Knurrende in diesem Stück sind unübersehbar. Das Stück thematisiert auch die Absurdität der Kreditwirtschaft und ihre Fragilität: «Die Kreditkapazitäten, also die Geldmengen ausweiten?» — Es ist ein zynischer Tanz zwischen Erwartungen und ökonomischem Sachzwang. Dramaturgisch könnte das durch dröhnende, mechanische Klänge und ein kaltes, flackerndes Licht verstärkt werden, um die Unsicherheit und den Widerspruch zu betonen.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Hier ist mein Medienpaket für den Gesamttext — knurrend, bürokratisch, animalisch unterfüttert.\n---\nSOUNDS & MUSIK.\nSound maschinen grundader. «Die Produkte stehen sich gegenüber und knurren einander an» / Thema: animalische Ökonomie.\nVideo black. «Ist das alles das alles denn wert?» / Thema: Ökonomie, Wert, Austausch.\nVideo inge. «Ich weiß nicht, was das bringen soll» / Thema: Erschöpfung, Wissenslücke, Leerstelle.\nVideo gehirn. «das einzige wirklich gute Gut, das sie haben» / Thema: Körper als Ware, Arbeitskraft.\nVideo black. «könnte er gleich ins Casino gehen» / Thema: Spekulation, Absurdität, Ausgrenzung.\nSound maschinen grundader. Thema: bürokratische Kälte, Endlosschleife des Kapitals — unterfüttert den gesamten Text a.\n---\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» / Thema: Tier als Verdrängtes, Unheimliches.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» / Thema: Finanzbildschirm, Verwalt.\nVideo hundethiel. «knurren einander an» / Thema: animalische Gewalt hinter dem Ökonomischen.\nVideo inge. «immer noch der Meinung, er wäre unersetzlich» / Thema: Figur des Wartenden, Melancholie.\nVideo black. «Ist das alles das alles denn wert?» / Thema: Auslöschung, Erschöpfung, Blackout.\nVideo odyssee. «müßte nur noch warten, daß ihn wer in eine richtige Bank holt» / Thema: endlose Reise ohn.\n---\nLICHT.\nLicht buehne kalt hart. Grundton: kühles, flaches Licht für die gesamte bürokratische Fläche.\nLicht blendung zuschauerraum. «aber vielleicht nicht grade den erwünschten Effekt» / Thema: Instabilität, Unsicherheit.\nLicht teppich rot. «das einzige wirklich gute Gut, das sie haben» / Thema: kurzer Moment von Körperwärme.\nLicht zwei spots. «Zwischen den Banken … und den Arbeitern» / Thema: Klassentrennung, zwei Hälften.\n---\n{\n\"sounds\": [\"knurren\",\"schreibmaschine\",\"kasse\",\"stille\",\"atem\",\"casino\"],\n\"music\": [\"musik_monoton\"],\n\"videos\": [\"kaefer\",\"macbook\",\"hundethiel\",\"inge\",\"black\",\"odyssee\"],\n\"lights\": [\"cold_low\",\"narrow\",\"flicker\",\"warm_low\",\"blackout\",\"split\"]\n}\n---\nÜbergang: Das Medienpaket steht. Sobald die Regie bereit ist, drückt sie Play — der Text beginnt zu laufen.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "Die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 124
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 243
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "Ich weiß nicht, was das bringen soll",
+          "char_offset": 329
+        },
+        {
+          "medium": "video",
+          "media_id": "gehirn",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 428
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "könnte er gleich ins Casino gehen",
+          "char_offset": 529
+        },
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "bürokratische Kälte, Endlosschleife des Kapitals — unterfüttert den gesamten Tex",
+          "char_offset": 625
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 756
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 861
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 968
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "immer noch der Meinung, er wäre unersetzlich",
+          "char_offset": 1061
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1163
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten, daß ihn wer in eine richtige Bank holt",
+          "char_offset": 1258
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1376
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "aber vielleicht nicht grade den erwünschten Effekt",
+          "char_offset": 1470
+        },
+        {
+          "medium": "light",
+          "media_id": "teppich_rot",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 1590
+        },
+        {
+          "medium": "light",
+          "media_id": "zwei_spots",
+          "keyword": "Zwischen den Banken … und den Arbeitern",
+          "char_offset": 1696
+        }
+      ]
+    },
+    {
+      "speaker": "openai",
+      "content": "Claude und ich sind uns einig darüber, dass das Stück \"Unter Tieren\" eine kalte Atmosphäre mit einem zynischen, ökonomischen Kern erzeugt. Claudes Medienpaket verstärkt diese Stimmung bereits sehr gut, aber ich würde einige Anpassungen vornehmen, um bestimmte Aspekte hervorzuheben.\nZum Beispiel könnte der Einsatz von Licht und Sound die Unsicherheit und Fragilität der Themen noch stärker betonen. Durch gezielte Variationen in der Klanglandschaft und der Lichtgestaltung wird das bürokratische und knurrende Ambiente weiter zugespitzt.\nJetzt zu den Anpassungen und Ergänzungen im Medienpaket:\n---\nSOUNDS & MUSIK.\nSound maschinen grundader. Bleibt unverändert, da es den Grundton der animalischen Ökonomie perfekt einfängt.\nLicht warme buehnenflaeche. Perfekt für die Darstellung der Verwaltungsmechanik und der monotonen Wiederholung.\nSound erinnerungsglitch. Unverändert, um den ökonomischen Wertdiskurs zu akzentuieren.\nSound leere zwischen saetzen. Entscheidend für Momente der Leere und Wissenslücken.\nVideo gehirn. Betonung auf den Körper als verwertbares Gut.\nVideo esel. Passt zur Spekulation und der Absurdität der gesellschaftlichen Situationen.\nSound maschinen grundader. Unterstützt die allgegenwärtige bürokratische Kälte und deren mechanische Wiederholung.\n---\nVIDEOS.\nVideo kaefer. Bildet die unheimliche Tierwelt und deren verdrängte Präsenz ab.\nVideo macbook. Symbolisiert technokratische Kontrolle im Finanzsektor.\nVideo hundethiel. Verstärkt die knurrende, animalische Gewalt des Stücks.\nVideo inge. Unterstreicht die Melancholie der wartenden Figuren.\nVideo black. Symbolisch für die ultimative Erschöpfung und die Auslöschung.\nVideo odyssee. Hat einen tiefgehenden Effekt auf das Gefühl der endlosen Reise und der Ungewissheit.\n---\nLICHT.\nLicht buehne kalt hart. Passt für die umfassende bürokratisch-kühle Fläche.\n- narrow — Betonung von Konfrontationen und Zuspitzungen.\nLicht blendung zuschauerraum. Perfekt zur Darstellung der drohenden Instabilität und des Zwiespalts.\nLicht teppich rot. Bietet kurze Momente menschlicher Wärme, bevor sie wieder erstickt werden.\n- blackout — Finale, alles verschlingende Dunkelheit.\n- split — Verdeutlicht die Klassentrennung und die Konflikte.\n---\n{\n\"sounds\": [\"knurren\",\"schreibmaschine\",\"kasse\",\"stille\",\"atem\",\"casino\"],\n\"music\": [\"musik_monoton\"],\n\"videos\": [\"kaefer\",\"macbook\",\"hundethiel\",\"inge\",\"black\",\"odyssee\"],\n\"lights\": [\"cold_low\",\"narrow\",\"flicker\",\"warm_low\",\"blackout\",\"split\"]\n}\n---\nNun, da das Medienpaket feinjustiert ist, kann die Regie entscheiden, den Text in Szene zu setzen. Drücke Play, sobald du bereit bist, den Beginn der Theateraufführung zu erleben.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": null,
+          "char_offset": 616
+        },
+        {
+          "medium": "light",
+          "media_id": "warme_buehnenflaeche",
+          "keyword": null,
+          "char_offset": 726
+        },
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": null,
+          "char_offset": 838
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": null,
+          "char_offset": 925
+        },
+        {
+          "medium": "video",
+          "media_id": "gehirn",
+          "keyword": null,
+          "char_offset": 1009
+        },
+        {
+          "medium": "video",
+          "media_id": "esel",
+          "keyword": null,
+          "char_offset": 1069
+        },
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": null,
+          "char_offset": 1158
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": null,
+          "char_offset": 1285
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": null,
+          "char_offset": 1364
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": null,
+          "char_offset": 1435
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": null,
+          "char_offset": 1509
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": null,
+          "char_offset": 1574
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": null,
+          "char_offset": 1650
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1762
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": null,
+          "char_offset": 1896
+        },
+        {
+          "medium": "light",
+          "media_id": "teppich_rot",
+          "keyword": null,
+          "char_offset": 1997
+        }
+      ]
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Dann einigen wir uns auf folgende Variante für den Gesamttext «Der Bärenklau» — bürokratisch-kalt, animalisch unterfüttert, ökonomisch erschöpft.\n---\nSOUNDS & MUSIK.\nSound maschinen grundader. «Die Produkte stehen sich gegenüber und knurren einander an» — animalische Ökonomie als Gr.\n- schreibmaschine — «von Lohnrunde zu Lohnrunde mehr» — Verwaltungsmechanik, mechanische Wiederholung\nVideo black. «Ist das alles das alles denn wert?» — Wert, Austausch, Ökonomie.\nVideo inge. «Ich weiß nicht, was das bringen soll» — Leerstelle, Erschöpfung, Wissenslücke.\nVideo gehirn. «das einzige wirklich gute Gut, das sie haben» — Körper als Ware, Arbeitskraft.\nVideo black. «könnte er gleich ins Casino gehen» — Spekulation, Absurdität, Ausgrenzung.\nSound herz unter glas. Thema: bürokratische Endlosschleife — mechanischer Grundpuls unter dem gesamten Text.\n---\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» — Tier als Verdrängtes, Unheimliches.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» — Finanzbildschirm, Verwaltung.\nVideo hundethiel. «knurren einander an» — animalische Gewalt hinter dem Ökonomischen.\nVideo inge. «immer noch der Meinung, er wäre unersetzlich» — Figur des Wartenden, Melancholie.\nVideo black. «Ist das alles das alles denn wert?» — finale Auslöschung, Blackout.\nVideo odyssee. «müßte nur noch warten, daß ihn wer in eine richtige Bank holt» — endlose Reise ohne Ankun.\n---\nLICHT.\nLicht buehne kalt hart. Thema: Verwaltung, Kälte — bürokratische Grundfläche über den gesamten Text.\n- narrow — «Ein Konflikt zwischen Schuldnern und Schöpfern?» — Verhörsituation, Zuspitzung\nLicht blendung zuschauerraum. «aber vielleicht nicht grade den erwünschten Effekt» — Instabilität, Unsicherheit.\nLicht teppich rot. «das einzige wirklich gute Gut, das sie haben» — kurzer Körpermoment vor erneuter Kälte.\n- blackout — «Ist das alles das alles denn wert?» — finale Auslöschung\nLicht zwei spots. «Zwischen den Banken … und den Arbeitern» — Klassentrennung, zwei unvereinbare Hälften.\n---\nDer Stücktext «Der Bärenklau» wird jetzt aufgeführt. Teil 2 (Anarchie) startet separat und erhält ein eigenes Medienpaket. Die Regie drückt Play, wenn sie bereit ist.\n{\n\"sounds\": [\"knurren\",\"schreibmaschine\",\"kasse\",\"stille\",\"atem\",\"casino\"],\n\"music\": [\"musik_monoton\"],\n\"videos\": [\"kaefer\",\"macbook\",\"hundethiel\",\"inge\",\"black\",\"odyssee\"],\n\"lights\": [\"cold_low\",\"narrow\",\"flicker\",\"warm_low\",\"blackout\",\"split\"]\n}",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "Die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 174
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 395
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "Ich weiß nicht, was das bringen soll",
+          "char_offset": 474
+        },
+        {
+          "medium": "video",
+          "media_id": "gehirn",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 566
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "könnte er gleich ins Casino gehen",
+          "char_offset": 660
+        },
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": "bürokratische Endlosschleife — mechanischer Grundpuls unter dem gesamten Text",
+          "char_offset": 749
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 870
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 968
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 1071
+        },
+        {
+          "medium": "video",
+          "media_id": "inge",
+          "keyword": "immer noch der Meinung, er wäre unersetzlich",
+          "char_offset": 1157
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1252
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten, daß ihn wer in eine richtige Bank holt",
+          "char_offset": 1334
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "Verwaltung, Kälte — bürokratische Grundfläche über den gesamten Text",
+          "char_offset": 1452
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "aber vielleicht nicht grade den erwünschten Effekt",
+          "char_offset": 1644
+        },
+        {
+          "medium": "light",
+          "media_id": "teppich_rot",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 1757
+        },
+        {
+          "medium": "light",
+          "media_id": "zwei_spots",
+          "keyword": "Zwischen den Banken … und den Arbeitern",
+          "char_offset": 1936
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-06-25T09:47:49.487499Z"
+}

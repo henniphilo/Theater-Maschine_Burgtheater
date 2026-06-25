@@ -49,6 +49,7 @@ Beispiel-Adressen:
 
 ```text
 /eos/chan/6/full
+/eos/chan/71 62
 /eos/chan/92/full
 /eos/key/out
 ```

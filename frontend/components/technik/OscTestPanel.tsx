@@ -26,6 +26,8 @@ export function OscTestPanel() {
   const [clipId, setClipId] = useState("clyde");
   const [soundId, setSoundId] = useState("maschinen_grundader");
   const [lightId, setLightId] = useState("vorbuehnenzug");
+  const [lightIntensityPercent, setLightIntensityPercent] = useState(100);
+  const [useLightIntensity, setUseLightIntensity] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
   const [soundLoading, setSoundLoading] = useState(false);
   const [lightLoading, setLightLoading] = useState(false);
@@ -39,7 +41,7 @@ export function OscTestPanel() {
   }, []);
 
   useEffect(() => {
-    fetchMediaCatalog()
+    fetchMediaCatalog("part2")
       .then((c) => {
         setCatalog(c);
         if (c.videos[0]) setClipId(c.videos[0].id);
@@ -188,29 +190,31 @@ export function OscTestPanel() {
     }
   }, []);
 
+  const lightIntensity = useLightIntensity ? lightIntensityPercent / 100 : null;
+
   const sendLight = useCallback(async () => {
     setError("");
     setLightLoading(true);
     try {
-      setLightStatus(await postLightSend(lightId));
+      setLightStatus(await postLightSend(lightId, { intensity: lightIntensity }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Licht-Signal fehlgeschlagen");
     } finally {
       setLightLoading(false);
     }
-  }, [lightId]);
+  }, [lightId, lightIntensity]);
 
   const holdLight = useCallback(async () => {
     setError("");
     setLightLoading(true);
     try {
-      setLightStatus(await postLightHoldStart(lightId));
+      setLightStatus(await postLightHoldStart(lightId, { intensity: lightIntensity }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Licht-Hold fehlgeschlagen");
     } finally {
       setLightLoading(false);
     }
-  }, [lightId]);
+  }, [lightId, lightIntensity]);
 
   const stopLight = useCallback(async () => {
     setError("");
@@ -254,7 +258,7 @@ export function OscTestPanel() {
       <h3 style={{ margin: "0 0 0.5rem" }}>Video</h3>
       <p className="textMuted" style={{ marginTop: 0 }}>
         Ziel: <code>{videoTarget}</code>
-        {videoUsesPixera ? " · Testclip auf RZ21 (Front)" : null}
+        {videoUsesPixera ? " · Testclip auf allen Beamern (RZ21, Adam, Eva, LED)" : null}
       </p>
 
       <p className={videoHolding ? "oscTestActive" : "textMuted"} role="status">
@@ -328,7 +332,7 @@ export function OscTestPanel() {
       <h3 style={{ margin: "0 0 0.5rem" }}>Licht</h3>
       <p className="textMuted" style={{ marginTop: 0 }}>
         EOS TCP <code>{lightTcpTarget}</code>: Socket verbinden, dann binäres OSC (4-Byte-Längenpräfix) auf
-        derselben Verbindung — <code>/eos/chan/N/full</code> oder <code>/eos/chan/N/at</code> (0–100&nbsp;%) · Stopp: <code>/eos/key/out</code>
+        derselben Verbindung — <code>/eos/chan/N/full</code> oder <code>/eos/chan/N</code> mit Prozent-Argument (0–100&nbsp;%) · Stopp: <code>/eos/key/out</code>
       </p>
 
       <p className={lightConnected ? "oscTestActive" : "textMuted"} role="status">
@@ -341,7 +345,11 @@ export function OscTestPanel() {
               moods: [],
               fade_time: 0
             }
-          )}{lightStatus.hold_active ? " (halten)" : ""}</span>
+          )}{lightStatus.hold_active ? " (halten)" : ""}
+            {lightStatus.intensity != null ? (
+              <span> · {Math.round(lightStatus.intensity * 100)}&nbsp;%</span>
+            ) : null}
+          </span>
         ) : null}
       </p>
 
@@ -365,6 +373,54 @@ export function OscTestPanel() {
             <option key={l.id} value={l.id}>{formatLightChannelLabel(l)}</option>
           ))}
         </select>
+      </label>
+
+      <label className="oscTestChannel oscTestIntensity">
+        <span className="oscTestIntensityHeader">
+          <span>Intensität testen</span>
+          <label className="oscTestIntensityToggle">
+            <input
+              type="checkbox"
+              checked={useLightIntensity}
+              onChange={(e) => setUseLightIntensity(e.target.checked)}
+              disabled={lightLoading || !lightConnected}
+            />
+            Teilhelligkeit
+          </label>
+        </span>
+        <input
+          type="range"
+          min={1}
+          max={100}
+          step={1}
+          value={lightIntensityPercent}
+          onChange={(e) => setLightIntensityPercent(Number(e.target.value))}
+          disabled={lightLoading || !lightConnected || !useLightIntensity}
+          aria-valuemin={1}
+          aria-valuemax={100}
+          aria-valuenow={lightIntensityPercent}
+          aria-label="Lichtintensität in Prozent"
+        />
+        <div className="oscTestIntensityMeta">
+          <strong>{useLightIntensity ? `${lightIntensityPercent} %` : "Full (100 %)"}</strong>
+          <span className="textMuted">
+            {useLightIntensity
+              ? `→ /eos/chan/N ${lightIntensityPercent}`
+              : "→ /eos/chan/N/full"}
+          </span>
+        </div>
+        <div className="row oscTestIntensityPresets">
+          {[25, 50, 75, 100].map((pct) => (
+            <button
+              key={pct}
+              type="button"
+              disabled={lightLoading || !lightConnected || !useLightIntensity}
+              onClick={() => setLightIntensityPercent(pct)}
+            >
+              {pct}%
+            </button>
+          ))}
+        </div>
       </label>
 
       <div className="row oscTestActions">

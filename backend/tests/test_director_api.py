@@ -102,6 +102,19 @@ def test_light_desk_two_step_connect_then_send() -> None:
     assert disconnect.json()["tcp_connected"] is False
 
 
+def test_light_send_with_intensity() -> None:
+    client.post("/api/v1/director/light/connect")
+    send = client.post(
+        "/api/v1/director/light/send",
+        json={"light_scene_id": "buehne_kalt_hart", "intensity": 0.62},
+    )
+    assert send.status_code == 200
+    body = send.json()
+    assert body["scene_id"] == "buehne_kalt_hart"
+    assert body["intensity"] == 0.62
+    client.post("/api/v1/director/light/disconnect")
+
+
 def test_light_send_without_connect_returns_409() -> None:
     client.post("/api/v1/director/light/disconnect")
     res = client.post(

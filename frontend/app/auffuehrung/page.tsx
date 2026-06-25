@@ -44,6 +44,8 @@ import {
 import type { SceneCorpus } from "@/lib/types/inszenierung";
 import { progressFromBeat } from "@/lib/show/performanceTimeline";
 import { fetchMediaCatalog } from "@/lib/api/media";
+import type { MediaCatalog } from "@/lib/types/media";
+import { allowlistFromCatalog, buildMediaAliasIndex, type MediaAllowlist, type MediaAliasIndex } from "@/features/show/mediaMentions";
 import { buildMediaLookup, type MediaLookup } from "@/lib/types/media";
 import type { ProductionScript } from "@/lib/types/script";
 
@@ -57,6 +59,9 @@ function AuffuehrungContent() {
   const [script, setScript] = useState<ProductionScript | null>(null);
   const [playback, setPlayback] = useState<PlaybackState>(INITIAL_PLAYBACK_STATE);
   const [media, setMedia] = useState<MediaLookup | undefined>();
+  const [mediaCatalog, setMediaCatalog] = useState<MediaCatalog | null>(null);
+  const [mediaAllowlist, setMediaAllowlist] = useState<MediaAllowlist | null>(null);
+  const [mediaAliasIndex, setMediaAliasIndex] = useState<MediaAliasIndex | null>(null);
   const [ttsAvailable, setTtsAvailable] = useState(false);
   const [ttsHint, setTtsHint] = useState("");
   const [ttsProvider, setTtsProvider] = useState("");
@@ -106,11 +111,17 @@ function AuffuehrungContent() {
         setTtsProvider(s.provider ?? "");
       })
       .catch(() => undefined);
-    fetchMediaCatalog()
-      .then((catalog) => setMedia(buildMediaLookup(catalog)))
+    const videoScope = performancePart === "part2_delphin_to_mole" ? "part2" : "part1";
+    fetchMediaCatalog(videoScope)
+      .then((catalog) => {
+        setMediaCatalog(catalog);
+        setMedia(buildMediaLookup(catalog));
+        setMediaAllowlist(allowlistFromCatalog(catalog));
+        setMediaAliasIndex(buildMediaAliasIndex(catalog));
+      })
       .catch(() => undefined);
     return subscribeScriptBuffer(setBufferState);
-  }, [load]);
+  }, [load, performancePart]);
 
   useEffect(() => {
     const linkedId = script?.teil2_corpus_id ?? corpusIdParam;
@@ -134,9 +145,12 @@ function AuffuehrungContent() {
     () => ({
       ttsAvailable,
       scriptId: script?.id,
-      hasRenderedAudio: Boolean(script?.has_rendered_audio)
+      hasRenderedAudio: Boolean(script?.has_rendered_audio),
+      mediaAllowlist,
+      mediaAliasIndex,
+      mediaCatalog
     }),
-    [ttsAvailable, script?.id, script?.has_rendered_audio]
+    [ttsAvailable, script?.id, script?.has_rendered_audio, mediaAllowlist, mediaAliasIndex, mediaCatalog]
   );
   const bufferReady = script ? isPlaybackBuffered(script.id, playbackAudio) : false;
   const scriptReady = ready || Boolean(script?.has_rendered_audio);
@@ -199,7 +213,8 @@ function AuffuehrungContent() {
           }
         },
         () => abortRef.current,
-        `${script.title} — Teil 1`
+        `${script.title} — Teil 1`,
+        script.part1_selection ?? null
       );
 
       if (gen === playbackGenRef.current && !abortRef.current && script.teil2_corpus_id) {

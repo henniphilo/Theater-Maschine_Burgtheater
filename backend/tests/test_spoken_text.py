@@ -1,4 +1,4 @@
-from app.services.spoken_text import spoken_discussion_text
+from app.services.spoken_text import needs_discussion_sanitization, spoken_discussion_text
 
 MEDIA_TURN = """**Sounds/Musik**
 - low_drone_01 — «billiger in der Anschaffung» / Thema: Verwaltungskälte
@@ -28,3 +28,8 @@ def test_spoken_discussion_text_keeps_intro_before_bullets() -> None:
     spoken = spoken_discussion_text(raw)
     assert "Wir schlagen folgendes Paket vor" in spoken
     assert "sound_a" not in spoken
+
+
+def test_needs_discussion_sanitization() -> None:
+    assert needs_discussion_sanitization(MEDIA_TURN) is True
+    assert needs_discussion_sanitization("Sound maschinen grundader.\nVideo clyde.") is False

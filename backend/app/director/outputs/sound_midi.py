@@ -148,6 +148,17 @@ class SoundMidiBridge:
         self.trigger(cue_id, volume, dry_run=dry_run)
 
     def stop_all(self, *, dry_run: bool = False) -> None:
+        """Panic: dedicated cut_all note (127) from catalog, else All Notes Off (CC 123)."""
+        cut_mapping = self.mapping_for("alle_sounds_cut")
+        if cut_mapping is not None:
+            velocity = cut_mapping.velocity if cut_mapping.velocity is not None else 127
+            self._send(
+                f"note_on ch={cut_mapping.channel} note={cut_mapping.note} vel={velocity} (cut_all)",
+                self._build_message("note_on", cut_mapping, velocity=velocity),
+                dry_run=dry_run,
+            )
+            return
+
         channel = settings.sound_midi_channel
         from app.director.outputs.midi_log import log_midi_command
 

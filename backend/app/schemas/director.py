@@ -115,10 +115,12 @@ class LightDeskStatusResponse(BaseModel):
     tcp_connected: bool
     scene_id: str | None = None
     hold_active: bool = False
+    intensity: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class LightSendRequest(BaseModel):
     light_scene_id: str = Field(min_length=1)
+    intensity: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class RecordingRequest(BaseModel):

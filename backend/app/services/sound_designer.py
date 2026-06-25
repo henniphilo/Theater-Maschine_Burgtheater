@@ -6,9 +6,12 @@ import re
 from dataclasses import dataclass, field
 
 from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision, LightCue, SoundCue, VisualCue
+from app.schemas.discussion import DiscussionTurn
+from app.schemas.media_mentions import MediaMention
 from app.schemas.part1_selection import Part1BaerenklauSelection
 from app.schemas.script import ScriptBeat
 from app.schemas.sound_cues import SoundCueCatalog, SoundCueEntry
+from app.services.media_mentions import keywords_for_performance
 from app.services.script_splitter import split_sentences
 from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 
@@ -260,6 +263,46 @@ def _sound_point(
     )
 
 
+def _keyword_points_from_discussion(
+    turns: list[DiscussionTurn],
+    scene_text: str,
+    index: SoundCatalogIndex,
+    planner: SoundDesignPlanner,
+    state: SoundMixState,
+) -> list[CuePoint]:
+    mentions: list[MediaMention] = []
+    for turn in turns:
+        mentions.extend(turn.media_mentions)
+    points: list[CuePoint] = []
+    for mention in keywords_for_performance(mentions, scene_text):
+        keyword = mention.keyword
+        if not keyword:
+            continue
+        intensity = 0.55
+        point = CuePoint(
+            trigger=CuePointTrigger.KEYWORD,
+            keyword=keyword,
+            function="dramaturg_stichwort",
+            intensity=intensity,
+        )
+        if mention.medium in ("sound", "music"):
+            _, main_ops = planner.plan_for_moment(
+                state,
+                mention.media_id,
+                sentence=keyword,
+                moment_index=0,
+                moment_count=1,
+                intensity=intensity,
+            )
+            point.sound = main_ops[0] if main_ops else SoundCue(cue_id=mention.media_id, volume=0.6)
+        elif mention.medium == "video":
+            point.visual = VisualCue(clip_id=mention.media_id, blend_mode="replace")
+        else:
+            point.light = LightCue(scene_id=mention.media_id, intensity=0.5)
+        points.append(point)
+    return points
+
+
 def dramaturgy_with_sound_design(
     selection: Part1BaerenklauSelection,
     beat: ScriptBeat,
@@ -339,6 +382,16 @@ def dramaturgy_with_sound_design(
                     light=LightCue(scene_id=light_id, intensity=round(0.35 + intensity * 0.45, 2)),
                 )
             )
+
+    points.extend(
+        _keyword_points_from_discussion(
+            selection.discussion_turns,
+            beat.text,
+            index,
+            planner,
+            state,
+        )
+    )
 
     if not points:
         points.append(

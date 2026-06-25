@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.director.cues.cue_models import DramaturgyDecision
+from app.schemas.media_mentions import MediaMention
 
 DramaturgSpeaker = Literal["openai", "anthropic"]
 
@@ -13,3 +14,4 @@ class DiscussionTurn(BaseModel):
     speaker: DramaturgSpeaker
     content: str = Field(min_length=1)
     proposed_decision: DramaturgyDecision | None = None
+    media_mentions: list[MediaMention] = Field(default_factory=list)

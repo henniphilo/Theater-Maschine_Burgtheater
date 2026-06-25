@@ -1,0 +1,267 @@
+{
+  "part": 1,
+  "scene": "Bärenklau",
+  "script_id": "b3da991a-0797-4951-bb74-a1398ccbbf2d",
+  "beat_id": "87ed1f0f-83fc-4710-a079-4f223cbe5c61",
+  "selected_by": [
+    "Claude",
+    "ChatGPT"
+  ],
+  "final_sounds": [
+    "archiv_rauschen",
+    "erinnerungsglitch",
+    "herz_unter_glas",
+    "kaefigecho",
+    "leere_zwischen_saetzen",
+    "maschinen_grundader"
+  ],
+  "final_music": [
+    "maschinen_grundader"
+  ],
+  "final_videos": [
+    "avatar",
+    "avatar2",
+    "black",
+    "bonnie",
+    "clyde",
+    "esel"
+  ],
+  "final_lights": [
+    "blackout",
+    "blendung_magenta",
+    "blendung_zuschauerraum",
+    "buehne_kalt_hart",
+    "fluegel",
+    "gegenlicht_weich"
+  ],
+  "dramaturgical_reading": "**Claude:** Dann einigen wir uns auf folgende Variante für «Der Bärenklau» (Teil 1, gesamter Text):\n\n---\n\n---\n\nDer Stücktext ist bereit zur Aufführung. Teil 2 (Anarchie) startet separat. **Die Regie drückt Play, wenn sie bereit ist.**",
+  "cue_strategy": "Teil 1 — Gesamttext; Sounddesign: play/fade/layer aus Dramaturgen-Repertoire",
+  "discussion_turns": [
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Jelinek entlarvt in «Der Bärenklau» die Warenlogik als Naturgewalt — der Mensch wird ersetzt, weil «Pflanzen billiger in der Anschaffung» sind. Der Arbeiter kreist durch Lohnrunden und Wartesäle, ohne je wirklich anzukommen: «immer noch der Meinung, er wäre unersetzlich.» Die Grundstimmung ist kühl-bürokratisch, mit einem unterschwelligen Knurren — wie «Produkte, die sich gegenüberstehen und einander anknurren».",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "openai",
+      "content": "ChatGPT: Claudes Analyse trifft das Herz von Jelineks Text. Ein weiterer wichtiger Aspekt ist die Frage der Wertigkeit: «Ist das alles das alle[s] denn wert?» Diese Zeile verstärkt die Unsicherheit und den Verlust von Orientierung. Dramaturgisch könnten unheimliche Insekten-Sounds oder verdichtete Bürogeräusche die Kälte und Mechanik verstärken. Ein Video von «tier» würde als Widerspruch zur menschlichen Existenz wirken.",
+      "proposed_decision": null,
+      "media_mentions": []
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Hier ist mein Medienpaket für «Der Bärenklau» — verdichtet um die drei Achsen des Textes: Warenlogik, Ersetzbarkeit, Wertlosigkeit.\n---\nSOUNDS & MUSIK.\nSound maschinen grundader. «die Produkte stehen sich gegenüber und knurren einander an» / Thema: animalische Ökonomie.\nLicht spot tisch. «Handeln Sie jetzt rasch!» / Thema: Verwaltung, bürokratischer Akzent bei Imperativ-Moment.\nLicht saallicht. «auf der Ersatzbank im Wartesaal sitzenbleiben» / Thema: Stillstand, Institutionsgeräusch.\nSound herz unter glas. «das einzige wirklich gute Gut, das sie haben» / Thema: der Körper als letzte Ware — biolo.\nMUSIK.\n---\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» / Thema: nicht-menschliches Leben als Spiege.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» / Thema: digitale Finanzoberfläche.\nVideo hundethiel. «knurren einander an» / Thema: unheimliche Tierhaftigkeit der Warenbeziehung.\nVideo black. «Ist das alles das alles denn wert?» / Thema: Auslöschung am Ende, Blackout als Antwort.\nVideo odyssee. «hätte er ja was gelernt und müßte nur noch warten» / Thema: die endlose Reise ohne Ankunf.\n---\nLICHT.\nLicht buehne kalt hart. Grundstimmung / Thema: Kälte der Warenlogik durch den gesamten Text.\nLicht blendung zuschauerraum. «immer weniger mehr» / Thema: Instabilität, das Licht versagt wie die Lohnrunde.\nLicht spot tisch. «der Arbeiter wäre unersetzlich» / Thema: Isolierung, Einengung der Figur.\n---\n{\n\"sounds\": [\"knurren\", \"drucker\", \"stille\", \"casino\", \"wartesaal\", \"herzschlag\"],\n\"music\": [\"klassik_kammer\"],\n\"videos\": [\"kaefer\", \"macbook\", \"hundethiel\", \"inge\", \"black\", \"odyssee\"],\n\"lights\": [\"cold_blue\", \"interrogation\", \"flicker\", \"amber_low\", \"narrow_spot\", \"blackout\"]\n}\n---\nÜbergang zur Aufführung: Das Paket steht. Grundton ist das Knurren der Waren, unterbrochen von Stille und Blackout. Die Regie kann jetzt Play drücken — der Text beginnt zu laufen.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 160
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 279
+        },
+        {
+          "medium": "light",
+          "media_id": "saallicht",
+          "keyword": "auf der Ersatzbank im Wartesaal sitzenbleiben",
+          "char_offset": 389
+        },
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 497
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 631
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 737
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 844
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 940
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "hätte er ja was gelernt und müßte nur noch warten",
+          "char_offset": 1042
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": "Kälte der Warenlogik durch den gesamten Text",
+          "char_offset": 1160
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "immer weniger mehr",
+          "char_offset": 1253
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "der Arbeiter wäre unersetzlich",
+          "char_offset": 1364
+        }
+      ]
+    },
+    {
+      "speaker": "openai",
+      "content": "Der Text von Jelinek ist von einer beißenden Kritik an der Ersetzbarkeit des Menschen durch ökonomische Prozesse geprägt. Das Spannungsverhältnis zwischen Mensch und Ware wird durch grimmige Knurren und kühle Verwaltungstöne verstärkt, während die Schnittstelle zwischen Wert und Wertlosigkeit die gesamte Stimmung ausmacht. Claude hat bereits eine starke Grundtönerkennung gezeigt, doch ich würde einige Entscheidungen hinterfragen.\nEinleitung:.\nJelinek stellt die ökonomische Gleichgültigkeit und die Ersetzbarkeit des Menschen in den Vordergrund. Während Sounds und Licht die Kälte und die Mechanik unterstreichen, zeigen Videos die Entfremdung. Die dramatische Spannung entsteht dabei aus der Balance von Knurren, Stille und einem endgültigen Blackout.\nSOUNDS & MUSIK.\n- warten (statt wartesaal) — bringt eine emotionale Erschöpfung anstelle einer Institution.\nSound herz unter glas. biologischer Kontrast.\nMUSIK.\nVIDEOS.\nVideo kaefer. der Wandel des Menschen zu einer austauschbaren Existenz.\nVideo macbook. unterstreicht die digitale Kälte.\nVideo hundethiel. uneingeschränkt passend.\n- inge und odyssee — behalten als persönliche und endlose Suche nach Bedeutung.\nVideo black. der unerbittliche Schluss-Punkt.\nLICHT.\nLicht buehne kalt hart. unaufdringlich bedrohlich durch den ganzen Text.\n- interrogation — verstärkt die fordernde Autorität.\nLicht blendung zuschauerraum. Unsicherheit und Veränderlichkeit.\n- amber_low — kurzer Auftauchen der Wärme.\nLicht spot tisch. erfasst die menschliche Isolation.\n- blackout — der endgültige Höhepunkt.\n{\n\"sounds\": [\"knurren\", \"drucker\", \"stille\", \"casino\", \"warten\", \"herzschlag\"],\n\"music\": [\"klassik_kammer\"],\n\"videos\": [\"kaefer\", \"macbook\", \"hundethiel\", \"inge\", \"black\", \"odyssee\"],\n\"lights\": [\"cold_blue\", \"interrogation\", \"flicker\", \"amber_low\", \"narrow_spot\", \"blackout\"]\n}\nÜbergang zur Aufführung: Die Kühle und Verlorenheit sind bereit, das Publikum zu umarmen. Die Regie kann Play drücken und den Text mit dem bereitgestellten Medienpaket entfalten lassen.",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": null,
+          "char_offset": 865
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": null,
+          "char_offset": 926
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": null,
+          "char_offset": 998
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": null,
+          "char_offset": 1047
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": null,
+          "char_offset": 1170
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1223
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": null,
+          "char_offset": 1349
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": null,
+          "char_offset": 1457
+        }
+      ]
+    },
+    {
+      "speaker": "anthropic",
+      "content": "Claude: Dann einigen wir uns auf folgende Variante für «Der Bärenklau» (Teil 1, gesamter Text):\n---\nSOUNDS.\nSound maschinen grundader. «die Produkte stehen sich gegenüber und knurren einander an» — animalischer Grundton der W.\nSound erinnerungsglitch. «Handeln Sie jetzt rasch!» — bürokratischer Akzent beim Imperativ.\nSound leere zwischen saetzen. «Ich weiß nicht, was das bringen soll» — Pause nach jedem Nicht-Wissen.\n- casino — «könnte er gleich ins Casino gehen» — Zufall als einzige Gegenwelt\n- wartesaal — «auf der Ersatzbank im Wartesaal sitzenbleiben» — institutionelle Erschöpfung\nSound herz unter glas. «das einzige wirklich gute Gut, das sie haben» — Körper als letzte Ware.\nMUSIK.\n- klassik_kammer — «ich bin schon gern hochtönend» — Jelineks Ironie des Hochkulturellengestus unterlegt die leere Klassenkampf-Rhetorik\nVIDEOS.\nVideo kaefer. «wir werden alle von Pflanzen ersetzt werden» — nicht-menschliches Leben spiegelt Ersetzba.\nVideo macbook. «Die Kreditkapazitäten, also die Geldmengen ausweiten?» — digitale Finanzoberfläche, kalte.\nVideo hundethiel. «knurren einander an» — unheimliche Tierhaftigkeit der Warenbeziehung.\n- inge — «niemand hat es je gewußt» — melancholische Figur als Stellvertreterin des stimmlosen Arbeiters\nVideo odyssee. «müßte nur noch warten» — endlose Reise ohne Ankunft.\nVideo black. «Ist das alles das alles denn wert?» — Blackout als einzige Antwort.\nLICHT.\nLicht buehne kalt hart. Grundton / Kälte der Warenlogik durch den gesamten Text.\n- interrogation — «Handeln Sie jetzt rasch!» — Verhörlicht beim imperativischen Druck\nLicht blendung zuschauerraum. «immer weniger mehr» — Instabilität der Lohnrunde.\n- amber_low — «das einzige wirklich gute Gut» — kurze Wärme beim einzigen positiven Begriff\nLicht spot tisch. «immer noch der Meinung, er wäre unersetzlich» — Isolierung der Figur.\n- blackout — «Ist das alles das alles denn wert?» — radikale Auslöschung als Schlusspunkt\n---\nDer Stücktext ist bereit zur Aufführung. Teil 2 (Anarchie) startet separat. Die Regie drückt Play, wenn sie bereit ist.\n{\n\"sounds\": [\"knurren\", \"drucker\", \"stille\", \"casino\", \"wartesaal\", \"herzschlag\"],\n\"music\": [\"klassik_kammer\"],\n\"videos\": [\"kaefer\", \"macbook\", \"hundethiel\", \"inge\", \"odyssee\", \"black\"],\n\"lights\": [\"cold_blue\", \"interrogation\", \"flicker\", \"amber_low\", \"narrow_spot\", \"blackout\"]\n}",
+      "proposed_decision": null,
+      "media_mentions": [
+        {
+          "medium": "sound",
+          "media_id": "maschinen_grundader",
+          "keyword": "die Produkte stehen sich gegenüber und knurren einander an",
+          "char_offset": 108
+        },
+        {
+          "medium": "sound",
+          "media_id": "erinnerungsglitch",
+          "keyword": "Handeln Sie jetzt rasch!",
+          "char_offset": 227
+        },
+        {
+          "medium": "sound",
+          "media_id": "leere_zwischen_saetzen",
+          "keyword": "Ich weiß nicht, was das bringen soll",
+          "char_offset": 319
+        },
+        {
+          "medium": "sound",
+          "media_id": "herz_unter_glas",
+          "keyword": "das einzige wirklich gute Gut, das sie haben",
+          "char_offset": 591
+        },
+        {
+          "medium": "video",
+          "media_id": "kaefer",
+          "keyword": "wir werden alle von Pflanzen ersetzt werden",
+          "char_offset": 839
+        },
+        {
+          "medium": "video",
+          "media_id": "macbook",
+          "keyword": "Die Kreditkapazitäten, also die Geldmengen ausweiten?",
+          "char_offset": 945
+        },
+        {
+          "medium": "video",
+          "media_id": "hundethiel",
+          "keyword": "knurren einander an",
+          "char_offset": 1052
+        },
+        {
+          "medium": "video",
+          "media_id": "odyssee",
+          "keyword": "müßte nur noch warten",
+          "char_offset": 1246
+        },
+        {
+          "medium": "video",
+          "media_id": "black",
+          "keyword": "Ist das alles das alles denn wert?",
+          "char_offset": 1315
+        },
+        {
+          "medium": "light",
+          "media_id": "buehne_kalt_hart",
+          "keyword": null,
+          "char_offset": 1404
+        },
+        {
+          "medium": "light",
+          "media_id": "blendung_zuschauerraum",
+          "keyword": "immer weniger mehr",
+          "char_offset": 1571
+        },
+        {
+          "medium": "light",
+          "media_id": "spot_tisch",
+          "keyword": "immer noch der Meinung, er wäre unersetzlich",
+          "char_offset": 1744
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-06-25T10:18:57.296866Z"
+}

@@ -2,6 +2,15 @@ import { postDirectorDialogueEvent } from "@/lib/api/director";
 import type { DramaturgyDecision, OscCommand } from "@/lib/types/director";
 import type { DiscussionTurn, DramaturgSpeaker } from "@/lib/types/script";
 import { executeCueSafely, normalizeCuePoints } from "@/features/show/cuePlayback";
+import {
+  decisionForMediaMention,
+  extractMediaMentions,
+  mentionKey,
+  mentionsDueAtPosition,
+  textPositionForPlayback,
+  type MediaAllowlist
+} from "@/features/show/mediaMentions";
+import type { MediaMention } from "@/lib/types/script";
 
 function dramaturgToDialogueSpeaker(speaker: DramaturgSpeaker): "AI_A" | "AI_B" {
   return speaker === "anthropic" ? "AI_B" : "AI_A";
@@ -85,3 +94,36 @@ export async function executeDiscussionCue(
 
   return executeCueSafely(decision, ctx.onCommands, ctx.shouldAbort);
 }
+
+export async function executeDiscussionMediaMention(
+  ctx: DiscussionCueContext,
+  mention: MediaMention,
+  fired: Set<string>
+): Promise<void> {
+  const key = mentionKey(mention);
+  if (fired.has(key) || ctx.shouldAbort()) return;
+  fired.add(key);
+  await executeDiscussionCue(ctx, decisionForMediaMention(mention));
+}
+
+export function resolveTurnMentions(
+  turn: DiscussionTurn,
+  allowlist: MediaAllowlist | null,
+  rawFallback?: string
+): MediaMention[] {
+  if (turn.media_mentions?.length) return turn.media_mentions;
+  if (!allowlist) return [];
+  return extractMediaMentions(rawFallback ?? turn.content, allowlist);
+}
+
+export async function fireDiscussionMentionsAtPosition(
+  ctx: DiscussionCueContext,
+  mentions: MediaMention[],
+  textPosition: number,
+  fired: Set<string>
+): Promise<void> {
+  const due = mentionsDueAtPosition(mentions, textPosition, fired);
+  await Promise.all(due.map((mention) => executeDiscussionMediaMention(ctx, mention, fired)));
+}
+
+export { textPositionForPlayback };

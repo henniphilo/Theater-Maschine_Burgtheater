@@ -32,9 +32,11 @@ def test_combined_light_scenes_share_one_key_out() -> None:
     key_outs = [c for c in light_cmds if c.address == "/eos/key/out"]
     assert len(key_outs) == 1
     addresses = {c.address for c in light_cmds}
-    assert "/eos/chan/46/at" in addresses
-    assert "/eos/chan/6/at" in addresses
-    assert "/eos/chan/10/at" in addresses
+    assert "/eos/chan/46" in addresses
+    assert "/eos/chan/6" in addresses
+    assert "/eos/chan/10" in addresses
+    partial = [c for c in light_cmds if c.address == "/eos/chan/46"]
+    assert partial and partial[0].args == [80.0]
 
 
 def test_group_scene_emits_eos_group_command() -> None:
@@ -53,5 +55,5 @@ def test_group_scene_emits_eos_group_command() -> None:
 
 def test_eos_group_level_partial() -> None:
     address, args = eos_group_level(2, 0.5)
-    assert address == "/eos/group/2/level"
+    assert address == "/eos/group/2"
     assert args == [50.0]

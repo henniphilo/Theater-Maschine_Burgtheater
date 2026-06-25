@@ -12,9 +12,10 @@ from app.director.outputs.eos_light import (
     eos_key_out,
     expand_channels,
     parse_eos_chan_command,
-    EOS_GROUP_ADDRESS_RE,
+    parse_eos_group_command,
 )
 from app.services.video_cue_catalog import get_video_cue_catalog_service
+from app.services.video_scope import VideoScope
 
 _osc_fail_logger = logging.getLogger("theatermaschine.osc")
 
@@ -191,18 +192,19 @@ def _pixera_visual_commands(
     osc_host: str,
     osc_port: int,
     is_dry_run: bool,
+    video_scope: VideoScope = "part2",
 ) -> list[OscCommand]:
-    catalog = get_video_cue_catalog_service().load()
+    catalog = get_video_cue_catalog_service().load(video_scope)
     if not catalog.clips:
         return []
 
     commands: list[OscCommand] = []
-    for output_id, clip_id, action in resolve_visual_assignments(visual):
+    for output_id, clip_id, action in resolve_visual_assignments(visual, video_scope=video_scope):
         if action in (VisualAction.RECORD_LIVE, VisualAction.PLAY_RECORDING):
             continue
         try:
             cue_name = get_video_cue_catalog_service().pixera_cue_name(
-                output_id, clip_id, catalog
+                output_id, clip_id, catalog, scope=video_scope
             )
         except KeyError:
             continue
@@ -225,6 +227,7 @@ def _visual_commands(
     osc_host: str,
     osc_port: int,
     is_dry_run: bool,
+    video_scope: VideoScope = "part2",
 ) -> list[OscCommand]:
     mode = settings.visual_output
     commands: list[OscCommand] = []
@@ -237,6 +240,7 @@ def _visual_commands(
                 osc_host=pixera_host,
                 osc_port=pixera_port,
                 is_dry_run=is_dry_run,
+                video_scope=video_scope,
             )
         )
     if mode in ("touchdesigner", "both"):
@@ -257,6 +261,7 @@ def _commands_for_single_decision(
     osc_host: str,
     osc_port: int,
     is_dry_run: bool,
+    video_scope: VideoScope = "part2",
 ) -> list[OscCommand]:
     commands: list[OscCommand] = []
 
@@ -267,6 +272,7 @@ def _commands_for_single_decision(
                 osc_host=osc_host,
                 osc_port=osc_port,
                 is_dry_run=is_dry_run,
+                video_scope=video_scope,
             )
         )
 
@@ -371,6 +377,7 @@ def build_osc_commands(
     host: str | None = None,
     port: int | None = None,
     dry_run: bool | None = None,
+    video_scope: VideoScope = "part2",
 ) -> list[OscCommand]:
     osc_host = host or settings.osc_host
     osc_port = port or settings.osc_port
@@ -387,6 +394,7 @@ def build_osc_commands(
                     osc_host=osc_host,
                     osc_port=osc_port,
                     is_dry_run=is_dry_run,
+                    video_scope=video_scope,
                 )
             )
         return commands
@@ -396,6 +404,7 @@ def build_osc_commands(
         osc_host=osc_host,
         osc_port=osc_port,
         is_dry_run=is_dry_run,
+        video_scope=video_scope,
     )
 
 
@@ -437,6 +446,8 @@ def send_osc_commands(commands: list[OscCommand], bridges: dict[str, Any]) -> li
                     SoundCue(action=SoundAction.STOP_CUE, cue_id=str(cmd.args[0])),
                     dry_run=cmd.dry_run,
                 )
+            elif cmd.address == "/sound/stop_all":
+                sound.stop_all(dry_run=cmd.dry_run)
         elif cmd.bridge == "light":
             from app.director.cues.cue_models import LightCue
 
@@ -447,11 +458,9 @@ def send_osc_commands(commands: list[OscCommand], bridges: dict[str, Any]) -> li
                 if cmd.address == "/eos/key/out":
                     lighting.blackout_signal(dry_run=cmd.dry_run)
                 elif cmd.address.startswith("/eos/group/"):
-                    match = EOS_GROUP_ADDRESS_RE.match(cmd.address)
-                    if match is not None:
-                        group = int(match.group(1))
-                        kind = match.group(2)
-                        intensity = float(cmd.args[0]) / 100.0 if kind == "level" and cmd.args else 1.0
+                    parsed = parse_eos_group_command(cmd.address, cmd.args)
+                    if parsed is not None:
+                        group, intensity = parsed
                         lighting.apply_group(group, intensity=intensity, dry_run=cmd.dry_run)
                 elif cmd.address.startswith("/eos/chan/"):
                     parsed = parse_eos_chan_command(cmd.address, cmd.args)

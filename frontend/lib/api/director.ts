@@ -161,6 +161,12 @@ export type LightDeskStatus = {
   tcp_connected: boolean;
   scene_id: string | null;
   hold_active: boolean;
+  intensity: number | null;
+};
+
+export type LightSendRequest = {
+  light_scene_id: string;
+  intensity?: number | null;
 };
 
 export async function fetchLightDeskStatus(): Promise<LightDeskStatus> {
@@ -187,11 +193,18 @@ export async function postLightDisconnect(): Promise<LightDeskStatus> {
   return res.json();
 }
 
-export async function postLightSend(lightSceneId: string): Promise<LightDeskStatus> {
+export async function postLightSend(
+  lightSceneId: string,
+  options: { intensity?: number | null } = {}
+): Promise<LightDeskStatus> {
+  const body: LightSendRequest = { light_scene_id: lightSceneId };
+  if (options.intensity != null) {
+    body.intensity = options.intensity;
+  }
   const res = await fetch(`${API_BASE}/director/light/send`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ light_scene_id: lightSceneId })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Light send failed" }));
@@ -200,11 +213,18 @@ export async function postLightSend(lightSceneId: string): Promise<LightDeskStat
   return res.json();
 }
 
-export async function postLightHoldStart(lightSceneId: string): Promise<LightDeskStatus> {
+export async function postLightHoldStart(
+  lightSceneId: string,
+  options: { intensity?: number | null } = {}
+): Promise<LightDeskStatus> {
+  const body: LightSendRequest = { light_scene_id: lightSceneId };
+  if (options.intensity != null) {
+    body.intensity = options.intensity;
+  }
   const res = await fetch(`${API_BASE}/director/light/hold/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ light_scene_id: lightSceneId })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Light hold failed" }));

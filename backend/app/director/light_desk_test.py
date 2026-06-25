@@ -20,6 +20,7 @@ class LightDeskStatus:
     tcp_connected: bool = False
     scene_id: str | None = None
     hold_active: bool = False
+    intensity: float | None = None
 
 
 class LightDeskTestManager:
@@ -29,6 +30,7 @@ class LightDeskTestManager:
         self._stop_event = threading.Event()
         self._hold_thread: threading.Thread | None = None
         self._scene_id: str | None = None
+        self._intensity: float | None = None
 
     def status(self) -> LightDeskStatus:
         with self._lock:
@@ -36,6 +38,7 @@ class LightDeskTestManager:
                 tcp_connected=get_light_tcp_session().connected,
                 scene_id=self._scene_id,
                 hold_active=self._hold_thread is not None and self._hold_thread.is_alive(),
+                intensity=self._intensity,
             )
 
     def connect(self, *, dry_run: bool | None = None) -> LightDeskStatus:
@@ -49,9 +52,16 @@ class LightDeskTestManager:
         self._pipeline.lighting.disconnect_desk(dry_run=is_dry_run)
         with self._lock:
             self._scene_id = None
+            self._intensity = None
         return self.status()
 
-    def send_scene(self, scene_id: str, *, dry_run: bool | None = None) -> LightDeskStatus:
+    def send_scene(
+        self,
+        scene_id: str,
+        *,
+        intensity: float | None = None,
+        dry_run: bool | None = None,
+    ) -> LightDeskStatus:
         is_dry_run = settings.osc_dry_run if dry_run is None else dry_run
         self._require_tcp_connected()
         self.stop_hold(dry_run=is_dry_run)
@@ -60,26 +70,35 @@ class LightDeskTestManager:
             import time
 
             time.sleep(delay)
-        self._pipeline.lighting.send_scene(LightCue(scene_id=scene_id), dry_run=is_dry_run)
+        cue = LightCue(scene_id=scene_id, intensity=intensity)
+        self._pipeline.lighting.send_scene(cue, dry_run=is_dry_run)
         with self._lock:
             self._scene_id = scene_id
+            self._intensity = intensity
         return self.status()
 
-    def start_hold(self, scene_id: str, *, dry_run: bool | None = None) -> LightDeskStatus:
+    def start_hold(
+        self,
+        scene_id: str,
+        *,
+        intensity: float | None = None,
+        dry_run: bool | None = None,
+    ) -> LightDeskStatus:
         is_dry_run = settings.osc_dry_run if dry_run is None else dry_run
         self._require_tcp_connected()
         self.stop_hold(dry_run=is_dry_run)
         with self._lock:
             self._scene_id = scene_id
+            self._intensity = intensity
             self._stop_event.clear()
             self._hold_thread = threading.Thread(
                 target=self._hold_loop,
-                args=(scene_id, is_dry_run),
+                args=(scene_id, intensity, is_dry_run),
                 name="light-desk-hold",
                 daemon=True,
             )
             self._hold_thread.start()
-        self._pipeline.lighting.send_scene(LightCue(scene_id=scene_id), dry_run=is_dry_run)
+        self._pipeline.lighting.send_scene(LightCue(scene_id=scene_id, intensity=intensity), dry_run=is_dry_run)
         return self.status()
 
     def stop_signal(self, *, dry_run: bool | None = None) -> LightDeskStatus:
@@ -88,6 +107,7 @@ class LightDeskTestManager:
         self._pipeline.lighting.blackout_signal(dry_run=is_dry_run)
         with self._lock:
             self._scene_id = None
+            self._intensity = None
         return self.status()
 
     def stop_hold(self, *, dry_run: bool | None = None) -> None:
@@ -98,12 +118,13 @@ class LightDeskTestManager:
         if thread is not None and thread.is_alive() and thread is not threading.current_thread():
             thread.join(timeout=0.2)
 
-    def _hold_loop(self, scene_id: str, dry_run: bool) -> None:
+    def _hold_loop(self, scene_id: str, intensity: float | None, dry_run: bool) -> None:
         interval = settings.technik_hold_interval_seconds
+        cue = LightCue(scene_id=scene_id, intensity=intensity)
         while not self._stop_event.wait(interval):
             if not get_light_tcp_session().connected:
                 return
-            self._pipeline.lighting.send_scene(LightCue(scene_id=scene_id), dry_run=dry_run)
+            self._pipeline.lighting.send_scene(cue, dry_run=dry_run)
 
     def _require_tcp_connected(self) -> None:
         if settings.light_output == "tcp" and not get_light_tcp_session().connected:

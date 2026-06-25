@@ -11,14 +11,27 @@ from app.services.sound_designer import dramaturgy_with_sound_design
 from app.director.dramaturgy.llm_director import LLMDirector
 from app.director.dramaturgy.rules_text import dramaturgy_rules_excerpt
 from app.director.outputs.osc_commands import build_osc_commands
-from app.schemas.part1_selection import MediaSelectionLists, Part1BaerenklauSelection
+from app.schemas.part1_selection import (
+    MIN_FINAL_LIGHTS,
+    MIN_FINAL_MUSIC,
+    MIN_FINAL_SOUNDS,
+    MIN_FINAL_VIDEOS,
+    MediaSelectionLists,
+    Part1BaerenklauSelection,
+)
 from app.schemas.script import DiscussionTurn, ScriptBeat
 from app.services.ai_service import AIService
 from app.services.dramaturg_labels import CHATGPT_LABEL, CLAUDE_LABEL
 from app.services.part1_selection_store import get_part1_selection_store
+from app.services.catalog_media_resolver import normalize_media_lists
 from app.services.part1_selection_validation import Part1SelectionValidationError, validate_media_lists
 from app.services.preview_executor import PreviewExecutor, build_preview_cue, fallback_baerenklau_selection_from_catalog
 from app.services.script_splitter import dramaturgy_quote_excerpts, part1_scene_label
+from app.services.media_mentions import (
+    MediaAllowlist,
+    build_media_alias_index,
+    build_spoken_playback_with_mentions,
+)
 from app.services.spoken_text import spoken_discussion_text
 
 _logger = logging.getLogger("theatermaschine.part1.workshop")
@@ -73,12 +86,14 @@ Führt ein lebendiges Gespräch auf Deutsch: Thema, Stimmung, mindestens 2 Zitat
 Begründet **jede einzelne** Medienwahl dramaturgisch mit «Zitat aus dem Text» oder Thema: … (z. B. Kälte, Verwaltung, Ökonomie).
 **Sounds:** Diskutiert ausführlich, welche Geräusche und Musikstücke aus dem Katalog zum Text passen — Grundton, Akzente, Stille-Momente.
 Die technische Mischung (Einblenden, Layern, Ausblenden, Cut) übernimmt später ein Sounddesigner automatisch; ihr wählt nur die **play**-IDs.
-Format pro Medium: - sound_id — «Zitat» / Thema: …
+Format pro Medium: - `katalog_sound_id` — Beschreibung / «Zitat» / Thema: …
+Nur **play**-IDs aus dem Katalog — keine erfundenen Namen. Beschreibt die Wirkung (kühl, knurrend, bürokratisch …) im Text; die ID muss aus der Liste stammen.
 Kein JSON in den ersten beiden Beiträgen. Ab dem Medienpaket-Vorschlag am Ende optional ein JSON-Block:
 ```json
 {{"sounds":["id",...],"music":["id"],"videos":["id",...],"lights":["id",...]}}
 ```
-Nur IDs aus dem Katalog. Mindestens 6 Sounds, 1 Musik, 6 Videos, 6 Lichtstimmungen im finalen Paket.
+Nur IDs aus dem Katalog — keine erfundenen Namen wie drone_low. Mindestens 6 Sounds, 1 Musik, 6 Videos, 6 Lichtstimmungen im finalen Paket.
+Thema-Diskussion: kurz (2–4 Sätze). Medienpaket: alle Katalog-IDs mit Begründung — dort ist ausreichend Platz; nicht über Zeichenlimits klagen.
 Schließt mit einem klaren Übergang: der Stücktext wird gleich aufgeführt — die Regie drückt Play wenn sie bereit ist.
 
 === REGELWERK ===
@@ -119,12 +134,25 @@ def _preview_items(lists: MediaSelectionLists) -> list[tuple[str, str]]:
     return items
 
 
+def _has_minimums(lists: MediaSelectionLists) -> bool:
+    return (
+        len(lists.sounds) >= MIN_FINAL_SOUNDS
+        and len(lists.music) >= MIN_FINAL_MUSIC
+        and len(lists.videos) >= MIN_FINAL_VIDEOS
+        and len(lists.lights) >= MIN_FINAL_LIGHTS
+    )
+
+
 def _validate_or_fallback(lists: MediaSelectionLists | None) -> MediaSelectionLists:
     if lists is None:
         sounds, music, videos, lights = fallback_baerenklau_selection_from_catalog()
         return MediaSelectionLists(sounds=sounds, music=music, videos=videos, lights=lights)
+    normalized = normalize_media_lists(lists)
+    if not _has_minimums(normalized):
+        sounds, music, videos, lights = fallback_baerenklau_selection_from_catalog()
+        return MediaSelectionLists(sounds=sounds, music=music, videos=videos, lights=lights)
     try:
-        return validate_media_lists(lists)
+        return validate_media_lists(normalized)
     except Part1SelectionValidationError:
         sounds, music, videos, lights = fallback_baerenklau_selection_from_catalog()
         return MediaSelectionLists(sounds=sounds, music=music, videos=videos, lights=lights)
@@ -166,6 +194,7 @@ class Part1WorkshopService:
         discussion_lines: list[str],
         instruction: str,
         include_json_hint: bool = False,
+        media_package: bool = False,
     ) -> str:
         scene_label = part1_scene_label(beat)
         quotes = dramaturgy_quote_excerpts(beat.text)
@@ -177,12 +206,24 @@ class Part1WorkshopService:
             if include_json_hint
             else " Kein JSON in dieser Antwort — nur Gespräch."
         )
+        if media_package:
+            length_note = (
+                f"Medienpaket: nenne alle gewählten Katalog-IDs mit Begründung "
+                f"(bis {settings.dramaturgy_media_package_max_chars} Zeichen). "
+                "Kurze Einleitung, dann Sounds/Musik/Videos/Licht mit `- `id` — «Zitat»`."
+            )
+            max_tokens = settings.dramaturgy_media_package_max_tokens
+        else:
+            length_note = (
+                f"Kurz halten: maximal {settings.dramaturgy_statement_max_chars} Zeichen, "
+                "2–4 Sätze — noch keine Medienliste."
+            )
+            max_tokens = settings.dramaturgy_discussion_max_tokens
         prompt = (
             f"Stück: {title}\n{scene_label}:\n{text_excerpt}\n\n"
             f"Zitate/Stichworte aus dem Gesamttext:\n{quote_block}\n\n"
             f"Medien-Katalog (Auszug):\n{catalog_hint}\n\n"
-            f"Bisheriges Gespräch:\n{context}\n\n{instruction}{json_note}\n\n"
-            f"Maximal {settings.dramaturgy_statement_max_chars} Zeichen."
+            f"Bisheriges Gespräch:\n{context}\n\n{instruction}{json_note}\n\n{length_note}"
         )
         raw = await self.ai.generate(
             role,
@@ -191,9 +232,24 @@ class Part1WorkshopService:
                 {"role": "system", "content": _system_prompt()},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=settings.dramaturgy_discussion_max_tokens,
+            max_tokens=max_tokens,
         )
         return raw.strip()
+
+    def _media_allowlist(self) -> MediaAllowlist:
+        from app.services.part1_selection_validation import _music_cue_ids
+
+        compact = self.llm.catalog_allowlist(compact=True, video_scope="part1")
+        sounds = frozenset(str(item["id"]) for item in compact.get("sounds", []))
+        return MediaAllowlist(
+            sounds=sounds,
+            music=frozenset(_music_cue_ids()),
+            videos=frozenset(str(item["id"]) for item in compact.get("videos", [])),
+            lights=frozenset(str(item["id"]) for item in compact.get("lights", [])),
+        )
+
+    def _media_alias_index(self) -> dict:
+        return build_media_alias_index(self.llm.catalog_allowlist(compact=True, video_scope="part1"))
 
     def _record_turn(
         self,
@@ -205,8 +261,15 @@ class Part1WorkshopService:
     ) -> None:
         label = CLAUDE_LABEL if speaker == "anthropic" else CHATGPT_LABEL
         discussion_lines.append(f"{label}: {raw}")
+        allowlist = self._media_allowlist()
+        alias_index = self._media_alias_index()
+        spoken, mentions = build_spoken_playback_with_mentions(raw, allowlist, alias_index)
         discussion_turns.append(
-            DiscussionTurn(speaker=speaker, content=spoken_discussion_text(raw))
+            DiscussionTurn(
+                speaker=speaker,
+                content=spoken,
+                media_mentions=mentions,
+            )
         )
 
     async def _preview_lists(
@@ -350,10 +413,11 @@ class Part1WorkshopService:
                     "6 Sounds, 1 Musik, 6 Videos, 6 Lichtstimmungen. "
                     "Bei Sounds: besprecht welche Geräusche wann dramaturgisch wirken (Grundton, Akzent, Stille) — "
                     "nur **play**-IDs aus dem Katalog; Ein-/Ausblenden und Layering macht der Sounddesigner. "
-                    "Begründe **jede einzelne** Wahl mit «Zitat» oder Thema: … im Format `- sound_id — «…» / Thema: …`. "
+                    "Begründe **jede einzelne** Wahl mit «Zitat» oder Thema: … im Format `- `sound_id` — «…» / Thema: …`. "
                     "Reihenfolge: Sounds/Musik, Videos, Licht."
                 ),
                 include_json_hint=True,
+                media_package=True,
             )
             claude_lists = _validate_or_fallback(_parse_media_json(claude_raw))
             self._record_turn(discussion_lines, discussion_turns, speaker="anthropic", raw=claude_raw)
@@ -387,6 +451,7 @@ class Part1WorkshopService:
                     "Liefere das verhandelte Gesamtpaket im JSON."
                 ),
                 include_json_hint=True,
+                media_package=True,
             )
             gpt_lists = _parse_media_json(gpt_raw)
             merged = _validate_or_fallback(
@@ -431,6 +496,7 @@ class Part1WorkshopService:
                     "JSON mit den finalen Medien-IDs."
                 ),
                 include_json_hint=True,
+                media_package=True,
             )
             final_lists = _validate_or_fallback(_parse_media_json(final_raw) or merged)
             self._record_turn(discussion_lines, discussion_turns, speaker="anthropic", raw=final_raw)
@@ -461,7 +527,7 @@ class Part1WorkshopService:
             )
             self.selection_store.save(selection)
             decision = dramaturgy_from_part1_selection(selection, beat)
-            planned = build_osc_commands(decision, dry_run=True)
+            planned = build_osc_commands(decision, dry_run=True, video_scope="part1")
 
             yield Part1WorkshopEvent(
                 type="agreement_saved",
@@ -488,12 +554,14 @@ class Part1WorkshopService:
                 part1_selection=selection.model_dump(mode="json"),
             )
         except Exception as exc:
+            from app.services.ai_errors import format_ai_error
+
             _logger.exception("part1 workshop failed")
             yield Part1WorkshopEvent(
                 type="error",
                 beat_id=beat.id,
                 beat_order=beat.order,
-                detail=str(exc),
+                detail=format_ai_error(exc),
             )
             return
 

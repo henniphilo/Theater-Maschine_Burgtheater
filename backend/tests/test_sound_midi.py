@@ -75,3 +75,46 @@ def test_sound_bridge_stop_sends_note_off(
     bridge.execute(SoundCue(action=SoundAction.STOP_CUE, cue_id="maschinen_grundader"), dry_run=False)
 
     midi.stop.assert_called_once_with("maschinen_grundader", dry_run=False)
+
+
+@patch("app.director.outputs.sound_midi.settings")
+def test_sound_midi_stop_all_sends_cut_all_note(mock_settings: MagicMock) -> None:
+    mock_settings.osc_dry_run = False
+    mock_settings.sound_midi_port = "Test Port"
+    mock_settings.sound_midi_channel = 1
+    mock_settings.sound_midi_default_velocity = 100
+    mock_settings.sound_midi_auto_note = False
+
+    bridge = SoundMidiBridge()
+    bridge._map = load_sound_midi_map()
+    mock_port = MagicMock()
+
+    with patch.object(bridge, "_open_port", return_value=mock_port):
+        bridge.stop_all(dry_run=False)
+
+    mock_port.send.assert_called_once()
+    message = mock_port.send.call_args[0][0]
+    assert message.type == "note_on"
+    assert message.note == 127
+    assert message.channel == 0
+
+
+@patch("app.director.outputs.sound.settings")
+@patch("app.director.outputs.sound.get_sound_midi_bridge")
+def test_sound_bridge_cut_all_calls_stop_all(
+    mock_get_midi: MagicMock,
+    mock_settings: MagicMock,
+) -> None:
+    mock_settings.sound_output = "midi"
+    mock_settings.sound_osc_mirror = False
+    mock_settings.osc_dry_run = True
+    midi = MagicMock()
+    mock_get_midi.return_value = midi
+
+    bridge = SoundBridge()
+    bridge.execute(
+        SoundCue(action=SoundAction.TRIGGER_CUE, cue_id="alle_sounds_cut", volume=0),
+        dry_run=False,
+    )
+
+    midi.stop_all.assert_called_once_with(dry_run=False)

@@ -67,11 +67,13 @@ class Settings(BaseSettings):
     dramaturgy_discussion_rounds_default: int = 1
     dramaturgy_discussion_rounds_max: int = 2
     dramaturgy_discussion_max_tokens: int = 400
+    dramaturgy_media_package_max_tokens: int = 1200
     dramaturgy_decision_max_tokens: int = 1200
     dramaturgy_rules_excerpt_chars: int = 3500
     dramaturgy_whole_text_max_chars: int = 8000
     dramaturgy_statements_per_dramaturg: int = 2
     dramaturgy_statement_max_chars: int = 450
+    dramaturgy_media_package_max_chars: int = 1800
     part1_workshop_preview_hardware: bool = False
     sound_output: Literal["osc", "midi", "both"] = "midi"
     sound_osc_mirror: bool = False
