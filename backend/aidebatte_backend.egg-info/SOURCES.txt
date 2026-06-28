@@ -112,9 +112,13 @@ app/services/sound_designer.py
 app/services/spoken_text.py
 app/services/teil2_beat_dramaturgy.py
 app/services/teil2_compose_service.py
+app/services/teil2_dramaturgy_routing.py
+app/services/teil2_prepare_service.py
 app/services/teil2_projector_assignment.py
 app/services/teil2_scene_filter.py
 app/services/teil2_script_service.py
+app/services/teil2_text_alignment.py
+app/services/text_split.py
 app/services/tts_service.py
 app/services/video_cue_catalog.py
 app/services/video_scope.py
@@ -165,6 +169,7 @@ tests/test_part1_selection_validation.py
 tests/test_part1_workshop_flow.py
 tests/test_part2_anarchy_curve.py
 tests/test_performance_bundle.py
+tests/test_performance_tryout.py
 tests/test_pixera_video.py
 tests/test_preview_executor.py
 tests/test_projector_lock.py
@@ -177,9 +182,11 @@ tests/test_spoken_text.py
 tests/test_technik_hold.py
 tests/test_teil2_beat_dramaturgy.py
 tests/test_teil2_compose_script.py
+tests/test_teil2_prepare_service.py
 tests/test_teil2_projector_assignment.py
 tests/test_teil2_scene_filter.py
 tests/test_teil2_script_service.py
+tests/test_teil2_text_alignment.py
 tests/test_touchdesigner_bridge.py
 tests/test_video_scope.py
 tests/test_visual_outputs.py

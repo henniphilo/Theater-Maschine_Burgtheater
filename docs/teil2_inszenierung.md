@@ -1,10 +1,10 @@
-# Teil 2: Skriptgesteuerte Avatar-Inszenierung
+# Teil 2: Text-Sync mit KI-Regie und Avatar-Anker
 
-Separater Modus für **Elfriede Jelinek — *Unter Tieren***: fester Avatar-Skriptablauf «AVATAR Text Delfin bis Wolf», Avatar-Sprache aus CSV, parallel eskalierende OSC für Sound, Video und Licht.
+Separater Modus für **Elfriede Jelinek — *Unter Tieren***: hochgeladener Aufführungstext, ein KI-Vorbereitungsschritt, eine wählbare TTS-Stimme als Master-Clock, Avatar-Videos feuern wenn die Stimme die CSV-Textstelle (Zeichenoffset) erreicht.
 
-**Teil 1** (`/dramaturgie`, `/auffuehrung`): Ein Stücktext, sequentielle Aufführung.
+**Teil 1** (`/dramaturgie`, `/auffuehrung`): unverändert — ein Stücktext, sequentielle Aufführung.
 
-**Teil 2** startet über `/inszenierung` → Analyse → Komposition → `/inszenierung/auffuehrung`.
+**Teil 2**: `/inszenierung` → Text hochladen → **Vorbereiten** → `/inszenierung/auffuehrung`
 
 ---
 
@@ -12,19 +12,33 @@ Separater Modus für **Elfriede Jelinek — *Unter Tieren***: fester Avatar-Skri
 
 ```mermaid
 flowchart LR
-  A["/inszenierung\nFester Skripttext"] --> B["/analyse\nGesamtkonzept"]
-  B --> C["/komposition\nTimeline Review"]
-  C --> D["/auffuehrung"]
+  A["/inszenierung\nText-Upload"] --> B["POST /prepare\nAnalyse + OSC-Regie"]
+  B --> C["Teil2PerformancePlan\nAvatar-Segmente + Dramaturgie"]
+  C --> D["/auffuehrung\nTTS + OSC + Avatar"]
 ```
 
-| Schritt | Route | Ergebnis |
-|---------|-------|----------|
-| 1. Korpus | `/inszenierung` | `SceneCorpus` mit festem Skripttext |
-| 2. Analyse | `/inszenierung/analyse` | `Gesamtkonzept` + Anarchie-Kurve |
-| 3. Komposition | `/inszenierung/komposition` | Deterministische Timeline aus CSV |
-| 4. Aufführung | `/inszenierung/auffuehrung` | Avatar-Video + gestapelte OSC-Cues |
+| Schritt | Route / API | Ergebnis |
+|---------|-------------|----------|
+| 1. Korpus | `/inszenierung` | `SceneCorpus` mit `script_text` |
+| 2. Vorbereiten | `POST /api/v1/inszenierung/{id}/prepare` | `teil2_plan` + `gesamtkonzept` |
+| 3. Aufführung | `/inszenierung/auffuehrung` | Satzweise TTS, OSC parallel, Avatar bei CSV-Anker |
 
 Persistenz: `data/inszenierungen/{id}.json`
+
+Legacy-Routen `/inszenierung/analyse` und `/inszenierung/komposition` leiten auf `/inszenierung` um. Beat-basierte `composition` bleibt für alte Exporte lesbar.
+
+---
+
+## Datenmodell
+
+- `SceneCorpus.script_text` — vollständiger Aufführungstext (Upload oder Kanon-Vorlage)
+- `SceneCorpus.teil2_plan` — `Teil2PerformancePlan`:
+  - `sentences` — Satzliste (Backend `split_sentences`, identisch zum Frontend)
+  - `sentence_char_starts` — Zeichenoffset je Satz im `script_text`
+  - `avatar_segments` — CSV-Text → `char_offset`, `start_sentence_index` / `end_sentence_index`
+  - `dramaturgy` — OSC-Regie mit `sentence_index`, `keyword`, `time_offset_sec`
+  - `performance_speaker` — `AI_A` | `AI_B` | `narrator`
+  - `alignment_warnings` — fehlende CSV-Zeilen im Skript
 
 ---
 
@@ -32,140 +46,66 @@ Persistenz: `data/inszenierungen/{id}.json`
 
 | Datei | Rolle |
 |-------|-------|
-| `Stücktext/AVATAR Text Delfin bis Wolf.txt` | Kanonischer Textablauf (aus Pages exportiert) |
-| `Stücktext/AVATAR Text Delfin bis Wolf.pages` | Referenz im Repo |
-| `media/video/Avatar Textzuordnung.csv` | Avatar → Text → Pixera-Clip, **Aufführungsreihenfolge** (exportiert aus `Textzuordnung Del-Wolf-27-06-26.numbers`) |
-| `media/video/OSCBefehllisteAvatare.txt` | Pixera OSC — Avatar-Clips (Teil 2) |
-| `media/video/OSCBefehllisteOhneAvatare.txt` | Pixera OSC — Atmosphären-Clips |
+| `Stücktext/AVATAR Text Delfin bis Wolf.txt` | Kanon-Vorlage (optional) |
+| `media/video/Avatar Textzuordnung.csv` | Avatar → Text → Clip, Aufführungsreihenfolge (Spalte «Zeit» = **Sekunden**, z. B. `0:07:00` → 7 s) |
+| `media/video/OSCBefehllisteAvatare.txt` | Pixera OSC — Avatar-Clips |
+| `media/video/OSCBefehllisteOhneAvatare.txt` | Pixera OSC — Atmosphären (inkl. LED) |
 
-### Numbers-Export
-
-Quelle: `media/video/Textzuordnung Del-Wolf-27-06-26.numbers`
-
-```bash
-make avatar-import   # nach Änderung an der Numbers-Datei
-```
-
-Erzeugt/aktualisiert:
-- `Avatar Textzuordnung.csv`
-- `Video Übersicht.csv` (Clips aus OSC-Listen)
-- `Stücktext/AVATAR Text Delfin bis Wolf.txt`
-
-Alternativ weiterhin manueller Pages-Export für den Skripttext möglich.
-
-API: `GET /api/v1/inszenierung/script` — Skripttext + Beat-Vorschau
+API: `GET /api/v1/inszenierung/script` — Kanon + Beat-Vorschau  
+API: `PATCH /api/v1/inszenierung/{id}` — `script_text` speichern  
+API: `POST /api/v1/inszenierung/{id}/prepare` — Plan erzeugen
 
 ---
 
-## Avatar-Timeline (CSV)
+## Avatar-Anker (CSV → Zeichenoffset)
 
-CSV-Spalten: `id;text;avatar;video_clip_id;scene_ref`
+Service: `backend/app/services/teil2_text_alignment.py`
 
-| Prefix | Figur | Default Pixera-Clip |
-|--------|-------|---------------------|
-| DEL | Delphin | `avatar` |
-| BK | Bärenklau | `avatar2` |
-| LG | Lamm Gottes | `esel` |
-| PET | Petya | `hundethiel` |
-| WO | Wolf | `thiel` |
+1. CSV aus `avatar_speech_catalog` laden
+2. Performance-Text und CSV-`text` normalisieren
+3. Substring-Suche → `char_offset` im Skript → `start_sentence_index` via `text_split.split_sentences`
+4. Chorus: aufeinanderfolgende gleiche Texte → ein Segment, mehrere `avatar_layers`
+5. Nicht gefundene Zeilen → `alignment_warnings`
 
-### Chorus-Regel
+Beispiel: Stimme erreicht «24 Der Bärenklauer…» im Text → `char_offset` → OSC `play_clip` für `BK1_Caro` (ggf. Chorus mit Caroline/Thomas).
 
-Aufeinanderfolgende CSV-Zeilen mit **gleichem `text`** → ein Beat, mehrere Avatare sprechen gleichzeitig, je eigener Beamer.
+Alte Pläne ohne `char_offset` fallen auf Satzanfang zurück — nach Änderungen einmal **neu vorbereiten**. Gleiches gilt nach Korrektur der Clip-Dauern (Beamer-Sperre nutzt `duration_ms` aus dem Plan).
 
-### Beamer-Verteilung
+### Probebetrieb (ohne Licht-TCP)
 
-| Avatar | Standard-Beamer (früh) |
-|--------|------------------------|
-| delphin | rz21 |
-| baerenklau | rz21 |
-| lamm | adam |
-| petya | eva |
-| wolf | led |
+Auf `/inszenierung/auffuehrung` und `/auffuehrung`: Checkbox **Probebetrieb (OSC-Log, kein Licht)**.
 
-- **Anarchie &lt; 0.5:** ein Beamer pro Avatar (`projector_mode: single`)
-- **Anarchie ≥ 0.5:** gleicher Clip auf **alle** Beamer (`rz21`, `adam`, `eva`, `led`)
-- Steigende Anarchie: Video `replace` → `layer`, mehr parallele Sound/Licht-Cues
+- Licht-Cues werden aus Dramaturgie-Entscheidungen entfernt (kein EOS-TCP, kein Blockieren von Video)
+- OSC wird als DRY-RUN geloggt (`logs/osc.log`) — Pixera-/Sound-Befehle erscheinen dort ohne Licht-Desk
+- Beamer-Sperren werden bei neuem Avatar unterbrochen (`allow_avatar_interrupt`)
 
 ---
 
-## Analyse-Workshop
+## Playback (Frontend)
 
-Route: `/inszenierung/analyse`
+`frontend/features/inszenierung/teil2TextSyncPlayback.ts`:
 
-- Input: fester Skripttext (nicht mehr manuell importierte Szenen)
-- Zwei Dramaturgen diskutieren den Avatar-Ablauf
-- Ergebnis: `Gesamtkonzept` mit `anarchy_curve` (Start → Ende)
-
----
-
-## Komposition
-
-Route: `/inszenierung/komposition`
-
-- **Kein KI-Ausschnittswahl** mehr — deterministisch aus CSV
-- Button: **Timeline aus Skript laden** (`POST /api/v1/inszenierung/{id}/compose-script`)
-- Pro Beat: `avatar_video`, Beamer-Zuweisung, Rule-Engine-Dramaturgie für OSC
-
----
-
-## Aufführung
-
-Teil 2 ist über **zwei Wege** abspielbar:
-
-| Route | Nutzung |
-|-------|---------|
-| `/auffuehrung?corpus={id}` | Nur Teil 2 (eigenständig) |
-| `/auffuehrung?id={script}&corpus={id}` | Teil 1 + Teil 2 im selben Stück |
-| `/inszenierung/auffuehrung?id={id}` | Dedizierte Teil-2-Ansicht |
-
-### Export / Import
-
-- **Export:** `POST /api/v1/inszenierung/{corpus_id}/export` → `.tmteil2.zip` (Korpus + Timeline + Analyse)
-- **Import:** `POST /api/v1/inszenierung/import` → neuer Korpus mit frischer ID
-- In `/auffuehrung`: Buttons «Teil 2 importieren» / «Teil 2 exportieren»
-
-### Playback
-
-1. Timeline wird beim Laden automatisch aus dem Skript erzeugt, falls noch keine Komposition existiert
-2. **Play** — bei reinen Avatar-Beats kein TTS-Puffer nötig
-3. **AnarchyPlayback** (Avatar + Anarchie **parallel** pro Beat):
-   - Avatar-Clips auf zugewiesenen Beamern (Chorus parallel)
-   - Sound/Video/Licht aus `dramaturgy` gleichzeitig
-   - Anarchie steigt bis Kollaps am Ende
-
----
-
-## Aufführung (Inszenierung-Route)
-
-Route: `/inszenierung/auffuehrung` — gleiche Engine, schlanke UI
-
----
-
-## Schnellstart
-
-```bash
-make run
-# Browser: http://localhost:3003/inszenierung
-```
-
-1. Korpus anlegen (lädt Skripttext automatisch)
-2. **Analyse** → Gesamtkonzept prüfen
-3. **Komposition** → Timeline aus Skript laden
-4. **Aufführung** → Play
+1. `armDirectorForPerformance()`
+2. TTS-Puffer für alle Sätze (`inszenierungBuffer` — Full-Text, eine Stimme)
+3. Pro Satz: `playBlob` mit `onTimeUpdate` — globale Textposition = `sentence_char_starts[i]` + proportionale Stimmenposition
+4. Avatar-OSC (`fireAvatarSegmentsAtPosition`) wenn `globalPos >= segment.char_offset` — nicht mehr am Satzanfang vor der Stimme
+5. Dramaturgie-OSC parallel (`fireSentenceCues` / `fireTimeCues`, `executeCueSafely`)
 
 ---
 
 ## Tests
 
 ```bash
-cd backend
-.venv/bin/python -m pytest tests/test_teil2_script_service.py tests/test_teil2_projector_assignment.py tests/test_teil2_compose_script.py tests/test_inszenierung_bundle_service.py tests/test_avatar_speech_catalog.py -q
-cd ../frontend && npm test -- anarchyPlayback.test.ts --run
+cd backend && ruff check app tests && .venv/bin/python -m pytest tests/test_teil2_text_alignment.py tests/test_teil2_prepare_service.py -q
+cd frontend && npm test -- teil2TextSyncPlayback.test.ts --run && npm run build
 ```
 
 ---
 
-## Copyright
+## Manuelle Verifikation
 
-Nur **eigene Auszüge** aus *Unter Tieren* — kein Volltext im Repository.
+1. `/inszenierung` → Text hochladen (mit Bärenklauer-Passage wie in CSV)
+2. **Vorbereiten** → Warnungen prüfen, Plan mit Segmenten sichtbar
+3. Stimme wählen, TTS-Puffer abwarten
+4. **Play** → Stimme liest durch; Avatar-Video startet wenn die Stimme den CSV-Anker erreicht (nicht schon am Satzanfang davor)
+5. Anarchie steigt über den Text

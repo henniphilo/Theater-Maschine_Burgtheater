@@ -1,0 +1,190 @@
+{
+  "id": "3c78f63b-3081-4f1f-91d4-dd85b318184d",
+  "title": "Debug",
+  "scenes": [],
+  "script_source": null,
+  "script_text": "24. Der Bärenklauer übernimmt.\n\n25. Das Lamm Gottes,",
+  "status": "ready",
+  "gesamtkonzept": {
+    "thesis": "Das Wechselspiel zwischen Machtübernahme und Opferrolle im Kontext wirtschaftlicher und sozialer Strukturen.",
+    "money_themes": [
+      "Macht und Besitzansprüche",
+      "Opferung im Namen des Profits",
+      "Ritualisierte Wirtschaftsmuster"
+    ],
+    "animal_positions": [
+      {
+        "animal": "Bärenklauer",
+        "stance": "dominant",
+        "money_angle": "räuberischer Kapitalismus"
+      },
+      {
+        "animal": "Lamm Gottes",
+        "stance": "opferbereit",
+        "money_angle": "ökonomische Unschuld"
+      }
+    ],
+    "cross_scene_links": [
+      {
+        "label": "Machtverschiebung",
+        "scene_ids": [
+          "avatar"
+        ],
+        "note": "Die Tiere symbolisieren wirtschaftliche Hierarchien, der Bärenklauer als wilder Marktführer, das Lamm als unschuldiges Opfer dieser Verhältnisse."
+      }
+    ],
+    "anarchy_curve": {
+      "start": 0.35,
+      "end": 1.0
+    },
+    "discussion_summary": "Die Szene untersucht die verschiedenen Rollen innerhalb eines Wirtschaftskreises, wobei der Bärenklauer für aggressive Expansion steht, während das Lamm für Selbstaufopferung im Namen höherer ökonomischer Prinzipien steht. Es wird ein Übergang von kontrollierter Machtausübung hin zur vollständigen Kapitalanarchie dargestellt, beginnend mit subtilen Übernahmen und endend in völliger Vermarktung des Opfers."
+  },
+  "composition": null,
+  "teil2_plan": {
+    "performance_speaker": "narrator",
+    "sentences": [
+      "24.",
+      "Der Bärenklauer übernimmt.",
+      "25.",
+      "Das Lamm Gottes,"
+    ],
+    "avatar_segments": [],
+    "dramaturgy": {
+      "visual": {
+        "action": "play_clip",
+        "clip_id": "automassendrohnenflug",
+        "outputs": [
+          {
+            "output_id": "rz21",
+            "clip_id": "automassendrohnenflug",
+            "action": null
+          }
+        ],
+        "recording_id": null,
+        "blend": "slow_fade",
+        "blend_mode": "layer",
+        "opacity": 1.0,
+        "fade_time": 4.0,
+        "video_type": "atmosphere",
+        "projector": "rz21",
+        "duration_ms": null,
+        "text_content_id": null,
+        "lock_until_finished": false,
+        "can_be_interrupted": true
+      },
+      "sound": {
+        "action": "trigger_cue",
+        "cue_id": "maschinen_grundader",
+        "volume": 0.9
+      },
+      "light": {
+        "action": "set_scene",
+        "scene_id": "blendung_zuschauerraum",
+        "scene_ids": [],
+        "fade_time": 3.0,
+        "intensity": 0.61,
+        "replace_previous": true
+      },
+      "reason": "Text thematisiert memory mit Stimmung „neutral“ (Intensität 0.48). Video: automassendrohnenflug. Sound: maschinen_grundader. Licht: blendung_zuschauerraum.",
+      "dramaturgical_reading": "",
+      "cue_points": [
+        {
+          "trigger": "sentence_end",
+          "keyword": null,
+          "sentence_index": 0,
+          "time_offset_sec": 0.0,
+          "function": "verstärken",
+          "intensity": 0.48,
+          "visual": {
+            "action": "play_clip",
+            "clip_id": "automassendrohnenflug",
+            "outputs": [
+              {
+                "output_id": "rz21",
+                "clip_id": "automassendrohnenflug",
+                "action": null
+              }
+            ],
+            "recording_id": null,
+            "blend": "slow_fade",
+            "blend_mode": "layer",
+            "opacity": 1.0,
+            "fade_time": 4.0,
+            "video_type": "atmosphere",
+            "projector": "rz21",
+            "duration_ms": null,
+            "text_content_id": null,
+            "lock_until_finished": false,
+            "can_be_interrupted": true
+          },
+          "sound": {
+            "action": "trigger_cue",
+            "cue_id": "maschinen_grundader",
+            "volume": 0.9
+          },
+          "light": {
+            "action": "set_scene",
+            "scene_id": "blendung_zuschauerraum",
+            "scene_ids": [],
+            "fade_time": 3.0,
+            "intensity": 0.61,
+            "replace_previous": true
+          }
+        }
+      ],
+      "performance_speakers": [],
+      "tags": [
+        "memory"
+      ],
+      "mood": "neutral",
+      "intensity": 0.85,
+      "timestamp": 1782668405.367342
+    },
+    "anarchy_level_end": 1.0,
+    "alignment_warnings": [
+      "nicolas: Text nicht im Aufführungstext gefunden",
+      "branko: Text nicht im Aufführungstext gefunden",
+      "thiemo: Text nicht im Aufführungstext gefunden",
+      "musiker: Text nicht im Aufführungstext gefunden",
+      "bk1_caro: Text nicht im Aufführungstext gefunden",
+      "bk1_caroline: Text nicht im Aufführungstext gefunden",
+      "bk1_thomas: Text nicht im Aufführungstext gefunden",
+      "bk2_hundswolf: Text nicht im Aufführungstext gefunden",
+      "bk2_mavie: Text nicht im Aufführungstext gefunden",
+      "bk3_thomas: Text nicht im Aufführungstext gefunden",
+      "daslammgottes: Text nicht im Aufführungstext gefunden",
+      "lg2_inge: Text nicht im Aufführungstext gefunden",
+      "lg3_seb: Text nicht im Aufführungstext gefunden",
+      "lg4_azaria: Text nicht im Aufführungstext gefunden",
+      "lg5_henrike: Text nicht im Aufführungstext gefunden",
+      "lg6_hai: Text nicht im Aufführungstext gefunden",
+      "bk5_nicolas: Text nicht im Aufführungstext gefunden",
+      "bk6_branko: Text nicht im Aufführungstext gefunden",
+      "bk7_caroline: Text nicht im Aufführungstext gefunden",
+      "bk7_nasenfisch: Text nicht im Aufführungstext gefunden",
+      "bk8_haischaedel: Text nicht im Aufführungstext gefunden",
+      "bk8_mavie1: Text nicht im Aufführungstext gefunden",
+      "bk8_mavie: Text nicht im Aufführungstext gefunden",
+      "bk9_thiemo: Text nicht im Aufführungstext gefunden",
+      "pet1_azaria: Text nicht im Aufführungstext gefunden",
+      "pet1_thomas: Text nicht im Aufführungstext gefunden",
+      "pet2_inge: Text nicht im Aufführungstext gefunden",
+      "pet3_caroline: Text nicht im Aufführungstext gefunden",
+      "pet3_koala: Text nicht im Aufführungstext gefunden",
+      "pet4_sebastian: Text nicht im Aufführungstext gefunden",
+      "pet5_azaria: Text nicht im Aufführungstext gefunden",
+      "wo1_kaenguru: Text nicht im Aufführungstext gefunden",
+      "wo2_branko: Text nicht im Aufführungstext gefunden",
+      "wo3_seb_musik: Text nicht im Aufführungstext gefunden",
+      "wo4_nicolas: Text nicht im Aufführungstext gefunden",
+      "wo4_schimpanse: Text nicht im Aufführungstext gefunden",
+      "wo5_thiemo: Text nicht im Aufführungstext gefunden",
+      "wo6_mavie: Text nicht im Aufführungstext gefunden",
+      "wo6_schimpanse: Text nicht im Aufführungstext gefunden",
+      "wo7_sebastian: Text nicht im Aufführungstext gefunden",
+      "hierunterdererde: Text nicht im Aufführungstext gefunden",
+      "kuscheltierschlachtung: Text nicht im Aufführungstext gefunden",
+      "derhaseverlaesstdiebuehne: Text nicht im Aufführungstext gefunden"
+    ]
+  }
+}

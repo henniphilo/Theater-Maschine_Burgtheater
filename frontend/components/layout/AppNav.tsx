@@ -7,11 +7,9 @@ import { WorkshopStatusBar } from "@/components/layout/WorkshopStatusBar";
 
 const LINKS = [
   { href: "/technik", label: "Technik-Test" },
-  { href: "/dramaturgie", label: "Dramaturgie" },
+  { href: "/dramaturgie", label: "Teil 1" },
   { href: "/inszenierung", label: "Teil 2" },
-  { href: "/stueck", label: "Stücktext" },
-  { href: "/auffuehrung", label: "Aufführung" },
-  { href: "/director", label: "Live-Regie" }
+  { href: "/auffuehrung", label: "Aufführung" }
 ] as const;
 
 export function AppNav() {

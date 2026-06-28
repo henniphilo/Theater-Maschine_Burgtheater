@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
 import { RegieCard } from "@/components/show/RegieCard";
@@ -21,8 +21,18 @@ function projectorLabel(moment: CompositionMoment): string {
 }
 
 function KompositionContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+
+  useEffect(() => {
+    if (corpusId) {
+      router.replace(`/inszenierung?id=${corpusId}` as "/inszenierung");
+    } else {
+      router.replace("/inszenierung");
+    }
+  }, [router, corpusId]);
+
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
   const [moments, setMoments] = useState<CompositionMoment[]>([]);
   const [loading, setLoading] = useState(false);

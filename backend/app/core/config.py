@@ -11,7 +11,12 @@ class Settings(BaseSettings):
     app_debug: bool = False
     app_host: str = "0.0.0.0"
     app_port: int = 8000
-    cors_origins: list[str] = ["http://localhost:3003"]
+    cors_origins: list[str] = [
+        "http://localhost:3003",
+        "http://localhost:3000",
+        "http://127.0.0.1:3003",
+        "http://127.0.0.1:3000",
+    ]
 
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/aidebatte"
     redis_url: str = "redis://localhost:6379/0"

@@ -1,7 +1,6 @@
+import { apiFetch } from "@/lib/api/base";
 import { DirectorPayload } from "@/lib/types/director";
 import { DebateRequest, DebateStreamEvent } from "@/lib/types/chat";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type DebateStreamHandlers = {
   onThinking: (speaker: "openai" | "anthropic") => void;
@@ -17,7 +16,7 @@ export type DebateStreamHandlers = {
 };
 
 export async function streamDebate(payload: DebateRequest, handlers: DebateStreamHandlers): Promise<void> {
-  const res = await fetch(`${API_BASE}/debate/stream`, {
+  const res = await apiFetch("/debate/stream", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -64,7 +63,7 @@ export async function streamDebate(payload: DebateRequest, handlers: DebateStrea
 }
 
 export async function fetchTTSStatus() {
-  const res = await fetch(`${API_BASE}/tts/status`);
+  const res = await apiFetch("/tts/status");
   if (!res.ok) throw new Error("TTS status unavailable");
   return (await res.json()) as {
     available: boolean;
@@ -83,7 +82,7 @@ export async function fetchSpeechBlob(
   speaker: TtsSpeaker,
   options?: { profile?: TtsProfile }
 ): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/tts/speak`, {
+  const res = await apiFetch("/tts/speak", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, speaker, profile: options?.profile ?? null })
@@ -97,6 +96,41 @@ export async function fetchSpeechBlob(
 
 let currentAudio: HTMLAudioElement | null = null;
 let playbackPaused = false;
+let playbackRate = 1;
+
+type PlaybackPauseListener = (paused: boolean) => void;
+const playbackPauseListeners = new Set<PlaybackPauseListener>();
+
+type PlaybackRateListener = (rate: number) => void;
+const playbackRateListeners = new Set<PlaybackRateListener>();
+
+export function onPlaybackPauseChange(listener: PlaybackPauseListener): () => void {
+  playbackPauseListeners.add(listener);
+  return () => playbackPauseListeners.delete(listener);
+}
+
+export function onPlaybackRateChange(listener: PlaybackRateListener): () => void {
+  playbackRateListeners.add(listener);
+  return () => playbackRateListeners.delete(listener);
+}
+
+function notifyPlaybackPause(paused: boolean): void {
+  for (const listener of playbackPauseListeners) listener(paused);
+}
+
+function notifyPlaybackRate(rate: number): void {
+  for (const listener of playbackRateListeners) listener(rate);
+}
+
+export function getPlaybackRate(): number {
+  return playbackRate;
+}
+
+export function setPlaybackRate(rate: number): void {
+  playbackRate = Math.max(0.5, Math.min(2, rate));
+  if (currentAudio) currentAudio.playbackRate = playbackRate;
+  notifyPlaybackRate(playbackRate);
+}
 
 export function isPlaybackPaused(): boolean {
   return playbackPaused;
@@ -109,10 +143,12 @@ export function setPlaybackPaused(paused: boolean): void {
   } else if (!paused && currentAudio && currentAudio.paused && !currentAudio.ended) {
     void currentAudio.play();
   }
+  notifyPlaybackPause(paused);
 }
 
 export function stopPlayback(): void {
   playbackPaused = false;
+  notifyPlaybackPause(false);
   stopCurrentAudio();
 }
 
@@ -137,6 +173,7 @@ export function playBlob(
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     currentAudio = audio;
+    audio.playbackRate = playbackRate;
     audio.onplay = () => {
       hooks?.onPlay?.();
     };
@@ -185,6 +222,19 @@ async function sleep(ms: number) {
 export async function waitWhilePlaybackPaused(shouldAbort: () => boolean): Promise<boolean> {
   while (playbackPaused && !shouldAbort()) {
     await sleep(80);
+  }
+  return !shouldAbort();
+}
+
+/** Wall-clock sleep that respects pause and playback rate (for OSC timing without TTS). */
+export async function sleepWallMs(ms: number, shouldAbort: () => boolean): Promise<boolean> {
+  if (ms <= 0) return !shouldAbort();
+  let remaining = ms / playbackRate;
+  while (remaining > 0 && !shouldAbort()) {
+    if (!(await waitWhilePlaybackPaused(shouldAbort))) return false;
+    const step = Math.min(50, remaining);
+    await sleep(step);
+    remaining -= step;
   }
   return !shouldAbort();
 }

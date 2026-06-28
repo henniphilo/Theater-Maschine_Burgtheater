@@ -11,10 +11,7 @@ from app.schemas.inszenierung import (
     Gesamtkonzept,
     PatchCorpusRequest,
     SceneCorpus,
-)
-from app.services.teil2_script_service import (
-    SCRIPT_SOURCE,
-    load_canonical_script_text,
+    Teil2PerformancePlan,
 )
 
 
@@ -44,16 +41,10 @@ class InszenierungStore:
         return SceneCorpus.model_validate_json(path.read_text(encoding="utf-8"))
 
     def create(self, title: str) -> SceneCorpus:
-        try:
-            script_text = load_canonical_script_text()
-        except FileNotFoundError:
-            script_text = None
         corpus = SceneCorpus(
             id=str(uuid4()),
             title=title.strip() or "Unter Tieren — Geld",
             status="draft",
-            script_source=SCRIPT_SOURCE if script_text else None,
-            script_text=script_text,
         )
         return self.save(corpus)
 
@@ -61,6 +52,17 @@ class InszenierungStore:
         corpus = self.get(corpus_id)
         if payload.title is not None:
             corpus.title = payload.title.strip() or corpus.title
+        if payload.script_text is not None:
+            text = payload.script_text.strip()
+            if not text:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Aufführungstext darf nicht leer sein",
+                )
+            if text != (corpus.script_text or ""):
+                corpus.script_text = text
+                corpus.teil2_plan = None
+                corpus.composition = None
         return self.save(corpus)
 
     def add_scene(self, corpus_id: str, payload: CreateAnimalSceneRequest) -> SceneCorpus:
@@ -112,18 +114,35 @@ class InszenierungStore:
         corpus.composition = plan
         return self.save(corpus)
 
+    def set_teil2_plan(
+        self,
+        corpus_id: str,
+        plan: Teil2PerformancePlan,
+        *,
+        gesamtkonzept: Gesamtkonzept | None = None,
+    ) -> SceneCorpus:
+        corpus = self.get(corpus_id)
+        corpus.teil2_plan = plan
+        if gesamtkonzept is not None:
+            corpus.gesamtkonzept = gesamtkonzept
+        return self.save(corpus)
+
     @staticmethod
     def _recompute_status(corpus: SceneCorpus) -> SceneCorpus:
-        has_script = bool(corpus.script_source and corpus.script_text)
+        has_script = bool(corpus.script_text and corpus.script_text.strip())
         has_scenes = bool(corpus.scenes)
-        if not has_script and not has_scenes:
-            corpus.status = "draft"
+        if corpus.teil2_plan and corpus.teil2_plan.sentences and corpus.gesamtkonzept:
+            corpus.status = "ready"
+        elif corpus.teil2_plan and corpus.teil2_plan.sentences:
+            corpus.status = "composed"
         elif corpus.composition and corpus.composition.moments and corpus.gesamtkonzept:
             corpus.status = "ready"
         elif corpus.composition and corpus.composition.moments:
             corpus.status = "composed"
         elif corpus.gesamtkonzept and corpus.gesamtkonzept.thesis:
             corpus.status = "analyzed"
+        elif not has_script and not has_scenes:
+            corpus.status = "draft"
         elif has_script:
             corpus.status = "draft"
         else:

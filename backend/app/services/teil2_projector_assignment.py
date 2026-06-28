@@ -28,10 +28,11 @@ def assign_projectors_for_layers(
     layers: list[AvatarSpeechLayer],
     *,
     anarchy_level: float,
+    used: set[str] | None = None,
 ) -> list[AvatarSpeechLayer]:
     """Assign distinct projectors for chorus layers; escalate to all beamers when anarchic."""
     mode = projector_mode_for_anarchy(anarchy_level)
-    used: set[str] = set()
+    used_projectors = used if used is not None else set()
     updated: list[AvatarSpeechLayer] = []
 
     for index, layer in enumerate(layers):
@@ -44,12 +45,12 @@ def assign_projectors_for_layers(
         else:
             preferred = layer.projector or _default_projector(layer.avatar)
             projector = preferred
-            if preferred in used:
+            if preferred in used_projectors:
                 for candidate in ALL_PROJECTORS:
-                    if candidate not in used:
+                    if candidate not in used_projectors:
                         projector = candidate
                         break
-            used.add(projector)
+            used_projectors.add(projector)
             outputs = [VisualOutputAssignment(output_id=projector, clip_id=layer.video_clip_id)]
 
         updated.append(
@@ -80,7 +81,7 @@ def build_avatar_visual_cue(
         video_type="avatar",
         projector=primary,  # type: ignore[arg-type]
         lock_until_finished=True,
-        can_be_interrupted=False,
+        can_be_interrupted=True,
         duration_ms=duration_ms,
         outputs=outputs,
     )

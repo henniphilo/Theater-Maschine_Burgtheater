@@ -9,6 +9,7 @@ import {
 import type { ShowPhase } from "@/lib/types/director";
 import type { ScriptBeat } from "@/lib/types/script";
 import { dramaturgSpeakerLabel, speakerLabel } from "@/lib/types/script";
+import { PlaybackSpeedControl } from "@/components/show/PlaybackSpeedControl";
 
 type PerformanceTransportProps = {
   beats: ScriptBeat[];
@@ -139,32 +140,37 @@ export function PerformanceTransport({
           </div>
         </div>
 
-        <div className="performanceTransportControls">
-          {showPlay ? (
+        <div className="performanceTransportControls performanceTransportLeft">
+          <div className="performanceTransportPlayGroup">
+            {showPlay ? (
+              <button
+                type="button"
+                className="machineStartBtn"
+                disabled={!canPlay}
+                onClick={onPlay}
+                aria-label={paused ? "Fortsetzen" : "Abspielen"}
+              >
+                {paused ? "▶ Fortsetzen" : "▶ Play"}
+              </button>
+            ) : null}
+            {showPause ? (
+              <button type="button" disabled={!canPlay} onClick={onPause} aria-label="Pause">
+                ⏸
+              </button>
+            ) : null}
             <button
               type="button"
-              className="machineStartBtn"
-              disabled={!canPlay}
-              onClick={onPlay}
-              aria-label={paused ? "Fortsetzen" : "Abspielen"}
+              className="machineStopBtn"
+              disabled={!canPlay || (!running && !paused && beatIndex < 0)}
+              onClick={onStop}
+              aria-label="Stoppen"
             >
-              {paused ? "▶ Fortsetzen" : "▶ Play"}
+              ⏹ Stop
             </button>
-          ) : null}
-          {showPause ? (
-            <button type="button" disabled={!canPlay} onClick={onPause} aria-label="Pause">
-              ⏸ Pause
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className="machineStopBtn"
-            disabled={!canPlay || (!running && !paused && beatIndex < 0)}
-            onClick={onStop}
-            aria-label="Stoppen"
-          >
-            ⏹ Stop
-          </button>
+          </div>
+        </div>
+        <div className="performanceTransportRight">
+          <PlaybackSpeedControl compact disabled={!canPlay} />
         </div>
       </div>
     </footer>

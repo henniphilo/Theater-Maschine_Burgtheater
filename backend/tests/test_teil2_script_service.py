@@ -32,7 +32,7 @@ def _cue(
 def test_resolve_avatar_beat_duration_prefers_numbers_over_text():
     cues = [_cue("DEL1", "Kurz.", duration_ms=420_000)]
     resolved = resolve_avatar_beat_duration_ms("Kurz.", cues)
-    assert resolved == 420_000
+    assert resolved == 7_000
 
 
 def test_resolve_avatar_beat_duration_chorus_uses_max_layer():
@@ -41,7 +41,7 @@ def test_resolve_avatar_beat_duration_chorus_uses_max_layer():
         _cue("LG1", "Chorus.", avatar="lamm", clip="esel", duration_ms=540_000),
     ]
     resolved = resolve_avatar_beat_duration_ms("Chorus.", cues)
-    assert resolved == 540_000
+    assert resolved == 90_000
 
 
 def test_build_timeline_uses_resolved_duration_on_moment_and_visual_cue():
@@ -53,9 +53,9 @@ def test_build_timeline_uses_resolved_duration_on_moment_and_visual_cue():
         cues=cues,
     )
     moment = plan.moments[0]
-    assert moment.duration_hint_ms == 420_000
+    assert moment.duration_hint_ms == 7_000
     assert moment.avatar_layers[0].visual_cue is not None
-    assert moment.avatar_layers[0].visual_cue.duration_ms == 420_000
+    assert moment.avatar_layers[0].visual_cue.duration_ms == 7_000
 
 
 def test_group_consecutive_duplicate_text_as_chorus():

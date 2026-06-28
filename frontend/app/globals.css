@@ -815,8 +815,144 @@ select:focus {
   background: #86efac;
 }
 
+.performanceTransportInnerCompact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.performanceTransportLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.performanceTransportRight {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.performanceTransportInnerCompact .performanceTransportMeta {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.teil2SegmentHeader {
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.performanceTransportPlayGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.performanceTransportExtras {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .performanceTransportInnerCompact .performanceTransportMeta {
+    flex-basis: 100%;
+    order: -1;
+    justify-content: flex-start;
+  }
+}
+
+.teil2SentenceList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teil2SentenceBlock {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.teil2SentenceBlockActive {
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+.teil2SentenceBlockButton {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.teil2SentenceBlockButton:hover {
+  border-color: var(--accent);
+}
+
+.teil2SentenceText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.performanceSpeedCompact {
+  min-width: auto;
+  font-size: 0.78rem;
+  gap: 0.3rem;
+}
+
+.performanceSpeedCompact input[type="range"] {
+  width: 4.25rem;
+  min-width: 0;
+  flex: none;
+}
+
+.performanceSpeedCompact .performanceSpeedValue {
+  min-width: 1.8rem;
+  font-size: 0.78rem;
+}
+
 .performanceTransportControls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.performanceSpeed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 9rem;
+}
+
+.performanceSpeedLabel {
+  white-space: nowrap;
+}
+
+.performanceSpeed input[type="range"] {
+  flex: 1;
+  min-width: 4.5rem;
+}
+
+.performanceSpeedValue {
+  min-width: 2.2rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }

@@ -96,6 +96,153 @@
       "can_be_interrupted": true
     },
     {
+      "id": "bak1_nicolaspflanzen3",
+      "pixera_name": "BAK1_NicolasPflanzen3",
+      "label": "BAK1_NicolasPflanzen3",
+      "description": "BAK1_NicolasPflanzen3",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 24000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak2_krabbe",
+      "pixera_name": "BAK2_Krabbe",
+      "label": "BAK2_Krabbe",
+      "description": "BAK2_Krabbe",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 6000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak3_hasen",
+      "pixera_name": "BÄK3_Hasen",
+      "label": "BÄK3_Hasen",
+      "description": "BÄK3_Hasen",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 20000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak3_mavie",
+      "pixera_name": "BAK3_Mavie",
+      "label": "BAK3_Mavie",
+      "description": "BAK3_Mavie",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 20000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak4_inge",
+      "pixera_name": "BAK4_Inge",
+      "label": "BAK4_Inge",
+      "description": "BAK4_Inge",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 8000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak5_thiemo",
+      "pixera_name": "BAK5_Thiemo",
+      "label": "BAK5_Thiemo",
+      "description": "BAK5_Thiemo",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 15000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bak6_azaria",
+      "pixera_name": "BAK6_Azaria",
+      "label": "BAK6_Azaria",
+      "description": "BAK6_Azaria",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 12000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
       "id": "berge",
       "pixera_name": "Berge",
       "label": "Berge",
@@ -118,12 +265,12 @@
       "can_be_interrupted": true
     },
     {
-      "id": "bk1_caro",
-      "pixera_name": "BK1_Caro",
-      "label": "BK1_Caro",
-      "description": "BK1_Caro",
+      "id": "bk0_waran",
+      "pixera_name": "BK0_Waran",
+      "label": "BK0_Waran",
+      "description": "BK0_Waran",
       "tags": [
-        "bk1_caro"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -131,12 +278,33 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
+    },
+    {
+      "id": "bk1_caro",
+      "pixera_name": "BK1_Caro",
+      "label": "BK1_Caro",
+      "description": "BK1_Caro",
+      "tags": [
+        "baerenklau"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 12000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
     },
     {
       "id": "bk1_caroline",
@@ -144,7 +312,7 @@
       "label": "BK1_Caroline",
       "description": "BK1_Caroline",
       "tags": [
-        "bk1_caroline"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -152,12 +320,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 12000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk1_thomas",
@@ -165,7 +333,7 @@
       "label": "BK1_Thomas",
       "description": "BK1_Thomas",
       "tags": [
-        "bk1_thomas"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -173,12 +341,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 12000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk2_hundswolf",
@@ -186,7 +354,7 @@
       "label": "BK2_Hundswolf",
       "description": "BK2_Hundswolf",
       "tags": [
-        "bk2_hundswolf"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -194,12 +362,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk2_mavie",
@@ -207,7 +375,7 @@
       "label": "BK2_Mavie",
       "description": "BK2_Mavie",
       "tags": [
-        "bk2_mavie"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -215,12 +383,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk3_thomas",
@@ -228,7 +396,7 @@
       "label": "BK3_Thomas",
       "description": "BK3_Thomas",
       "tags": [
-        "bk3_thomas"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -236,12 +404,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk5_nicolas",
@@ -249,7 +417,7 @@
       "label": "BK5_Nicolas",
       "description": "BK5_Nicolas",
       "tags": [
-        "bk5_nicolas"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -257,12 +425,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk6_branko",
@@ -270,7 +438,7 @@
       "label": "BK6_Branko",
       "description": "BK6_Branko",
       "tags": [
-        "bk6_branko"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -278,12 +446,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk7_caroline",
@@ -291,7 +459,7 @@
       "label": "BK7_Caroline",
       "description": "BK7_Caroline",
       "tags": [
-        "bk7_caroline"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -299,12 +467,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 33000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk7_nasenfisch",
@@ -312,7 +480,7 @@
       "label": "BK7_Nasenfisch",
       "description": "BK7_Nasenfisch",
       "tags": [
-        "bk7_nasenfisch"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -320,12 +488,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 33000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk8_haischaedel",
@@ -333,7 +501,7 @@
       "label": "BK8_HaiSchaedel",
       "description": "BK8_HaiSchaedel",
       "tags": [
-        "bk8_haischaedel"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -341,12 +509,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk8_mavie",
@@ -354,7 +522,7 @@
       "label": "BK8_Mavie",
       "description": "BK8_Mavie",
       "tags": [
-        "bk8_mavie"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -362,12 +530,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk8_mavie1",
@@ -375,7 +543,7 @@
       "label": "BK8_Mavie1",
       "description": "BK8_Mavie1",
       "tags": [
-        "bk8_mavie1"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -383,12 +551,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 21000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "bk9_thiemo",
@@ -396,7 +564,7 @@
       "label": "BK9_Thiemo",
       "description": "BK9_Thiemo",
       "tags": [
-        "bk9_thiemo"
+        "baerenklau"
       ],
       "moods": [
         "neutral",
@@ -404,12 +572,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 9000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "black",
@@ -504,7 +672,7 @@
       "label": "DasLammGottes",
       "description": "DasLammGottes",
       "tags": [
-        "daslammgottes"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -512,12 +680,96 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 4000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
+    },
+    {
+      "id": "del1_nicolas",
+      "pixera_name": "DEL1_Nicolas",
+      "label": "DEL1_Nicolas",
+      "description": "DEL1_Nicolas",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 3000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "del2",
+      "pixera_name": "DEL2",
+      "label": "DEL2",
+      "description": "DEL2",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 9000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "del3",
+      "pixera_name": "DEL3",
+      "label": "DEL3",
+      "description": "DEL3",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 7000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "del4",
+      "pixera_name": "DEL4",
+      "label": "DEL4",
+      "description": "DEL4",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 13000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
     },
     {
       "id": "derhaseverlaesstdiebuehne",
@@ -738,7 +990,7 @@
       "label": "LG2_Inge",
       "description": "LG2_Inge",
       "tags": [
-        "lg2_inge"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -746,12 +998,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 7000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "lg3_seb",
@@ -759,7 +1011,7 @@
       "label": "LG3_Seb",
       "description": "LG3_Seb",
       "tags": [
-        "lg3_seb"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -767,12 +1019,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 4000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "lg4_azaria",
@@ -780,7 +1032,7 @@
       "label": "LG4_Azaria",
       "description": "LG4_Azaria",
       "tags": [
-        "lg4_azaria"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -788,12 +1040,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 10000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "lg5_henrike",
@@ -801,7 +1053,7 @@
       "label": "LG5_Henrike",
       "description": "LG5_Henrike",
       "tags": [
-        "lg5_henrike"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -809,12 +1061,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "lg6_hai",
@@ -822,7 +1074,7 @@
       "label": "LG6_Hai",
       "description": "LG6_Hai",
       "tags": [
-        "lg6_hai"
+        "lamm"
       ],
       "moods": [
         "neutral",
@@ -830,12 +1082,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "macbook",
@@ -900,6 +1152,111 @@
       "text_content_id": null,
       "animal": null,
       "can_be_interrupted": true
+    },
+    {
+      "id": "mehlwurmer",
+      "pixera_name": "Mehlwürmer",
+      "label": "Mehlwürmer",
+      "description": "Mehlwürmer",
+      "tags": [
+        "mehlwurmer"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "mo1_sebmusik",
+      "pixera_name": "MO1_SebMusik",
+      "label": "MO1_SebMusik",
+      "description": "MO1_SebMusik",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 5000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "mo2_branko",
+      "pixera_name": "MO2_Branko",
+      "label": "MO2_Branko",
+      "description": "MO2_Branko",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 31000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "mo3_caro",
+      "pixera_name": "MO3_Caro",
+      "label": "MO3_Caro",
+      "description": "MO3_Caro",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 14000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "mo3_dachs",
+      "pixera_name": "MO3_Dachs",
+      "label": "MO3_Dachs",
+      "description": "MO3_Dachs",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 14000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
     },
     {
       "id": "musiker",
@@ -968,12 +1325,12 @@
       "can_be_interrupted": true
     },
     {
-      "id": "pet1_azaria",
-      "pixera_name": "PET1_Azaria",
-      "label": "PET1_Azaria",
-      "description": "PET1_Azaria",
+      "id": "pet0_baer_thomas",
+      "pixera_name": "PET0_Baer_Thomas",
+      "label": "PET0_Baer_Thomas",
+      "description": "PET0_Baer_Thomas",
       "tags": [
-        "pet1_azaria"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -981,12 +1338,33 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 5000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
+    },
+    {
+      "id": "pet1_azaria",
+      "pixera_name": "PET1_Azaria",
+      "label": "PET1_Azaria",
+      "description": "PET1_Azaria",
+      "tags": [
+        "petya"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 5000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
     },
     {
       "id": "pet1_thomas",
@@ -994,7 +1372,7 @@
       "label": "PET1_Thomas",
       "description": "PET1_Thomas",
       "tags": [
-        "pet1_thomas"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1002,12 +1380,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 10000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "pet2_inge",
@@ -1015,7 +1393,7 @@
       "label": "PET2_Inge",
       "description": "PET2_Inge",
       "tags": [
-        "pet2_inge"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1023,12 +1401,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 17000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "pet3_caroline",
@@ -1036,7 +1414,7 @@
       "label": "PET3_Caroline",
       "description": "PET3_Caroline",
       "tags": [
-        "pet3_caroline"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1044,12 +1422,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 4000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "pet3_koala",
@@ -1057,7 +1435,7 @@
       "label": "PET3_Koala",
       "description": "PET3_Koala",
       "tags": [
-        "pet3_koala"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1065,12 +1443,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 4000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "pet4_sebastian",
@@ -1078,7 +1456,7 @@
       "label": "PET4_Sebastian",
       "description": "PET4_Sebastian",
       "tags": [
-        "pet4_sebastian"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1086,12 +1464,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 26000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "pet5_azaria",
@@ -1099,7 +1477,7 @@
       "label": "PET5_Azaria",
       "description": "PET5_Azaria",
       "tags": [
-        "pet5_azaria"
+        "petya"
       ],
       "moods": [
         "neutral",
@@ -1107,12 +1485,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 17000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "random",
@@ -1135,6 +1513,216 @@
       "text_content_id": null,
       "animal": null,
       "can_be_interrupted": true
+    },
+    {
+      "id": "sch1_sebastian",
+      "pixera_name": "SCH1_Sebastian",
+      "label": "SCH1_Sebastian",
+      "description": "SCH1_Sebastian",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 4000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch2_azaria",
+      "pixera_name": "SCH2_Azaria",
+      "label": "SCH2_Azaria",
+      "description": "SCH2_Azaria",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 37000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch2_azaria_als_schaf",
+      "pixera_name": "SCH2_Azaria_als_Schaf",
+      "label": "SCH2_Azaria_als_Schaf",
+      "description": "SCH2_Azaria_als_Schaf",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 37000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch2_azariawirdschaf",
+      "pixera_name": "SCH2_AzariawirdSchaf",
+      "label": "SCH2_AzariawirdSchaf",
+      "description": "SCH2_AzariawirdSchaf",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 37000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch3_ingewirdschaf",
+      "pixera_name": "SCH3_IngewirdSchaf",
+      "label": "SCH3_IngewirdSchaf",
+      "description": "SCH3_IngewirdSchaf",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 26000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch4_thomas",
+      "pixera_name": "SCH4_Thomas",
+      "label": "SCH4_Thomas",
+      "description": "SCH4_Thomas",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 4000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch5_schafsolo_mavie",
+      "pixera_name": "SCH5_SchafSolo_Mavie",
+      "label": "SCH5_SchafSolo_Mavie",
+      "description": "SCH5_SchafSolo_Mavie",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 13000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch6_schafherde",
+      "pixera_name": "SCH6_Schafherde",
+      "label": "SCH6_Schafherde",
+      "description": "SCH6_Schafherde",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 13000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch7_schaf_single_sebastian",
+      "pixera_name": "SCH7_Schaf_Single_Sebastian",
+      "label": "SCH7_Schaf_Single_Sebastian",
+      "description": "SCH7_Schaf_Single_Sebastian",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 45000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
+    },
+    {
+      "id": "sch8_viele_schafe_caro",
+      "pixera_name": "SCH8_Viele_Schafe_Caro",
+      "label": "SCH8_Viele_Schafe_Caro",
+      "description": "SCH8_Viele_Schafe_Caro",
+      "tags": [
+        "delphin"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "avatar",
+      "projector_preference": null,
+      "duration_ms": 10000,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": false
     },
     {
       "id": "sebastian",
@@ -1291,7 +1879,7 @@
       "label": "WO1_Kaenguru",
       "description": "WO1_Kaenguru",
       "tags": [
-        "wo1_kaenguru"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1299,12 +1887,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 4000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo2_branko",
@@ -1312,7 +1900,7 @@
       "label": "WO2_Branko",
       "description": "WO2_Branko",
       "tags": [
-        "wo2_branko"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1320,12 +1908,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 8000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo3_seb_musik",
@@ -1333,7 +1921,7 @@
       "label": "WO3_Seb_Musik",
       "description": "WO3_Seb_Musik",
       "tags": [
-        "wo3_seb_musik"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1341,12 +1929,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 10000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo4_nicolas",
@@ -1354,7 +1942,7 @@
       "label": "WO4_Nicolas",
       "description": "WO4_Nicolas",
       "tags": [
-        "wo4_nicolas"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1362,12 +1950,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 2000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo4_schimpanse",
@@ -1375,7 +1963,7 @@
       "label": "WO4_Schimpanse",
       "description": "WO4_Schimpanse",
       "tags": [
-        "wo4_schimpanse"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1383,12 +1971,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 3000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo5_thiemo",
@@ -1396,7 +1984,7 @@
       "label": "WO5_Thiemo",
       "description": "WO5_Thiemo",
       "tags": [
-        "wo5_thiemo"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1404,12 +1992,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 8000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo6_mavie",
@@ -1417,7 +2005,7 @@
       "label": "WO6_Mavie",
       "description": "WO6_Mavie",
       "tags": [
-        "wo6_mavie"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1425,12 +2013,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 20000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo6_schimpanse",
@@ -1438,7 +2026,7 @@
       "label": "WO6_Schimpanse",
       "description": "WO6_Schimpanse",
       "tags": [
-        "wo6_schimpanse"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1446,12 +2034,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 20000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     },
     {
       "id": "wo7_sebastian",
@@ -1459,7 +2047,7 @@
       "label": "WO7_Sebastian",
       "description": "WO7_Sebastian",
       "tags": [
-        "wo7_sebastian"
+        "wolf"
       ],
       "moods": [
         "neutral",
@@ -1467,12 +2055,12 @@
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
-      "video_type": "atmosphere",
+      "video_type": "avatar",
       "projector_preference": null,
-      "duration_ms": null,
+      "duration_ms": 12000,
       "text_content_id": null,
       "animal": null,
-      "can_be_interrupted": true
+      "can_be_interrupted": false
     }
   ]
 }

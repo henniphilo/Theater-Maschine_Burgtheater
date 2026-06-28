@@ -11,3 +11,8 @@ services:
   redis:
     ports:
       - "6379:6379"
+  frontend:
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: /api/v1
+      API_PROXY_TARGET: http://host.docker.internal:8000
+      DOCKER: "1"

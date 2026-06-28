@@ -6,7 +6,6 @@ import json
 import zipfile
 from datetime import UTC, datetime
 from io import BytesIO
-from pathlib import Path
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
@@ -24,18 +23,25 @@ class InszenierungBundleService:
 
     def export_zip(self, corpus_id: str) -> tuple[bytes, str]:
         corpus = self.store.get(corpus_id)
-        if not corpus.composition or not corpus.composition.moments:
+        has_plan = bool(corpus.teil2_plan and corpus.teil2_plan.sentences)
+        has_legacy = bool(corpus.composition and corpus.composition.moments)
+        if not has_plan and not has_legacy:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Keine Timeline — zuerst Komposition laden",
+                detail="Kein Plan — zuerst vorbereiten",
             )
+        moment_count = (
+            len(corpus.teil2_plan.sentences)
+            if has_plan
+            else len(corpus.composition.moments)  # type: ignore[union-attr]
+        )
         manifest = {
             "format": "theatermaschine.teil2",
             "version": TEIL2_FORMAT_VERSION,
             "exported_at": datetime.now(UTC).isoformat(),
             "corpus_id": corpus.id,
             "title": corpus.title,
-            "moment_count": len(corpus.composition.moments),
+            "moment_count": moment_count,
         }
         buffer = BytesIO()
         with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:

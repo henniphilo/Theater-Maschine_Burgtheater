@@ -73,7 +73,7 @@ export function WorkshopStatusBar() {
         <>
           {" "}
           <Link href={`/dramaturgie`} style={{ marginLeft: 4 }}>
-            Dramaturgie
+            Teil 1
           </Link>
           {workshop.status === "done" ? (
             <>

@@ -6,6 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
 import { PerformanceTransport, beatIndexFromProgress } from "@/components/show/PerformanceTransport";
+import { Teil2PerformanceBar } from "@/components/show/Teil2PerformanceBar";
+import { Teil2AvatarSegmentBlock } from "@/components/show/Teil2AvatarSegmentBlock";
+import { activeAvatarSegmentIndex } from "@/features/inszenierung/teil2AvatarSections";
+import { readPerformanceTryout } from "@/components/show/PerformanceTryoutControl";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
 import { fetchTTSStatus, setPlaybackPaused, stopPlayback } from "@/lib/api/client";
 import { downloadBlob, exportPerformance, importPerformance } from "@/lib/api/performance";
@@ -15,7 +19,8 @@ import {
   createCorpus,
   exportTeil2,
   fetchCorpus,
-  importTeil2
+  importTeil2,
+  prepareCorpus
 } from "@/lib/api/inszenierung";
 import { patchScript } from "@/lib/api/script";
 import {
@@ -25,12 +30,20 @@ import {
   type AnarchyPlaybackState
 } from "@/features/inszenierung/anarchyPlayback";
 import {
+  INITIAL_TEXT_SYNC_STATE,
+  runTextSyncPlayback,
+  stopTextSyncPlayback,
+  type TextSyncPlaybackState
+} from "@/features/inszenierung/teil2TextSyncPlayback";
+import type { PerformanceSpeaker } from "@/lib/types/director";
+import {
   planNeedsAvatarVisualRefresh,
   planRequiresTts
 } from "@/features/inszenierung/avatarCuePlayback";
 import {
   bufferStatusLabel as inszenierungBufferLabel,
   isInszenierungBuffered,
+  planSpeechLabel,
   momentSpeechLabel,
   startInszenierungBuffer,
   subscribeInszenierungBuffer,
@@ -88,6 +101,8 @@ function AuffuehrungContent() {
   const [bufferState, setBufferState] = useState<ScriptBufferState | null>(null);
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
   const [anarchyPlayback, setAnarchyPlayback] = useState<AnarchyPlaybackState>(INITIAL_ANARCHY_STATE);
+  const [textSyncPlayback, setTextSyncPlayback] = useState<TextSyncPlaybackState>(INITIAL_TEXT_SYNC_STATE);
+  const [teil2Speaker, setTeil2Speaker] = useState<PerformanceSpeaker>("narrator");
   const [inszenierungBuffer, setInszenierungBuffer] = useState<InszenierungBufferState | null>(null);
   const abortRef = useRef(false);
   const playbackGenRef = useRef(0);
@@ -101,12 +116,29 @@ function AuffuehrungContent() {
     [script]
   );
   const activeBeatCount = performancePart === "part1_baerenklau" ? part1OnlyBeats.length : beatCount;
+  const usesTextSync = Boolean(corpus?.teil2_plan?.sentences?.length);
+  const teil2Plan = corpus?.teil2_plan ?? null;
   const teil2Moments = useMemo(
     () => [...(corpus?.composition?.moments ?? [])].sort((a, b) => a.order - b.order),
     [corpus?.composition?.moments]
   );
-  const teil2NeedsTts = corpus?.composition ? planRequiresTts(corpus.composition) : false;
-  const teil2BeatCount = teil2Moments.length;
+  const teil2NeedsTts = usesTextSync
+    ? ttsAvailable
+    : corpus?.composition
+      ? planRequiresTts(corpus.composition)
+      : false;
+  const teil2BeatCount = usesTextSync ? (teil2Plan?.sentences.length ?? 0) : teil2Moments.length;
+  const teil2SectionCount = usesTextSync
+    ? (teil2Plan?.avatar_segments.length ?? 0)
+    : teil2Moments.length;
+  const teil2Running = usesTextSync ? textSyncPlayback.running : anarchyPlayback.running;
+  const teil2Paused = usesTextSync ? textSyncPlayback.paused : anarchyPlayback.paused;
+  const teil2Completed = usesTextSync ? textSyncPlayback.completed : anarchyPlayback.completed;
+  const teil2ProgressIndex = usesTextSync ? textSyncPlayback.sentenceIndex : anarchyPlayback.momentIndex;
+  const teil2ActiveSegmentIndex = usesTextSync && teil2Plan
+    ? activeAvatarSegmentIndex(teil2Plan.avatar_segments, teil2ProgressIndex)
+    : -1;
+  const teil2AnarchyLevel = usesTextSync ? textSyncPlayback.anarchyLevel : anarchyPlayback.anarchyLevel;
   const teil2Only = Boolean(corpusIdParam && !scriptId);
   const activeTeil2Moment =
     anarchyPlayback.momentIndex >= 0 ? teil2Moments[anarchyPlayback.momentIndex] : undefined;
@@ -117,6 +149,7 @@ function AuffuehrungContent() {
       return;
     }
     if (!scriptId) {
+      setLoading(false);
       return;
     }
     try {
@@ -128,7 +161,7 @@ function AuffuehrungContent() {
     } finally {
       setLoading(false);
     }
-  }, [scriptId]);
+  }, [scriptId, corpusIdParam]);
 
   useEffect(() => {
     void load();
@@ -164,16 +197,9 @@ function AuffuehrungContent() {
       try {
         let data = await fetchCorpus(linkedId);
         if (cancelled) return;
-        if (data.script_text && !(data.composition?.moments?.length ?? 0)) {
-          try {
-            data = await composeScript(data.id);
-          } catch (err) {
-            if (!cancelled) {
-              setError(err instanceof Error ? err.message : "Teil-2-Timeline konnte nicht geladen werden");
-            }
-          }
+        if (data.teil2_plan?.performance_speaker) {
+          setTeil2Speaker(data.teil2_plan.performance_speaker);
         }
-        if (cancelled) return;
         setCorpus(data);
         sessionStorage.setItem("currentCorpusId", data.id);
         if (script?.id && script.teil2_corpus_id !== data.id) {
@@ -191,10 +217,16 @@ function AuffuehrungContent() {
   }, [script?.teil2_corpus_id, script?.id, corpusIdParam, scriptId]);
 
   useEffect(() => {
-    if (!corpus?.composition?.moments?.length || !ttsAvailable || !teil2NeedsTts) return;
+    const hasPlan = usesTextSync || (corpus?.composition?.moments?.length ?? 0) > 0;
+    if (!corpus || !hasPlan || !ttsAvailable || !teil2NeedsTts) return;
     if (isInszenierungBuffered(corpus.id, ttsAvailable)) return;
-    startInszenierungBuffer(corpus, ttsAvailable);
-  }, [corpus, ttsAvailable, teil2NeedsTts]);
+    startInszenierungBuffer(corpus, ttsAvailable, teil2Speaker);
+  }, [corpus, ttsAvailable, teil2NeedsTts, usesTextSync, teil2Speaker]);
+
+  useEffect(() => {
+    if (!corpus || !usesTextSync || !ttsAvailable) return;
+    startInszenierungBuffer(corpus, ttsAvailable, teil2Speaker);
+  }, [teil2Speaker, corpus, usesTextSync, ttsAvailable]);
 
   useEffect(() => subscribeInszenierungBuffer(setInszenierungBuffer), []);
 
@@ -213,19 +245,22 @@ function AuffuehrungContent() {
   const bufferReady = script ? isPlaybackBuffered(script.id, playbackAudio) : false;
   const scriptReady = ready || Boolean(script?.has_rendered_audio);
   const teil2Ready =
-    Boolean(corpus?.composition?.moments?.length) &&
+    Boolean(usesTextSync ? corpus?.teil2_plan?.sentences?.length : corpus?.composition?.moments?.length) &&
     (!teil2NeedsTts || isInszenierungBuffered(corpus!.id, ttsAvailable) || !ttsAvailable);
   const teil2BlockedReason =
-    corpus?.composition?.moments?.length && teil2NeedsTts && ttsAvailable && !teil2Ready
-      ? inszenierungBuffer && inszenierungBuffer.corpusId === corpus.id
+    (usesTextSync ? corpus?.teil2_plan?.sentences?.length : corpus?.composition?.moments?.length) &&
+    teil2NeedsTts &&
+    ttsAvailable &&
+    !teil2Ready
+      ? inszenierungBuffer && inszenierungBuffer.corpusId === corpus?.id
         ? inszenierungBufferLabel(inszenierungBuffer)
-        : "Stimmen werden vorbereitet …"
-      : !corpus?.composition?.moments?.length && corpus
-        ? "Timeline fehlt — Komposition laden oder vorbereiten."
+        : "Stimme wird vorbereitet …"
+      : corpus && !usesTextSync && !corpus.composition?.moments?.length && !corpus.teil2_plan?.sentences?.length
+        ? "Plan fehlt — auf /inszenierung vorbereiten."
         : undefined;
-  const canPlayTeil1 = scriptReady && bufferReady && !anarchyPlayback.running;
+  const canPlayTeil1 = scriptReady && bufferReady && !teil2Running;
   const canPlayTeil2 =
-    Boolean(corpus?.composition?.moments?.length) &&
+    Boolean(usesTextSync ? corpus?.teil2_plan?.sentences?.length : corpus?.composition?.moments?.length) &&
     teil2Ready &&
     !playback.running;
   const showBufferStatus =
@@ -292,15 +327,45 @@ function AuffuehrungContent() {
     [script, canPlayTeil1, playbackAudio, performancePart, part1OnlyBeats]
   );
 
-  const playTeil2 = useCallback(async () => {
-    if (!corpus?.composition || !canPlayTeil2) return;
+  const playTeil2 = useCallback(async (startSentenceIndex = 0, endSentenceIndex?: number) => {
+    if (!corpus || !canPlayTeil2) return;
+    if (teil2Running && teil2Paused) {
+      setPlaybackPaused(false);
+      if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+      else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
+      return;
+    }
+    if (teil2Running) return;
     const gen = ++playbackGenRef.current;
     abortRef.current = false;
     setPlaybackPaused(false);
-    setAnarchyPlayback({ ...INITIAL_ANARCHY_STATE, running: true, paused: false });
     if (script?.id) {
       await patchScript(script.id, { performance_part: "part2_delphin_to_mole" }).catch(() => undefined);
     }
+
+    if (usesTextSync && teil2Plan) {
+      setTextSyncPlayback({
+        ...INITIAL_TEXT_SYNC_STATE,
+        running: true,
+        paused: false,
+        sentenceIndex: startSentenceIndex
+      });
+      await runTextSyncPlayback(
+        corpus,
+        teil2Plan,
+        teil2Speaker,
+        ttsAvailable,
+        (patch) => {
+          if (gen === playbackGenRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
+        },
+        () => abortRef.current,
+        { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex }
+      );
+      return;
+    }
+
+    if (!corpus.composition) return;
+    setAnarchyPlayback({ ...INITIAL_ANARCHY_STATE, running: true, paused: false });
     let activeCorpus = corpus;
     try {
       activeCorpus = await composeScript(corpus.id);
@@ -325,7 +390,7 @@ function AuffuehrungContent() {
     if (gen === playbackGenRef.current) {
       setAnarchyPlayback((prev) => ({ ...prev, running: false, completed: true }));
     }
-  }, [corpus, canPlayTeil2, ttsAvailable, script]);
+  }, [corpus, canPlayTeil2, ttsAvailable, script, usesTextSync, teil2Plan, teil2Speaker, teil2Running, teil2Paused]);
 
   function handlePlayTeil1(mode: PlaybackMode = "full") {
     if (!script || !canPlayTeil1) return;
@@ -344,20 +409,32 @@ function AuffuehrungContent() {
     void playFrom(from, mode);
   }
 
-  function handlePlayTeil2() {
-    if (anarchyPlayback.running && anarchyPlayback.paused) {
+  function handlePlayTeil2(startSentenceIndex = 0) {
+    if (teil2Running && teil2Paused) {
       setPlaybackPaused(false);
-      setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
+      if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+      else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
       return;
     }
-    if (anarchyPlayback.running) return;
-    void playTeil2();
+    if (teil2Running) return;
+    void playTeil2(startSentenceIndex);
+  }
+
+  function handleJumpToAvatarSegment(segmentIndex: number) {
+    if (!canPlayTeil2 || !usesTextSync || !teil2Plan) return;
+    const segment = teil2Plan.avatar_segments[segmentIndex];
+    if (!segment) return;
+    if (teil2Running || teil2Paused) {
+      handleStop();
+    }
+    void playTeil2(segment.start_sentence_index, segment.end_sentence_index);
   }
 
   function handlePause() {
-    if (anarchyPlayback.running && !anarchyPlayback.paused) {
+    if (teil2Running && !teil2Paused) {
       setPlaybackPaused(true);
-      setAnarchyPlayback((prev) => ({ ...prev, paused: true }));
+      if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: true }));
+      else setAnarchyPlayback((prev) => ({ ...prev, paused: true }));
       return;
     }
     if (!playback.running || playback.paused) return;
@@ -368,8 +445,10 @@ function AuffuehrungContent() {
   function handleStop() {
     abortRef.current = true;
     playbackGenRef.current += 1;
+    stopPlayback();
     stopScriptPlayback();
     stopAnarchyPlayback();
+    stopTextSyncPlayback();
     setPlayback((prev) => ({
       ...prev,
       running: false,
@@ -378,6 +457,7 @@ function AuffuehrungContent() {
       activeOscCommand: null
     }));
     setAnarchyPlayback((prev) => ({ ...prev, running: false, paused: true }));
+    setTextSyncPlayback((prev) => ({ ...prev, running: false, paused: true }));
   }
 
   function handleSeek(progress: number) {
@@ -437,7 +517,8 @@ function AuffuehrungContent() {
   }
 
   async function handleExportTeil2() {
-    if (!corpus?.composition?.moments?.length) return;
+    const hasPlan = usesTextSync || (corpus?.composition?.moments?.length ?? 0) > 0;
+    if (!corpus || !hasPlan) return;
     setExportingTeil2(true);
     setError("");
     try {
@@ -458,10 +539,11 @@ function AuffuehrungContent() {
       const imported = await importTeil2(file);
       setCorpus(imported);
       sessionStorage.setItem("currentCorpusId", imported.id);
-      const href = scriptId
-        ? `/auffuehrung?id=${scriptId}&corpus=${imported.id}`
-        : `/auffuehrung?corpus=${imported.id}`;
-      router.push(href);
+      if (scriptId) {
+        router.push(`/auffuehrung?id=${scriptId}&corpus=${imported.id}`);
+      } else {
+        router.push(`/auffuehrung?corpus=${imported.id}`);
+      }
       if (script?.id) {
         await patchScript(script.id, { teil2_corpus_id: imported.id }).catch(() => undefined);
       }
@@ -481,15 +563,19 @@ function AuffuehrungContent() {
       if (!next) {
         next = await createCorpus("Teil 2 — Delphin bis Wolf");
       }
-      if (!(next.composition?.moments?.length ?? 0)) {
-        next = await composeScript(next.id);
+      if (!(next.teil2_plan?.sentences?.length ?? 0) && !(next.composition?.moments?.length ?? 0)) {
+        if (!next.script_text?.trim()) {
+          throw new Error("Kein Aufführungstext — zuerst auf /inszenierung hochladen");
+        }
+        next = await prepareCorpus(next.id);
       }
       setCorpus(next);
       sessionStorage.setItem("currentCorpusId", next.id);
-      const href = scriptId
-        ? `/auffuehrung?id=${scriptId}&corpus=${next.id}`
-        : `/auffuehrung?corpus=${next.id}`;
-      router.push(href);
+      if (scriptId) {
+        router.push(`/auffuehrung?id=${scriptId}&corpus=${next.id}`);
+      } else {
+        router.push(`/auffuehrung?corpus=${next.id}`);
+      }
       if (script?.id) {
         await patchScript(script.id, { teil2_corpus_id: next.id }).catch(() => undefined);
       }
@@ -545,11 +631,11 @@ function AuffuehrungContent() {
             hidden
             onChange={(e) => void handleImportTeil2File(e.target.files?.[0] ?? null)}
           />
-          {corpus?.composition?.moments?.length ? (
+          {corpus && (usesTextSync || corpus.composition?.moments?.length) ? (
             <button
               type="button"
               onClick={() => void handleExportTeil2()}
-              disabled={exportingTeil2 || anarchyPlayback.running}
+              disabled={exportingTeil2 || teil2Running}
             >
               {exportingTeil2 ? "Export läuft …" : "Teil 2 exportieren"}
             </button>
@@ -639,11 +725,11 @@ function AuffuehrungContent() {
               {corpus?.composition?.moments?.length ? (
                 <button
                   type="button"
-                  onClick={handlePlayTeil2}
-                  disabled={!canPlayTeil2 || (anarchyPlayback.running && !anarchyPlayback.paused)}
+                  onClick={() => handlePlayTeil2()}
+                  disabled={!canPlayTeil2 || (teil2Running && !teil2Paused)}
                 >
-                  {anarchyPlayback.running
-                    ? anarchyPlayback.paused
+                  {teil2Running
+                    ? teil2Paused
                       ? "Teil 2 pausiert"
                       : "Teil 2 läuft …"
                     : "Teil 2 starten"}
@@ -657,18 +743,18 @@ function AuffuehrungContent() {
             {playback.completed && performancePart === "part1_baerenklau" ? (
               <p className="textMuted">Teil 1 beendet.</p>
             ) : null}
-            {anarchyPlayback.completed ? <p className="textMuted">Teil 2 beendet.</p> : null}
+            {teil2Completed ? <p className="textMuted">Teil 2 beendet.</p> : null}
             {inszenierungBuffer && teil2NeedsTts && !teil2Ready && corpus ? (
               <p className="textMuted">{inszenierungBufferLabel(inszenierungBuffer)}</p>
             ) : null}
-            {teil2BlockedReason && !anarchyPlayback.running ? (
+            {teil2BlockedReason && !teil2Running ? (
               <p className="textMuted" style={{ fontSize: "0.85rem" }}>
                 {teil2BlockedReason}
               </p>
             ) : null}
-            {anarchyPlayback.running ? (
+            {teil2Running ? (
               <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-                Beat {anarchyPlayback.momentIndex + 1}/{teil2BeatCount}
+                {usesTextSync ? "Satz" : "Beat"} {teil2ProgressIndex + 1}/{teil2BeatCount}
                 {activeTeil2Moment ? ` · ${momentSpeechLabel(activeTeil2Moment)}` : ""}
                 {activeTeil2Moment?.avatar_layers?.length
                   ? ` · Beamer: ${
@@ -677,8 +763,8 @@ function AuffuehrungContent() {
                         : activeTeil2Moment.avatar_layers.map((l) => l.projector).join(", ")
                     }`
                   : ""}
-                {" · "}Anarchie {Math.round(anarchyPlayback.anarchyLevel * 100)}%
-                {anarchyPlayback.activeVoices > 0 ? ` · ${anarchyPlayback.activeVoices} Stimmen` : ""}
+                {" · "}Anarchie {Math.round(teil2AnarchyLevel * 100)}%
+                {!usesTextSync && anarchyPlayback.activeVoices > 0 ? ` · ${anarchyPlayback.activeVoices} Stimmen` : ""}
               </p>
             ) : null}
             {playback.completed && !script.teil2_corpus_id && !corpusIdParam ? (
@@ -708,7 +794,7 @@ function AuffuehrungContent() {
             ))}
           </section>
 
-          {!anarchyPlayback.running && !anarchyPlayback.paused ? (
+          {!teil2Running && !teil2Paused ? (
             <PerformanceTransport
               beats={performancePart === "part1_baerenklau" ? part1OnlyBeats : script.beats}
               beatIndex={playback.beatIndex}
@@ -743,118 +829,123 @@ function AuffuehrungContent() {
           <section className="card col">
             <h2>{corpus.title || "Teil 2 — Anarchie"}</h2>
             <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-              {teil2BeatCount > 0
-                ? `${teil2BeatCount} Beats · Avatar-Video parallel zu Anarchie-OSC`
-                : "Noch keine Timeline — Komposition laden oder vorbereiten."}
+              {teil2SectionCount > 0
+                ? usesTextSync
+                  ? `${teil2SectionCount} Avatar-Abschnitte · Text-Sync`
+                  : `${teil2SectionCount} Beats · Avatar-Video parallel zu Anarchie-OSC`
+                : "Noch kein Plan — Text auf /inszenierung hochladen und vorbereiten."}
             </p>
             <div className="row" style={{ gap: "0.75rem", flexWrap: "wrap" }}>
               {teil2BeatCount > 0 ? (
                 <button
                   type="button"
                   className="machineStartBtn"
-                  onClick={handlePlayTeil2}
-                  disabled={!canPlayTeil2 || (anarchyPlayback.running && !anarchyPlayback.paused)}
+                  onClick={() => handlePlayTeil2()}
+                  disabled={!canPlayTeil2 || (teil2Running && !teil2Paused)}
                 >
-                  {anarchyPlayback.running
-                    ? anarchyPlayback.paused
+                  {teil2Running
+                    ? teil2Paused
                       ? "▶ Fortsetzen"
                       : "Teil 2 läuft …"
                     : "▶ Teil 2 starten"}
                 </button>
               ) : (
-                <button type="button" onClick={() => void handlePrepareTeil2()} disabled={preparingTeil2}>
-                  {preparingTeil2 ? "Wird vorbereitet …" : "Timeline laden"}
-                </button>
+                <Link className="machineStartBtn" href="/inszenierung">
+                  Teil 2 vorbereiten →
+                </Link>
               )}
-              <Link href={`/inszenierung/komposition?id=${corpus.id}`}>Komposition bearbeiten</Link>
+              <Link href={`/inszenierung?id=${corpus.id}`}>Inszenierung bearbeiten</Link>
             </div>
             {activeTeil2Moment ? (
               <p className="textMuted" style={{ fontSize: "0.9rem" }}>
                 Aktiv: {momentSpeechLabel(activeTeil2Moment)}
               </p>
             ) : null}
-            {teil2BlockedReason && !anarchyPlayback.running ? (
+            {teil2BlockedReason && !teil2Running ? (
               <p className="textMuted">{teil2BlockedReason}</p>
             ) : null}
           </section>
 
-          {teil2BeatCount > 0 ? (
-            <section className="card col">
-              <h2>Teil-2-Beats</h2>
-              <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
-                {teil2Moments.map((moment, index) => (
-                  <li
-                    key={moment.id}
-                    style={{
-                      marginBottom: "0.5rem",
-                      opacity: anarchyPlayback.momentIndex === index && anarchyPlayback.running ? 1 : 0.85
-                    }}
-                  >
-                    <strong>{momentSpeechLabel(moment)}</strong>
-                    <span className="textMuted" style={{ fontSize: "0.85rem" }}>
-                      {" "}
-                      · Anarchie {(moment.anarchy_level * 100).toFixed(0)}%
-                      {moment.avatar_layers?.length
-                        ? ` · ${moment.projector_mode === "all" ? "alle Beamer" : moment.avatar_layers.map((l) => l.projector).join(", ")}`
-                        : ""}
-                    </span>
-                    {moment.text_excerpt ? (
-                      <p className="textMuted" style={{ fontSize: "0.85rem", margin: "0.15rem 0 0" }}>
-                        {moment.text_excerpt}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
+          {teil2SectionCount > 0 ? (
+            <section className="card col scriptDocument">
+              <h2>{usesTextSync ? "Avatar-Abschnitte" : "Teil-2-Beats"}</h2>
+              {usesTextSync ? (
+                <p className="textMuted" style={{ fontSize: "0.9rem", marginTop: 0 }}>
+                  Wie in der CSV — Klick testet Stimme und Signale für diesen Abschnitt.
+                </p>
+              ) : null}
+              {usesTextSync && teil2Plan ? (
+                <ul className="teil2SentenceList">
+                  {teil2Plan.avatar_segments.map((segment, index) => (
+                    <li key={segment.csv_cue_ids.join("-")}>
+                      <Teil2AvatarSegmentBlock
+                        segment={segment}
+                        index={index}
+                        active={teil2ActiveSegmentIndex === index && (teil2Running || teil2Paused)}
+                        clickable={canPlayTeil2}
+                        onSelect={() => handleJumpToAvatarSegment(index)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
+                  {teil2Moments.map((moment, index) => (
+                    <li
+                      key={moment.id}
+                      style={{
+                        marginBottom: "0.5rem",
+                        opacity: teil2ProgressIndex === index && teil2Running ? 1 : 0.85
+                      }}
+                    >
+                      <strong>{momentSpeechLabel(moment)}</strong>
+                      <span className="textMuted" style={{ fontSize: "0.85rem" }}>
+                        {" "}
+                        · Anarchie {(moment.anarchy_level * 100).toFixed(0)}%
+                        {moment.avatar_layers?.length
+                          ? ` · ${moment.projector_mode === "all" ? "alle Beamer" : moment.avatar_layers.map((l) => l.projector).join(", ")}`
+                          : ""}
+                      </span>
+                      {moment.text_excerpt ? (
+                        <p className="textMuted" style={{ fontSize: "0.85rem", margin: "0.15rem 0 0" }}>
+                          {moment.text_excerpt}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
             </section>
           ) : null}
         </>
       ) : null}
 
-      {corpus && teil2BeatCount > 0 &&
-      (teil2Only || !script || anarchyPlayback.running || anarchyPlayback.paused) ? (
-        <footer className="performanceTransport" aria-label="Teil-2-Steuerung">
-          <div className="performanceTransportInner">
-              <div className="performanceTransportMeta">
-                <strong>
-                  Beat {anarchyPlayback.momentIndex >= 0 ? anarchyPlayback.momentIndex + 1 : "—"} / {teil2BeatCount}
-                </strong>
-                <span className="textMuted performanceTransportDetail">
-                  {anarchyPlayback.completed
-                    ? "Beendet"
-                    : anarchyPlayback.running
-                      ? anarchyPlayback.paused
-                        ? "Pausiert"
-                        : `${activeTeil2Moment ? momentSpeechLabel(activeTeil2Moment) : "Läuft"} · Anarchie ${(anarchyPlayback.anarchyLevel * 100).toFixed(0)}%`
-                      : teil2BlockedReason ?? "Bereit"}
-                </span>
-              </div>
-              <div className="performanceTransportControls">
-                {!anarchyPlayback.running || anarchyPlayback.paused ? (
-                  <button
-                    type="button"
-                    className="machineStartBtn"
-                    disabled={!canPlayTeil2}
-                    onClick={handlePlayTeil2}
-                  >
-                    {anarchyPlayback.paused ? "▶ Fortsetzen" : "▶ Play"}
-                  </button>
-                ) : (
-                  <button type="button" onClick={handlePause}>
-                    ⏸ Pause
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="machineStopBtn"
-                  onClick={handleStop}
-                  disabled={!anarchyPlayback.running && !anarchyPlayback.paused}
-                >
-                  ⏹ Stop
-                </button>
-              </div>
-            </div>
-        </footer>
+      {corpus && teil2SectionCount > 0 &&
+      (teil2Only || !script || teil2Running || teil2Paused) ? (
+        <Teil2PerformanceBar
+          positionLabel={
+            usesTextSync
+              ? `Abschnitt ${teil2ActiveSegmentIndex >= 0 ? teil2ActiveSegmentIndex + 1 : "—"} / ${teil2SectionCount}`
+              : `Beat ${teil2ProgressIndex >= 0 ? teil2ProgressIndex + 1 : "—"} / ${teil2SectionCount}`
+          }
+          detail={
+            teil2Completed
+              ? "Beendet"
+              : teil2Running
+                ? teil2Paused
+                  ? "Pausiert"
+                  : usesTextSync
+                    ? `${planSpeechLabel(teil2Plan!)} · Anarchie ${(teil2AnarchyLevel * 100).toFixed(0)}%`
+                    : `${activeTeil2Moment ? momentSpeechLabel(activeTeil2Moment) : "Läuft"} · Anarchie ${(teil2AnarchyLevel * 100).toFixed(0)}%`
+                : teil2BlockedReason ?? "Bereit"
+          }
+          running={teil2Running}
+          paused={teil2Paused}
+          canPlay={canPlayTeil2}
+          onPlay={() => handlePlayTeil2(0)}
+          onPause={handlePause}
+          onStop={handleStop}
+        />
       ) : null}
     </main>
   );

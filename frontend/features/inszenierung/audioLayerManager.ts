@@ -1,4 +1,19 @@
+import { getPlaybackRate, onPlaybackPauseChange, onPlaybackRateChange } from "@/lib/api/client";
+
 const activeAudios = new Set<HTMLAudioElement>();
+
+onPlaybackPauseChange((paused) => {
+  for (const audio of activeAudios) {
+    if (paused) audio.pause();
+    else if (audio.paused && !audio.ended) void audio.play();
+  }
+});
+
+onPlaybackRateChange((rate) => {
+  for (const audio of activeAudios) {
+    audio.playbackRate = rate;
+  }
+});
 
 export function stopAllLayeredAudio(): void {
   for (const audio of activeAudios) {
@@ -25,6 +40,7 @@ export function playBlobLayered(
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audio.volume = Math.max(0.05, Math.min(1, volume));
+    audio.playbackRate = getPlaybackRate();
     activeAudios.add(audio);
     audio.onended = () => {
       URL.revokeObjectURL(url);

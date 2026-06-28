@@ -4,21 +4,40 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { AppNav } from "@/components/layout/AppNav";
-import { createCorpus, fetchCorpus, fetchScript } from "@/lib/api/inszenierung";
+import {
+  createCorpus,
+  fetchCorpus,
+  fetchScript,
+  patchCorpus,
+  prepareCorpus
+} from "@/lib/api/inszenierung";
+import type { PerformanceSpeaker } from "@/lib/types/director";
 import type { SceneCorpus, ScriptBeatPreview, Teil2ScriptResponse } from "@/lib/types/inszenierung";
 
 export default function InszenierungPage() {
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
   const [script, setScript] = useState<Teil2ScriptResponse | null>(null);
   const [title, setTitle] = useState("AVATAR Text Delfin bis Wolf");
+  const [scriptText, setScriptText] = useState("");
+  const [performanceSpeaker, setPerformanceSpeaker] = useState<PerformanceSpeaker>("narrator");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    void fetchScript().then(setScript).catch(() => setError("Skript konnte nicht geladen werden"));
+    void fetchScript().then(setScript).catch(() => setError("Vorlage konnte nicht geladen werden"));
     const id = sessionStorage.getItem("currentCorpusId");
     if (id) {
-      void fetchCorpus(id).then(setCorpus).catch(() => sessionStorage.removeItem("currentCorpusId"));
+      void fetchCorpus(id)
+        .then((data) => {
+          setCorpus(data);
+          setScriptText(data.script_text ?? "");
+          if (data.teil2_plan?.performance_speaker) {
+            setPerformanceSpeaker(data.teil2_plan.performance_speaker);
+          }
+        })
+        .catch(() => sessionStorage.removeItem("currentCorpusId"));
     }
   }, []);
 
@@ -36,9 +55,67 @@ export default function InszenierungPage() {
     }
   }
 
-  const canAnalyse = Boolean(corpus?.script_text);
-  const canKomposition = corpus?.gesamtkonzept?.thesis;
-  const canShow = corpus?.composition?.moments?.length;
+  async function handleSaveText() {
+    if (!corpus) return;
+    setSaving(true);
+    setError("");
+    try {
+      const updated = await patchCorpus(corpus.id, { script_text: scriptText });
+      setCorpus(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleLoadTemplate() {
+    if (!script?.text) return;
+    setScriptText(script.text);
+    if (corpus) {
+      setSaving(true);
+      try {
+        const updated = await patchCorpus(corpus.id, { script_text: script.text });
+        setCorpus(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Vorlage konnte nicht geladen werden");
+      } finally {
+        setSaving(false);
+      }
+    }
+  }
+
+  async function handleFileUpload(file: File) {
+    const text = await file.text();
+    setScriptText(text);
+    if (corpus) {
+      await patchCorpus(corpus.id, { script_text: text })
+        .then(setCorpus)
+        .catch((err) => setError(err instanceof Error ? err.message : "Upload fehlgeschlagen"));
+    }
+  }
+
+  async function handlePrepare() {
+    if (!corpus) return;
+    setPreparing(true);
+    setError("");
+    try {
+      if (scriptText.trim() && scriptText !== (corpus.script_text ?? "")) {
+        const saved = await patchCorpus(corpus.id, { script_text: scriptText });
+        setCorpus(saved);
+      }
+      const updated = await prepareCorpus(corpus.id, { performance_speaker: performanceSpeaker });
+      setCorpus(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Vorbereiten fehlgeschlagen");
+    } finally {
+      setPreparing(false);
+    }
+  }
+
+  const hasText = Boolean(corpus?.script_text?.trim() || scriptText.trim());
+  const canPrepare = hasText && !preparing;
+  const canShow = Boolean(corpus?.teil2_plan?.sentences?.length);
 
   return (
     <main className="container col">
@@ -47,8 +124,8 @@ export default function InszenierungPage() {
         <AppNav />
       </div>
       <p className="textMuted">
-        Fester Skriptablauf «AVATAR Text Delfin bis Wolf»: Avatar-CSV steuert Sprechtexte und Beamer, parallel
-        eskalieren Sound, Video und Licht.
+        Aufführungstext hochladen, einmal vorbereiten (Analyse + OSC-Regie + Avatar-Anker), dann mit gewählter Stimme
+        abspielen.
       </p>
 
       {!corpus ? (
@@ -61,51 +138,98 @@ export default function InszenierungPage() {
           </button>
         </section>
       ) : (
-        <section className="card col">
-          <h2>{corpus.title}</h2>
-          <p className="textMuted">
-            Status: {corpus.status}
-            {script ? ` · ${script.beat_count} Beats` : ""}
-          </p>
-          <div className="row" style={{ gap: "0.5rem", flexWrap: "wrap" }}>
-            {canAnalyse ? (
-              <Link className="machineStartBtn" href={`/inszenierung/analyse?id=${corpus.id}`}>
-                Analyse →
-              </Link>
-            ) : null}
-            {canKomposition ? (
-              <Link className="machineStartBtn" href={`/inszenierung/komposition?id=${corpus.id}`}>
-                Komposition →
-              </Link>
+        <>
+          <section className="card col">
+            <h2>{corpus.title}</h2>
+            <p className="textMuted">Status: {corpus.status}</p>
+            <label htmlFor="performance-text">Aufführungstext</label>
+            <textarea
+              id="performance-text"
+              rows={12}
+              value={scriptText}
+              onChange={(e) => setScriptText(e.target.value)}
+              placeholder="Gesamten Aufführungstext hier einfügen oder hochladen …"
+            />
+            <div className="row" style={{ gap: "0.5rem", flexWrap: "wrap" }}>
+              <button type="button" onClick={() => void handleSaveText()} disabled={saving || !scriptText.trim()}>
+                {saving ? "Speichern …" : "Text speichern"}
+              </button>
+              <label className="machineStartBtn" style={{ cursor: "pointer" }}>
+                .txt hochladen
+                <input
+                  type="file"
+                  accept=".txt,text/plain"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleFileUpload(file);
+                  }}
+                />
+              </label>
+              {script ? (
+                <button type="button" onClick={() => void handleLoadTemplate()}>
+                  Kanon-Vorlage
+                </button>
+              ) : null}
+            </div>
+            <label htmlFor="performance-speaker">Aufführungsstimme</label>
+            <select
+              id="performance-speaker"
+              value={performanceSpeaker}
+              onChange={(e) => setPerformanceSpeaker(e.target.value as PerformanceSpeaker)}
+            >
+              <option value="narrator">Erzähler</option>
+              <option value="AI_A">Stimme A</option>
+              <option value="AI_B">Stimme B</option>
+            </select>
+            <button type="button" className="machineStartBtn" disabled={!canPrepare} onClick={() => void handlePrepare()}>
+              {preparing ? "Vorbereiten …" : "Vorbereiten"}
+            </button>
+            {corpus.teil2_plan?.alignment_warnings?.length ? (
+              <div className="textError" role="alert">
+                {corpus.teil2_plan.alignment_warnings.map((warning) => (
+                  <p key={warning} style={{ margin: "0.25rem 0" }}>
+                    {warning}
+                  </p>
+                ))}
+              </div>
             ) : null}
             {canShow ? (
               <Link className="machineStartBtn" href={`/inszenierung/auffuehrung?id=${corpus.id}`}>
                 Aufführung →
               </Link>
             ) : null}
-          </div>
-        </section>
+          </section>
+
+          {corpus.teil2_plan ? (
+            <section className="card col">
+              <h2>Plan</h2>
+              <p className="textMuted">
+                {corpus.teil2_plan.sentences.length} Sätze · {corpus.teil2_plan.avatar_segments.length} Avatar-Segmente
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {corpus.teil2_plan.avatar_segments.slice(0, 8).map((segment) => (
+                  <li key={segment.csv_cue_ids.join("-")} style={{ marginBottom: "0.5rem" }}>
+                    {segment.csv_cue_ids.join(", ")}
+                    {segment.char_offset != null ? ` · Zeichen ${segment.char_offset}` : ""}
+                    <p className="textMuted" style={{ margin: "0.15rem 0 0", fontSize: "0.85rem" }}>
+                      {segment.text_excerpt.length > 120
+                        ? `${segment.text_excerpt.slice(0, 120)}…`
+                        : segment.text_excerpt}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </>
       )}
 
       {script ? (
-        <>
-          <section className="card col">
-            <h2>Skriptablauf</h2>
-            <p className="textMuted">
-              Quelle: Textzuordnung Del-Wolf · Timeline aus Avatar Textzuordnung.csv · OSC 2026-06-27
-            </p>
-            {script.validation_warnings.length > 0 ? (
-              <p className="textError" role="alert">
-                {script.validation_warnings.length} Abweichung(en) zwischen CSV und Skripttext
-              </p>
-            ) : null}
-          </section>
-
-          <section className="card col">
-            <h2>Beat-Vorschau ({script.beats_preview.length})</h2>
-            <BeatList beats={script.beats_preview} />
-          </section>
-        </>
+        <section className="card col">
+          <h2>CSV-Vorschau ({script.beats_preview.length} Beats)</h2>
+          <BeatList beats={script.beats_preview} />
+        </section>
       ) : null}
 
       {error ? (

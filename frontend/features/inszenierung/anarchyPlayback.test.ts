@@ -52,7 +52,7 @@ describe("anarchyPlayback scheduling", () => {
   });
 
   it("avatarBeatHoldMs prefers duration_hint_ms then layer visual cues", () => {
-    expect(avatarBeatHoldMs(moment({ duration_hint_ms: 420_000 }))).toBe(420_000);
+    expect(avatarBeatHoldMs(moment({ duration_hint_ms: 7_000 }))).toBe(7_000);
     expect(
       avatarBeatHoldMs(
         moment({

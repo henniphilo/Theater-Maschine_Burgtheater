@@ -85,6 +85,25 @@ class CompositionPlan(BaseModel):
     max_concurrent_videos: int = Field(default=2, ge=1, le=6)
 
 
+class AvatarTextSegment(BaseModel):
+    csv_cue_ids: list[str] = Field(default_factory=list)
+    text_excerpt: str = Field(min_length=1)
+    char_offset: int | None = Field(default=None, ge=0)
+    start_sentence_index: int = Field(ge=0)
+    end_sentence_index: int = Field(ge=0)
+    avatar_layers: list[AvatarSpeechLayer] = Field(default_factory=list)
+
+
+class Teil2PerformancePlan(BaseModel):
+    performance_speaker: PerformanceSpeaker = "narrator"
+    sentences: list[str] = Field(default_factory=list)
+    sentence_char_starts: list[int] = Field(default_factory=list)
+    avatar_segments: list[AvatarTextSegment] = Field(default_factory=list)
+    dramaturgy: DramaturgyDecision
+    anarchy_level_end: float = Field(default=1.0, ge=0.0, le=1.0)
+    alignment_warnings: list[str] = Field(default_factory=list)
+
+
 class SceneCorpus(BaseModel):
     id: str
     title: str
@@ -94,6 +113,7 @@ class SceneCorpus(BaseModel):
     status: InszenierungStatus = "draft"
     gesamtkonzept: Gesamtkonzept | None = None
     composition: CompositionPlan | None = None
+    teil2_plan: Teil2PerformancePlan | None = None
 
 
 class ScriptBeatPreview(BaseModel):
@@ -129,6 +149,12 @@ class BatchAnimalScenesRequest(BaseModel):
 
 class PatchCorpusRequest(BaseModel):
     title: str | None = Field(default=None, max_length=200)
+    script_text: str | None = Field(default=None, max_length=500_000)
+
+
+class PrepareCorpusRequest(BaseModel):
+    openai_model: str = Field(default="gpt-4o", min_length=3, max_length=80)
+    performance_speaker: PerformanceSpeaker = "narrator"
 
 
 class AnalyseStreamRequest(BaseModel):

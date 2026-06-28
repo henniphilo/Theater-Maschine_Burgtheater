@@ -151,12 +151,9 @@ def _ensure_cue_points(decision: DramaturgyDecision, moment: CompositionMoment) 
                 trigger=CuePointTrigger.START,
                 function="überlagern",
                 intensity=min(1.0, moment.anarchy_level + 0.1),
-                visual=VisualCue(
-                    clip_id=clip,
-                    blend_mode="layer",
-                    video_type="atmosphere",
-                    projector=target,  # type: ignore[arg-type]
-                    outputs=[{"output_id": target, "clip_id": clip}],  # type: ignore[list-item]
+                visual=_assign_atmosphere_visual(
+                    VisualCue(clip_id=clip, blend_mode="layer"),
+                    target,
                 ),
                 sound=decision.sound,
                 light=decision.light,
@@ -180,14 +177,6 @@ def _apply_atmosphere_to_decision(decision: DramaturgyDecision, moment: Composit
             if point.visual and point.visual.clip_id and point.visual.clip_id != avatar_clip:
                 target = atmosphere_projectors[atmo_index % len(atmosphere_projectors)]
                 atmo_index += 1
-                atmo = point.visual.model_copy(
-                    update={
-                        "video_type": "atmosphere",
-                        "projector": target,  # type: ignore[arg-type]
-                        "lock_until_finished": False,
-                        "blend_mode": "layer",
-                        "outputs": [{"output_id": target, "clip_id": point.visual.clip_id}],
-                    }
-                )
+                atmo = _assign_atmosphere_visual(point.visual, target)
                 atmosphere.append(atmo)
     moment.atmosphere_video_cues = atmosphere

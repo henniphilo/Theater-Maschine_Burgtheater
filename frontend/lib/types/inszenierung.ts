@@ -1,4 +1,6 @@
-import type { DramaturgyDecision } from "@/lib/types/director";
+import type { DramaturgyDecision, PerformanceSpeaker } from "@/lib/types/director";
+export type { PerformanceSpeaker } from "@/lib/types/director";
+import type { VisualCue } from "@/lib/types/visual";
 
 export type InszenierungStatus = "draft" | "analyzed" | "composed" | "ready";
 
@@ -60,6 +62,7 @@ export type CompositionMoment = {
   avatar_video_clip_id?: string | null;
   avatar_layers?: AvatarSpeechLayer[];
   projector_mode?: ProjectorMode;
+  avatar_video_cue?: VisualCue | null;
   dramaturgy?: DramaturgyDecision | null;
   overlap_with_previous: number;
   anarchy_level: number;
@@ -74,6 +77,25 @@ export type CompositionPlan = {
   max_concurrent_videos: number;
 };
 
+export type AvatarTextSegment = {
+  csv_cue_ids: string[];
+  text_excerpt: string;
+  char_offset?: number | null;
+  start_sentence_index: number;
+  end_sentence_index: number;
+  avatar_layers: AvatarSpeechLayer[];
+};
+
+export type Teil2PerformancePlan = {
+  performance_speaker: PerformanceSpeaker;
+  sentences: string[];
+  sentence_char_starts?: number[];
+  avatar_segments: AvatarTextSegment[];
+  dramaturgy: DramaturgyDecision;
+  anarchy_level_end: number;
+  alignment_warnings: string[];
+};
+
 export type SceneCorpus = {
   id: string;
   title: string;
@@ -83,6 +105,7 @@ export type SceneCorpus = {
   status: InszenierungStatus;
   gesamtkonzept: Gesamtkonzept | null;
   composition: CompositionPlan | null;
+  teil2_plan?: Teil2PerformancePlan | null;
 };
 
 export type ScriptBeatPreview = {

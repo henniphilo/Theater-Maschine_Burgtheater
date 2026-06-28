@@ -107,7 +107,7 @@ export default function DramaturgiePage() {
   return (
     <main className="container col">
       <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Dramaturgie — Teil 1</h1>
+        <h1 style={{ margin: 0 }}>Teil 1</h1>
         <AppNav />
       </div>
       <p className="textMuted">

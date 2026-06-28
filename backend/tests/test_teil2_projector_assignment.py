@@ -33,6 +33,15 @@ def test_high_anarchy_projects_to_all_beamers():
     assert len(assigned[0].outputs) == len(ALL_PROJECTORS)
 
 
+def test_sequential_segments_rotate_projectors_with_shared_used_set():
+    layers_a = [AvatarSpeechLayer(avatar_speech_id="t1", avatar="delphin", video_clip_id="thiemo")]
+    layers_b = [AvatarSpeechLayer(avatar_speech_id="b1", avatar="delphin", video_clip_id="branko")]
+    used: set[str] = set()
+    assigned_a = assign_projectors_for_layers(layers_a, anarchy_level=0.2, used=used)
+    assigned_b = assign_projectors_for_layers(layers_b, anarchy_level=0.2, used=used)
+    assert assigned_a[0].projector != assigned_b[0].projector
+
+
 def test_avatar_visual_cue_uses_layer_blend_when_anarchic():
     layer = AvatarSpeechLayer(
         avatar_speech_id="BK1",

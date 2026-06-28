@@ -5,11 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import AsyncIterator, Literal
 
-from app.schemas.inszenierung import AnarchyCurve, CompositionPlan, Gesamtkonzept, SceneCorpus
+from app.schemas.inszenierung import AnarchyCurve, CompositionPlan, SceneCorpus
 from app.services.inszenierung_store import get_inszenierung_store
 from app.services.teil2_beat_dramaturgy import build_dramaturgy_for_beat
 from app.services.teil2_script_service import (
-    SCRIPT_SCENE_ID,
     build_timeline_from_csv,
     load_canonical_script_text,
 )

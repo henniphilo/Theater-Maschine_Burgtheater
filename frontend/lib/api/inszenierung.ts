@@ -4,44 +4,72 @@ import type {
   SceneCorpus,
   Teil2ScriptResponse
 } from "@/lib/types/inszenierung";
+import type { PerformanceSpeaker } from "@/lib/types/director";
+import { apiBaseUrl, apiFetch, apiFetchJson } from "@/lib/api/base";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const PREPARE_TIMEOUT_MS = 180_000;
 
 export async function fetchScript(): Promise<Teil2ScriptResponse> {
-  const res = await fetch(`${API_BASE}/inszenierung/script`);
-  if (!res.ok) throw new Error("Skript konnte nicht geladen werden");
-  return res.json();
+  return apiFetchJson<Teil2ScriptResponse>("/inszenierung/script");
 }
 
 export async function createCorpus(title: string): Promise<SceneCorpus> {
-  const res = await fetch(`${API_BASE}/inszenierung`, {
+  return apiFetchJson<SceneCorpus>("/inszenierung", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title })
   });
-  if (!res.ok) throw new Error("Korpus konnte nicht angelegt werden");
-  return res.json();
 }
 
 export async function fetchCorpus(corpusId: string): Promise<SceneCorpus> {
-  const res = await fetch(`${API_BASE}/inszenierung/${corpusId}`);
-  if (!res.ok) throw new Error("Korpus nicht gefunden");
-  return res.json();
+  return apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}`);
+}
+
+export async function patchCorpus(
+  corpusId: string,
+  payload: { title?: string; script_text?: string }
+): Promise<SceneCorpus> {
+  return apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function prepareCorpus(
+  corpusId: string,
+  options?: { openai_model?: string; performance_speaker?: PerformanceSpeaker }
+): Promise<SceneCorpus> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), PREPARE_TIMEOUT_MS);
+  try {
+    return await apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}/prepare`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        openai_model: options?.openai_model ?? "gpt-4o",
+        performance_speaker: options?.performance_speaker ?? "narrator"
+      }),
+      signal: controller.signal
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error("Vorbereiten dauert zu lange (>3 Min.) — bitte erneut versuchen.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function composeScript(corpusId: string): Promise<SceneCorpus> {
-  const res = await fetch(`${API_BASE}/inszenierung/${corpusId}/compose-script`, {
+  return apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}/compose-script`, {
     method: "POST"
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Timeline konnte nicht geladen werden" }));
-    throw new Error(typeof err.detail === "string" ? err.detail : "Timeline konnte nicht geladen werden");
-  }
-  return res.json();
 }
 
 export async function exportTeil2(corpusId: string): Promise<{ blob: Blob; filename: string }> {
-  const res = await fetch(`${API_BASE}/inszenierung/${corpusId}/export`, { method: "POST" });
+  const res = await apiFetch(`/inszenierung/${corpusId}/export`, { method: "POST" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Export fehlgeschlagen" }));
     throw new Error(body.detail ?? "Export fehlgeschlagen");
@@ -56,7 +84,7 @@ export async function exportTeil2(corpusId: string): Promise<{ blob: Blob; filen
 export async function importTeil2(file: File): Promise<SceneCorpus> {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${API_BASE}/inszenierung/import`, {
+  const res = await apiFetch("/inszenierung/import", {
     method: "POST",
     body: form
   });
@@ -77,7 +105,7 @@ async function consumeSse<T>(
   body: object,
   handlers: StreamHandlers<T>
 ): Promise<void> {
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
@@ -116,7 +144,7 @@ export async function streamAnalyse(
   handlers: StreamHandlers<AnalyseStreamEvent>
 ): Promise<void> {
   await consumeSse(
-    `${API_BASE}/inszenierung/${corpusId}/analyse/stream`,
+    `${apiBaseUrl()}/inszenierung/${corpusId}/analyse/stream`,
     {
       openai_model: options.openai_model ?? "gpt-4o",
       anthropic_model: options.anthropic_model ?? "claude-sonnet-4-6"
@@ -131,7 +159,7 @@ export async function streamKomposition(
   handlers: StreamHandlers<KompositionStreamEvent>
 ): Promise<void> {
   await consumeSse(
-    `${API_BASE}/inszenierung/${corpusId}/komposition/stream`,
+    `${apiBaseUrl()}/inszenierung/${corpusId}/komposition/stream`,
     {
       openai_model: options.openai_model ?? "gpt-4o",
       moment_count: options.moment_count ?? 12

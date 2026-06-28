@@ -12,6 +12,7 @@ class SafetyState:
     lights_enabled: bool = True
     blackout_locked: bool = True
     emergency_stop_active: bool = False
+    performance_tryout: bool = False
     _lock: Lock = field(default_factory=Lock, repr=False)
 
     @classmethod
@@ -34,6 +35,7 @@ class SafetyState:
                 "lights_enabled": self.lights_enabled,
                 "blackout_locked": self.blackout_locked,
                 "emergency_stop_active": self.emergency_stop_active,
+                "performance_tryout": self.performance_tryout,
             }
 
     def emergency_stop(self) -> None:

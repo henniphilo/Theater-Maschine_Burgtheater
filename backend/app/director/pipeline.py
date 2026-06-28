@@ -23,6 +23,38 @@ CUE_STAGGER_SECONDS = 0.15
 _execute_logger = logging.getLogger("theatermaschine.osc")
 
 
+def _filter_decision_for_safety(decision: DramaturgyDecision, safety: SafetyState) -> DramaturgyDecision:
+    """Drop disabled output bridges so one failed subsystem does not block the rest."""
+    updates: dict[str, object] = {}
+    if (not safety.lights_enabled or safety.performance_tryout) and decision.light:
+        updates["light"] = None
+    if not safety.sound_enabled and decision.sound:
+        updates["sound"] = None
+    if not safety.visuals_enabled and decision.visual:
+        updates["visual"] = None
+    if not updates:
+        return decision
+    filtered = decision.model_copy(deep=True)
+    for key, value in updates.items():
+        setattr(filtered, key, value)
+    if filtered.cue_points:
+        filtered.cue_points = [
+            point.model_copy(
+                update={
+                    "light": None if not safety.lights_enabled or safety.performance_tryout else point.light,
+                    "sound": None if not safety.sound_enabled else point.sound,
+                    "visual": None if not safety.visuals_enabled else point.visual,
+                }
+            )
+            for point in filtered.cue_points
+        ]
+    return filtered
+
+
+def _effective_dry_run(safety: SafetyState) -> bool:
+    return settings.osc_dry_run or safety.performance_tryout
+
+
 @dataclass
 class DirectorResult:
     event: DialogueEvent
@@ -104,12 +136,13 @@ class DirectorPipeline:
         if self.safety.emergency_stop_active:
             return self._emergency_blocked_result(decision, "(script beat)")
 
+        decision = _filter_decision_for_safety(decision, self.safety)
         allowed, blocked_reason = self.scheduler.can_execute(decision)
         if force:
             allowed = True
             blocked_reason = None
 
-        dry_run = settings.osc_dry_run or self.safety.emergency_stop_active
+        dry_run = _effective_dry_run(self.safety)
         planned = build_osc_commands(decision, dry_run=dry_run)
         osc_commands: list[OscCommand] = []
 
@@ -156,6 +189,7 @@ class DirectorPipeline:
             decision.visual = decision.visual.model_copy(
                 update={"blend_mode": "layer"},
             )
+        decision = _filter_decision_for_safety(decision, self.safety)
         projector_blocked: str | None = None
         if decision.visual:
             allowed_proj, projector_blocked = self.projectors.can_play(decision.visual)
@@ -173,7 +207,7 @@ class DirectorPipeline:
             allowed = True
             blocked_reason = None
 
-        dry_run = settings.osc_dry_run or self.safety.emergency_stop_active
+        dry_run = _effective_dry_run(self.safety)
         planned = build_osc_commands(decision, dry_run=dry_run)
         osc_commands: list[OscCommand] = []
 
@@ -289,6 +323,7 @@ class DirectorPipeline:
     def clear_for_performance(self) -> None:
         self.safety.clear_emergency_stop()
         self.projectors.reset()
+        self.projectors.allow_avatar_interrupt = True
 
     def emergency_stop(self) -> None:
         from app.director.technik_hold import get_technik_hold_manager

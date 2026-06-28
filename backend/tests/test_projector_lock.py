@@ -44,3 +44,30 @@ def test_rz21_atmosphere_parallel_while_avatar_locked() -> None:
     )
     allowed, _ = state.can_play(atmo, now=now + timedelta(seconds=1))
     assert allowed is True
+
+
+def test_avatar_interrupt_allows_replacement_on_locked_projector() -> None:
+    state = ProjectorState(allow_avatar_interrupt=True)
+    now = datetime.now(UTC)
+    first = VisualCue(
+        clip_id="thiemo",
+        video_type="avatar",
+        projector="rz21",
+        lock_until_finished=True,
+        can_be_interrupted=True,
+        duration_ms=7_000,
+        outputs=[{"output_id": "rz21", "clip_id": "thiemo"}],
+    )
+    state.lock_after_play(first, now=now)
+    second = VisualCue(
+        clip_id="branko",
+        video_type="avatar",
+        projector="rz21",
+        lock_until_finished=True,
+        can_be_interrupted=True,
+        duration_ms=9_000,
+        outputs=[{"output_id": "rz21", "clip_id": "branko"}],
+    )
+    allowed, reason = state.can_play(second, now=now + timedelta(seconds=2))
+    assert allowed is True
+    assert reason is None

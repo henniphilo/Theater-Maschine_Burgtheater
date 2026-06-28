@@ -5,8 +5,19 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
-import { fetchTTSStatus, setPlaybackPaused } from "@/lib/api/client";
+import { Teil2PerformanceBar } from "@/components/show/Teil2PerformanceBar";
+import { Teil2AvatarSegmentBlock } from "@/components/show/Teil2AvatarSegmentBlock";
+import { activeAvatarSegmentIndex } from "@/features/inszenierung/teil2AvatarSections";
+import { readPerformanceTryout } from "@/components/show/PerformanceTryoutControl";
+import { fetchTTSStatus, setPlaybackPaused, stopPlayback } from "@/lib/api/client";
 import { fetchCorpus } from "@/lib/api/inszenierung";
+import type { PerformanceSpeaker } from "@/lib/types/director";
+import {
+  INITIAL_TEXT_SYNC_STATE,
+  runTextSyncPlayback,
+  stopTextSyncPlayback,
+  type TextSyncPlaybackState
+} from "@/features/inszenierung/teil2TextSyncPlayback";
 import {
   INITIAL_ANARCHY_STATE,
   runAnarchyPlayback,
@@ -18,7 +29,7 @@ import type { InszenierungBufferState } from "@/features/inszenierung/inszenieru
 import {
   bufferStatusLabel,
   isInszenierungBuffered,
-  momentSpeechLabel,
+  planSpeechLabel,
   startInszenierungBuffer,
   subscribeInszenierungBuffer
 } from "@/features/inszenierung/inszenierungBuffer";
@@ -28,11 +39,16 @@ function AuffuehrungContent() {
   const searchParams = useSearchParams();
   const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
-  const [playback, setPlayback] = useState<AnarchyPlaybackState>(INITIAL_ANARCHY_STATE);
+  const [textSyncPlayback, setTextSyncPlayback] = useState<TextSyncPlaybackState>(INITIAL_TEXT_SYNC_STATE);
+  const [anarchyPlayback, setAnarchyPlayback] = useState<AnarchyPlaybackState>(INITIAL_ANARCHY_STATE);
   const [ttsAvailable, setTtsAvailable] = useState(false);
   const [bufferState, setBufferState] = useState<InszenierungBufferState | null>(null);
+  const [speaker, setSpeaker] = useState<PerformanceSpeaker>("narrator");
   const abortRef = useRef(false);
   const genRef = useRef(0);
+
+  const usesTextSync = Boolean(corpus?.teil2_plan?.sentences?.length);
+  const plan = corpus?.teil2_plan ?? null;
 
   useEffect(() => {
     return subscribeInszenierungBuffer(setBufferState);
@@ -40,60 +56,149 @@ function AuffuehrungContent() {
 
   useEffect(() => {
     if (!corpusId) return;
-    void fetchCorpus(corpusId).then(setCorpus);
+    void fetchCorpus(corpusId).then((data) => {
+      setCorpus(data);
+      if (data.teil2_plan?.performance_speaker) {
+        setSpeaker(data.teil2_plan.performance_speaker);
+      }
+    });
     fetchTTSStatus()
       .then((s) => setTtsAvailable(s.available))
       .catch(() => undefined);
   }, [corpusId]);
 
-  const hasPlan = (corpus?.composition?.moments?.length ?? 0) > 0;
-  const needsTts = corpus?.composition ? planRequiresTts(corpus.composition) : false;
+  const hasPlan = usesTextSync || (corpus?.composition?.moments?.length ?? 0) > 0;
+  const needsTts = usesTextSync ? ttsAvailable : corpus?.composition ? planRequiresTts(corpus.composition) : false;
   const bufferReady = corpus ? isInszenierungBuffered(corpus.id, ttsAvailable) : false;
   const canPlay = hasPlan && (!needsTts || bufferReady || !ttsAvailable);
+  const running = usesTextSync ? textSyncPlayback.running : anarchyPlayback.running;
+  const paused = usesTextSync ? textSyncPlayback.paused : anarchyPlayback.paused;
 
   useEffect(() => {
     if (!corpus || !hasPlan || bufferReady || !needsTts) return;
-    if (ttsAvailable) startInszenierungBuffer(corpus, ttsAvailable);
-  }, [corpus, hasPlan, bufferReady, ttsAvailable, needsTts]);
+    if (ttsAvailable) startInszenierungBuffer(corpus, ttsAvailable, speaker);
+  }, [corpus, hasPlan, bufferReady, ttsAvailable, needsTts, speaker]);
 
-  const play = useCallback(async () => {
-    if (!corpus?.composition || !canPlay) return;
-    const gen = ++genRef.current;
-    abortRef.current = false;
-    setPlaybackPaused(false);
-    setPlayback({ ...INITIAL_ANARCHY_STATE, running: true, paused: false });
+  useEffect(() => {
+    if (!corpus || !usesTextSync || !ttsAvailable) return;
+    startInszenierungBuffer(corpus, ttsAvailable, speaker);
+  }, [speaker, corpus, usesTextSync, ttsAvailable]);
 
-    await runAnarchyPlayback(
-      corpus,
-      corpus.composition,
-      ttsAvailable,
-      (patch) => {
-        if (gen === genRef.current) setPlayback((prev) => ({ ...prev, ...patch }));
-      },
-      () => abortRef.current
-    );
-  }, [corpus, canPlay, ttsAvailable]);
+  const play = useCallback(
+    async (startSentenceIndex = 0, endSentenceIndex?: number) => {
+      if (!corpus || !canPlay) return;
+      if (paused && running) {
+        setPlaybackPaused(false);
+        if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+        else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
+        return;
+      }
+      if (running) return;
+      const gen = ++genRef.current;
+      abortRef.current = false;
+      setPlaybackPaused(false);
+
+      if (usesTextSync && plan) {
+        setTextSyncPlayback({
+          ...INITIAL_TEXT_SYNC_STATE,
+          running: true,
+          paused: false,
+          sentenceIndex: startSentenceIndex
+        });
+        await runTextSyncPlayback(
+          corpus,
+          plan,
+          speaker,
+          ttsAvailable,
+          (patch) => {
+            if (gen === genRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
+          },
+          () => abortRef.current,
+          { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex }
+        );
+        return;
+      }
+
+      if (!corpus.composition) return;
+      setAnarchyPlayback({ ...INITIAL_ANARCHY_STATE, running: true, paused: false });
+      await runAnarchyPlayback(
+        corpus,
+        corpus.composition,
+        ttsAvailable,
+        (patch) => {
+          if (gen === genRef.current) setAnarchyPlayback((prev) => ({ ...prev, ...patch }));
+        },
+        () => abortRef.current
+      );
+    },
+    [corpus, canPlay, ttsAvailable, usesTextSync, plan, speaker, paused, running]
+  );
 
   function pause() {
     setPlaybackPaused(true);
-    setPlayback((prev) => ({ ...prev, paused: true }));
+    if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: true }));
+    else setAnarchyPlayback((prev) => ({ ...prev, paused: true }));
   }
 
   function resume() {
     setPlaybackPaused(false);
-    setPlayback((prev) => ({ ...prev, paused: false }));
+    if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+    else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
   }
 
   function stop() {
     abortRef.current = true;
     genRef.current += 1;
-    stopAnarchyPlayback();
-    setPlayback({ ...INITIAL_ANARCHY_STATE, paused: true });
+    stopPlayback();
+    if (usesTextSync) stopTextSyncPlayback();
+    else stopAnarchyPlayback();
+    setTextSyncPlayback({ ...INITIAL_TEXT_SYNC_STATE, paused: true });
+    setAnarchyPlayback({ ...INITIAL_ANARCHY_STATE, paused: true });
   }
 
-  const sortedMoments = [...(corpus?.composition?.moments ?? [])].sort((a, b) => a.order - b.order);
-  const currentMoment =
-    playback.momentIndex >= 0 ? sortedMoments[playback.momentIndex] : undefined;
+  function handlePlay(startSentenceIndex = 0) {
+    if (paused && running) {
+      resume();
+      return;
+    }
+    if (running) return;
+    void play(startSentenceIndex);
+  }
+
+  function handleJumpToAvatarSegment(segmentIndex: number) {
+    if (!canPlay || !usesTextSync || !plan) return;
+    const segment = plan.avatar_segments[segmentIndex];
+    if (!segment) return;
+    if (running || paused) stop();
+    void play(segment.start_sentence_index, segment.end_sentence_index);
+  }
+
+  const sectionCount = plan?.avatar_segments.length ?? 0;
+  const progressIndex = usesTextSync ? textSyncPlayback.sentenceIndex : anarchyPlayback.momentIndex;
+  const activeSegmentIndex =
+    usesTextSync && plan ? activeAvatarSegmentIndex(plan.avatar_segments, progressIndex) : -1;
+  const completed = usesTextSync ? textSyncPlayback.completed : anarchyPlayback.completed;
+  const anarchyLevel = usesTextSync ? textSyncPlayback.anarchyLevel : anarchyPlayback.anarchyLevel;
+
+  const statusDetail = usesTextSync
+    ? completed
+      ? "Beendet"
+      : running
+        ? paused
+          ? "Pausiert"
+          : `${planSpeechLabel(plan!)} · Anarchie ${(anarchyLevel * 100).toFixed(0)}%`
+        : needsTts && !bufferReady && ttsAvailable
+          ? bufferState
+            ? bufferStatusLabel(bufferState)
+            : "Lädt …"
+          : "Bereit"
+    : completed
+      ? "Beendet"
+      : running
+        ? paused
+          ? "Pausiert"
+          : "Läuft"
+        : "Bereit";
 
   return (
     <main className={`container col${corpus ? " pageWithPerformanceTransport" : ""}`}>
@@ -106,71 +211,77 @@ function AuffuehrungContent() {
         <section className="card col">
           <h2>{corpus.title}</h2>
           {!hasPlan ? (
-            <p className="textFaint">Zuerst Timeline in der Komposition laden.</p>
-          ) : needsTts && !bufferReady && ttsAvailable ? (
-            <p className="textMuted">{bufferState ? bufferStatusLabel(bufferState) : "Stimmen werden vorbereitet …"}</p>
+            <p className="textFaint">Zuerst auf der Inszenierungsseite vorbereiten.</p>
+          ) : usesTextSync ? (
+            <>
+              <label htmlFor="playback-speaker">Stimme</label>
+              <select
+                id="playback-speaker"
+                value={speaker}
+                disabled={running}
+                onChange={(e) => setSpeaker(e.target.value as PerformanceSpeaker)}
+              >
+                <option value="narrator">Erzähler</option>
+                <option value="AI_A">Stimme A</option>
+                <option value="AI_B">Stimme B</option>
+              </select>
+              <p className="textMuted">
+                {sectionCount} Avatar-Abschnitte · {planSpeechLabel(plan!)} · TTS in {plan?.sentences.length ?? 0}{" "}
+                Satzschritten
+              </p>
+              {needsTts && !bufferReady && ttsAvailable ? (
+                <p className="textMuted">{bufferState ? bufferStatusLabel(bufferState) : "Stimme wird vorbereitet …"}</p>
+              ) : null}
+              {textSyncPlayback.activeAvatarSegment ? (
+                <p className="textMuted">Avatar: {textSyncPlayback.activeAvatarSegment.csv_cue_ids.join(", ")}</p>
+              ) : null}
+            </>
           ) : (
-            <p className="textMuted">
-              {corpus.composition?.moments.length} Beats · Avatar-Video
-              {needsTts ? ` · max. ${corpus.composition?.max_concurrent_voices} KI-Stimmen` : ""}
-            </p>
+            <p className="textMuted">{corpus.composition?.moments.length} Beats (Legacy-Timeline)</p>
           )}
-          {currentMoment ? (
-            <p className="textMuted">
-              Aktiv: {momentSpeechLabel(currentMoment)}
-              {currentMoment.avatar_layers?.length
-                ? ` · Beamer: ${currentMoment.projector_mode === "all" ? "alle" : currentMoment.avatar_layers.map((l) => l.projector).join(", ")}`
-                : ""}
-            </p>
-          ) : null}
         </section>
       ) : null}
 
-      <footer className="performanceTransport" aria-label="Anarchie-Steuerung">
-        <div className="performanceTransportInner">
-          <div className="performanceTransportMeta">
-            <strong>
-              Beat {playback.momentIndex >= 0 ? playback.momentIndex + 1 : "—"} /{" "}
-              {corpus?.composition?.moments.length ?? 0}
-            </strong>
-            <span className="textMuted performanceTransportDetail">
-              {playback.completed
-                ? "Beendet"
-                : playback.running
-                  ? playback.paused
-                    ? "Pausiert"
-                    : `${currentMoment ? momentSpeechLabel(currentMoment) : "Läuft"} · Anarchie ${(playback.anarchyLevel * 100).toFixed(0)}%`
-                  : needsTts && !bufferReady && ttsAvailable
-                    ? bufferState
-                      ? bufferStatusLabel(bufferState)
-                      : "Lädt …"
-                    : "Bereit"}
-              {playback.activeVoices > 0 ? ` · ${playback.activeVoices} Stimmen` : ""}
-            </span>
-          </div>
-          <div className="performanceTransportControls">
-            {!playback.running || playback.paused ? (
-              <button type="button" className="machineStartBtn" disabled={!canPlay} onClick={() => void play()}>
-                {playback.paused ? "▶ Fortsetzen" : "▶ Play"}
-              </button>
-            ) : (
-              <button type="button" onClick={pause}>
-                ⏸ Pause
-              </button>
-            )}
-            {playback.paused ? (
-              <button type="button" onClick={resume}>
-                Fortsetzen
-              </button>
-            ) : null}
-            <button type="button" className="machineStopBtn" onClick={stop} disabled={!playback.running && !playback.paused}>
-              ⏹ Stop
-            </button>
-          </div>
-        </div>
-      </footer>
+      {corpus && usesTextSync && plan && sectionCount > 0 ? (
+        <section className="card col scriptDocument">
+          <h2>Avatar-Abschnitte</h2>
+          <p className="textMuted" style={{ fontSize: "0.9rem", marginTop: 0 }}>
+            Wie in der CSV — Klick testet Stimme und Signale für diesen Abschnitt.
+          </p>
+          <ul className="teil2SentenceList">
+            {plan.avatar_segments.map((segment, index) => (
+              <li key={segment.csv_cue_ids.join("-")}>
+                <Teil2AvatarSegmentBlock
+                  segment={segment}
+                  index={index}
+                  active={activeSegmentIndex === index && (running || paused)}
+                  clickable={canPlay}
+                  onSelect={() => handleJumpToAvatarSegment(index)}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
-      <Link href={`/inszenierung/komposition?id=${corpusId}`}>← Komposition</Link>
+      {corpus && hasPlan ? (
+        <Teil2PerformanceBar
+          positionLabel={
+            usesTextSync
+              ? `Abschnitt ${activeSegmentIndex >= 0 ? activeSegmentIndex + 1 : "—"} / ${sectionCount}`
+              : `Beat ${progressIndex >= 0 ? progressIndex + 1 : "—"} / ${corpus.composition?.moments.length ?? 0}`
+          }
+          detail={statusDetail}
+          running={running}
+          paused={paused}
+          canPlay={canPlay}
+          onPlay={() => handlePlay(0)}
+          onPause={pause}
+          onStop={stop}
+        />
+      ) : null}
+
+      <Link href={`/inszenierung?id=${corpusId}`}>← Inszenierung</Link>
     </main>
   );
 }

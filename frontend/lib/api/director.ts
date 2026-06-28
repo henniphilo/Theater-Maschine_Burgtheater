@@ -1,6 +1,6 @@
 import type { DramaturgyDecision, OscCommand } from "@/lib/types/director";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+import { apiBaseUrl, apiFetch } from "@/lib/api/base";
 
 let performanceOscAbort: AbortController | null = null;
 
@@ -9,7 +9,7 @@ export function isDirectorPerformanceAborted(): boolean {
 }
 
 /** Re-enable director outputs and reset abort handle before a performance run. */
-export function armDirectorForPerformance(): void {
+export function armDirectorForPerformance(options?: { tryout?: boolean }): void {
   performanceOscAbort?.abort();
   performanceOscAbort = new AbortController();
   void postDirectorEmergencyClear().catch(() => undefined);
@@ -17,7 +17,8 @@ export function armDirectorForPerformance(): void {
     autopilot_enabled: true,
     visuals_enabled: true,
     sound_enabled: true,
-    lights_enabled: true
+    lights_enabled: !options?.tryout,
+    performance_tryout: Boolean(options?.tryout)
   }).catch(() => undefined);
 }
 
@@ -39,6 +40,7 @@ export type DirectorSafety = {
   lights_enabled: boolean;
   blackout_locked: boolean;
   emergency_stop_active: boolean;
+  performance_tryout: boolean;
 };
 
 export type DirectorStatus = {
@@ -55,13 +57,13 @@ export type DirectorStatus = {
 export type SafetyUpdate = Partial<DirectorSafety>;
 
 export async function fetchDirectorStatus(): Promise<DirectorStatus> {
-  const res = await fetch(`${API_BASE}/director/status`);
+  const res = await apiFetch("/director/status");
   if (!res.ok) throw new Error("Director status unavailable");
   return res.json();
 }
 
 export async function patchDirectorSafety(update: SafetyUpdate): Promise<DirectorStatus> {
-  const res = await fetch(`${API_BASE}/director/safety`, {
+  const res = await apiFetch("/director/safety", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(update)
@@ -71,19 +73,19 @@ export async function patchDirectorSafety(update: SafetyUpdate): Promise<Directo
 }
 
 export async function postDirectorEmergencyStop(): Promise<DirectorStatus> {
-  const res = await fetch(`${API_BASE}/director/emergency-stop`, { method: "POST" });
+  const res = await apiFetch("/director/emergency-stop", { method: "POST" });
   if (!res.ok) throw new Error("Emergency stop failed");
   return res.json();
 }
 
 export async function postDirectorEmergencyClear(): Promise<DirectorStatus> {
-  const res = await fetch(`${API_BASE}/director/emergency-clear`, { method: "POST" });
+  const res = await apiFetch("/director/emergency-clear", { method: "POST" });
   if (!res.ok) throw new Error("Emergency clear failed");
   return res.json();
 }
 
 export async function postRecordStart(recordingId: string): Promise<{ active: boolean; recording_id: string | null }> {
-  const res = await fetch(`${API_BASE}/director/record/start`, {
+  const res = await apiFetch("/director/record/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ recording_id: recordingId })
@@ -93,7 +95,7 @@ export async function postRecordStart(recordingId: string): Promise<{ active: bo
 }
 
 export async function postRecordStop(): Promise<{ active: boolean; recording_id: string | null }> {
-  const res = await fetch(`${API_BASE}/director/record/stop`, { method: "POST" });
+  const res = await apiFetch("/director/record/stop", { method: "POST" });
   if (!res.ok) throw new Error("Record stop failed");
   return res.json();
 }
@@ -127,7 +129,7 @@ export type OscTestResponse = {
 };
 
 export async function postOscTest(payload: OscTestRequest = {}): Promise<OscTestResponse> {
-  const res = await fetch(`${API_BASE}/director/osc-test`, {
+  const res = await apiFetch("/director/osc-test", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -156,7 +158,7 @@ export type TechnikStopRequest = {
 };
 
 export async function postTechnikStart(payload: OscTestRequest = {}): Promise<TechnikHoldStatus> {
-  const res = await fetch(`${API_BASE}/director/technik/start`, {
+  const res = await apiFetch("/director/technik/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -169,7 +171,7 @@ export async function postTechnikStart(payload: OscTestRequest = {}): Promise<Te
 }
 
 export async function postTechnikStop(payload: TechnikStopRequest = {}): Promise<TechnikHoldStatus> {
-  const res = await fetch(`${API_BASE}/director/technik/stop`, {
+  const res = await apiFetch("/director/technik/stop", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -182,7 +184,7 @@ export async function postTechnikStop(payload: TechnikStopRequest = {}): Promise
 }
 
 export async function fetchTechnikStatus(): Promise<TechnikHoldStatus> {
-  const res = await fetch(`${API_BASE}/director/technik/status`);
+  const res = await apiFetch("/director/technik/status");
   if (!res.ok) throw new Error("Technik status unavailable");
   return res.json();
 }
@@ -200,13 +202,13 @@ export type LightSendRequest = {
 };
 
 export async function fetchLightDeskStatus(): Promise<LightDeskStatus> {
-  const res = await fetch(`${API_BASE}/director/light/status`);
+  const res = await apiFetch("/director/light/status");
   if (!res.ok) throw new Error("Light desk status unavailable");
   return res.json();
 }
 
 export async function postLightConnect(): Promise<LightDeskStatus> {
-  const res = await fetch(`${API_BASE}/director/light/connect`, { method: "POST" });
+  const res = await apiFetch("/director/light/connect", { method: "POST" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Light connect failed" }));
     throw new Error(body.detail ?? "Light connect failed");
@@ -215,7 +217,7 @@ export async function postLightConnect(): Promise<LightDeskStatus> {
 }
 
 export async function postLightDisconnect(): Promise<LightDeskStatus> {
-  const res = await fetch(`${API_BASE}/director/light/disconnect`, { method: "POST" });
+  const res = await apiFetch("/director/light/disconnect", { method: "POST" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Light disconnect failed" }));
     throw new Error(body.detail ?? "Light disconnect failed");
@@ -231,7 +233,7 @@ export async function postLightSend(
   if (options.intensity != null) {
     body.intensity = options.intensity;
   }
-  const res = await fetch(`${API_BASE}/director/light/send`, {
+  const res = await apiFetch("/director/light/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
@@ -251,7 +253,7 @@ export async function postLightHoldStart(
   if (options.intensity != null) {
     body.intensity = options.intensity;
   }
-  const res = await fetch(`${API_BASE}/director/light/hold/start`, {
+  const res = await apiFetch("/director/light/hold/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
@@ -264,7 +266,7 @@ export async function postLightHoldStart(
 }
 
 export async function postLightStop(): Promise<LightDeskStatus> {
-  const res = await fetch(`${API_BASE}/director/light/stop`, { method: "POST" });
+  const res = await apiFetch("/director/light/stop", { method: "POST" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Light stop failed" }));
     throw new Error(body.detail ?? "Light stop failed");
@@ -287,7 +289,7 @@ export async function postDirectorDialogueEvent(payload: {
   planned_commands: OscCommand[];
   osc_commands: OscCommand[];
 }> {
-  const res = await fetch(`${API_BASE}/director/dialogue-event`, {
+  const res = await apiFetch("/director/dialogue-event", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -300,7 +302,7 @@ export async function postDirectorExecute(
   decision: DramaturgyDecision,
   options?: { force?: boolean; stagger?: boolean }
 ): Promise<ExecuteResponse> {
-  const res = await fetch(`${API_BASE}/director/execute`, {
+  const res = await apiFetch("/director/execute", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -324,7 +326,7 @@ export async function postDirectorExecuteLayered(
     text_excerpt?: string;
   }
 ): Promise<ExecuteResponse> {
-  const res = await fetch(`${API_BASE}/director/execute-layered`, {
+  const res = await apiFetch("/director/execute-layered", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -355,7 +357,7 @@ export type DirectorStreamUpdate = {
 };
 
 export function streamDirectorEvents(onUpdate: (update: DirectorStreamUpdate) => void): () => void {
-  const source = new EventSource(`${API_BASE}/director/events`);
+  const source = new EventSource(`${apiBaseUrl()}/director/events`);
   source.onmessage = (msg) => {
     try {
       const data = JSON.parse(msg.data) as DirectorStreamUpdate;

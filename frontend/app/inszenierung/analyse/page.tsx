@@ -2,15 +2,25 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AppNav } from "@/components/layout/AppNav";
 import { fetchCorpus, streamAnalyse } from "@/lib/api/inszenierung";
 import type { AnalyseStreamEvent, SceneCorpus } from "@/lib/types/inszenierung";
 
 function AnalyseContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+
+  useEffect(() => {
+    if (corpusId) {
+      router.replace(`/inszenierung?id=${corpusId}` as "/inszenierung");
+    } else {
+      router.replace("/inszenierung");
+    }
+  }, [router, corpusId]);
+
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
   const [chat, setChat] = useState<{ speaker: string; content: string }[]>([]);
   const [concept, setConcept] = useState<SceneCorpus["gesamtkonzept"]>(null);

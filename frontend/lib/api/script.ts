@@ -1,10 +1,9 @@
 import type { DramaturgyDecision } from "@/lib/types/director";
 import type { ProductionScript, ScriptSpeaker, WorkshopStreamEvent } from "@/lib/types/script";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+import { apiFetch } from "@/lib/api/base";
 
 export async function createScript(title: string, sourceText: string): Promise<ProductionScript> {
-  const res = await fetch(`${API_BASE}/scripts`, {
+  const res = await apiFetch("/scripts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, source_text: sourceText })
@@ -17,7 +16,7 @@ export async function createScript(title: string, sourceText: string): Promise<P
 }
 
 export async function fetchScript(scriptId: string): Promise<ProductionScript> {
-  const res = await fetch(`${API_BASE}/scripts/${scriptId}`);
+  const res = await apiFetch(`/scripts/${scriptId}`);
   if (!res.ok) throw new Error("Script not found");
   return res.json();
 }
@@ -26,7 +25,7 @@ export async function patchScript(
   scriptId: string,
   update: { performance_part?: string; teil2_corpus_id?: string | null }
 ): Promise<ProductionScript> {
-  const res = await fetch(`${API_BASE}/scripts/${scriptId}`, {
+  const res = await apiFetch(`/scripts/${scriptId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(update)
@@ -40,7 +39,7 @@ export async function patchScriptBeat(
   beatId: string,
   update: { speaker?: ScriptSpeaker; dramaturgy?: DramaturgyDecision }
 ): Promise<ProductionScript> {
-  const res = await fetch(`${API_BASE}/scripts/${scriptId}/beats/${beatId}`, {
+  const res = await apiFetch(`/scripts/${scriptId}/beats/${beatId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(update)
@@ -59,7 +58,7 @@ export async function streamDramaturgyWorkshop(
   options: { openai_model?: string; anthropic_model?: string; discussion_rounds?: number },
   handlers: WorkshopHandlers
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/scripts/${scriptId}/dramaturgy/stream`, {
+  const res = await apiFetch(`/scripts/${scriptId}/dramaturgy/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

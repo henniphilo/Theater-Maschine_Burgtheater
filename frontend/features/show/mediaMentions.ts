@@ -276,8 +276,8 @@ function resolveMoodToMedia(
   catalog?: MediaCatalog | null
 ): { mediaId: string; medium: MediaMentionMedium } | null {
   const query = moodText.trim();
-  if (!query) return null;
-  return resolveInventedFromCatalog(query, query, catalog ?? null, medium);
+  if (!query || !catalog) return null;
+  return resolveInventedFromCatalog(query, query, catalog, medium);
 }
 
 function spokenPhraseForMood(

@@ -21,7 +21,6 @@ from app.services.avatar_duration import (
 from app.services.avatar_speech_catalog import (
     get_avatar_speech_catalog_service,
     normalize_avatar_text,
-    resolve_avatar_csv_path,
 )
 from app.services.inszenierung_validation import (
     apply_anarchy_curve,

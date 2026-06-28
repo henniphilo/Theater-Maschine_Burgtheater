@@ -31,6 +31,7 @@ class SafetyUpdateRequest(BaseModel):
     sound_enabled: bool | None = None
     lights_enabled: bool | None = None
     blackout_locked: bool | None = None
+    performance_tryout: bool | None = None
 
 
 class DirectorProcessResponse(BaseModel):

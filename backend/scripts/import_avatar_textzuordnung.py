@@ -7,15 +7,18 @@ import csv
 import json
 import re
 import sys
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MEDIA_VIDEO = REPO_ROOT / "media" / "video"
-NUMBERS_DEFAULT = MEDIA_VIDEO / "Textzuordnung Del-Wolf-27-06-26.numbers"
+NUMBERS_DEFAULT = MEDIA_VIDEO / "Textzuordnung Del-Wolf-28-06-26 Final-2.numbers"
 CSV_OUT = MEDIA_VIDEO / "Avatar Textzuordnung.csv"
+OSC_AVATAR_OUT = MEDIA_VIDEO / "OSCBefehllisteAvatare.txt"
 SCRIPT_TXT = REPO_ROOT / "Stücktext" / "AVATAR Text Delfin bis Wolf.txt"
 VIDEO_CSV = MEDIA_VIDEO / "Video Übersicht.csv"
+PROJECTOR_CSV = MEDIA_VIDEO / "Projektor Übersicht.csv"
 
 NUMBERS_TO_PIXERA: dict[str, str] = {
     "Hier unter der Erde": "HierUnterDerErde",
@@ -29,7 +32,9 @@ NUMBERS_TO_PIXERA: dict[str, str] = {
 
 
 def slug_id(value: str) -> str:
-    normalized = value.strip().lower()
+    decomposed = unicodedata.normalize("NFKD", value.strip())
+    ascii_text = "".join(char for char in decomposed if not unicodedata.combining(char))
+    normalized = ascii_text.lower()
     normalized = re.sub(r"[^a-z0-9_]+", "_", normalized)
     return normalized.strip("_")
 
@@ -38,12 +43,14 @@ def numbers_clip_to_pixera(name: str) -> str:
     stripped = name.strip()
     if stripped in NUMBERS_TO_PIXERA:
         return NUMBERS_TO_PIXERA[stripped]
-    return stripped.replace(" ", "")
+    compact = stripped.replace(" ", "")
+    decomposed = unicodedata.normalize("NFKD", compact)
+    return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
 def infer_avatar(clip_name: str) -> str:
     upper = clip_name.upper().replace(" ", "")
-    if upper.startswith("BK"):
+    if upper.startswith(("BK", "BAK", "BÄK", "BAEK")):
         return "baerenklau"
     if upper.startswith("LG"):
         return "lamm"
@@ -51,17 +58,16 @@ def infer_avatar(clip_name: str) -> str:
         return "petya"
     if upper.startswith("WO"):
         return "wolf"
-    if upper.startswith("HIER") or upper.startswith("KUSCHELTIER") or upper.startswith("DERHASE"):
+    if upper.startswith(("MO", "SCH", "DEL", "HIER", "KUSCHELTIER", "DERHASE")):
         return "delphin"
     return "delphin"
 
 
 def parse_zeit_duration_ms(value: object) -> int | None:
-    """Numbers «Zeit» column: minutes:seconds stored as datetime (minute + second)."""
-    if not isinstance(value, datetime):
-        return None
-    total_sec = value.minute * 60 + value.second
-    return total_sec * 1000 if total_sec > 0 else None
+    """Numbers «Zeit»: Sekunden (0:07:00 = 7 s) oder MM:SS (0:01:30 = 90 s)."""
+    from app.services.avatar_duration import parse_zeit_duration_ms as _parse
+
+    return _parse(value)
 
 
 def export_from_numbers(path: Path) -> list[dict[str, str | int]]:
@@ -84,7 +90,7 @@ def export_from_numbers(path: Path) -> list[dict[str, str | int]]:
             "id": cue_id,
             "text": str(text).strip(),
             "avatar": infer_avatar(clip_name),
-            "video_clip_id": slug_id(pixera),
+            "video_clip_id": cue_id,
             "scene_ref": pixera,
         }
         if duration_ms is not None:
@@ -119,12 +125,39 @@ def write_script_txt(rows: list[dict[str, str | int]]) -> None:
     seen: set[str] = set()
     parts: list[str] = []
     for row in rows:
-        key = " ".join(row["text"].split())
+        key = " ".join(str(row["text"]).split())
         if key in seen:
             continue
         seen.add(key)
-        parts.append(row["text"])
+        parts.append(str(row["text"]))
     SCRIPT_TXT.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
+
+
+def load_projector_prefixes() -> list[str]:
+    prefixes: list[str] = []
+    if PROJECTOR_CSV.is_file():
+        with PROJECTOR_CSV.open(encoding="utf-8-sig", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter=";"):
+                prefix = (row.get("pixera_prefix") or "").strip()
+                if prefix:
+                    prefixes.append(prefix)
+    if not prefixes:
+        prefixes = ["KI_RZ21", "KI_Adam", "KI_Eva", "KI_LED"]
+    return prefixes
+
+
+def write_osc_avatar_befehlliste(rows: list[dict[str, str | int]]) -> int:
+    """Write OSC cue/apply lines for every avatar clip on all projectors."""
+    scene_refs = [str(row["scene_ref"]) for row in rows]
+    prefixes = load_projector_prefixes()
+    blocks: list[str] = []
+    for prefix in prefixes:
+        blocks.extend(
+            f'("/pixera/args/cue/apply", "{prefix}.{scene_ref}")' for scene_ref in scene_refs
+        )
+        blocks.append("")
+    OSC_AVATAR_OUT.write_text("\n".join(blocks).rstrip() + "\n", encoding="utf-8")
+    return len(scene_refs) * len(prefixes)
 
 
 def parse_osc_clip_names() -> dict[str, str]:
@@ -140,7 +173,7 @@ def parse_osc_clip_names() -> dict[str, str]:
     return names
 
 
-def sync_video_overview(osc_clips: dict[str, str]) -> None:
+def sync_video_overview(rows: list[dict[str, str | int]], osc_clips: dict[str, str]) -> None:
     existing: dict[str, dict[str, str]] = {}
     if VIDEO_CSV.is_file():
         with VIDEO_CSV.open(encoding="utf-8-sig", newline="") as handle:
@@ -148,6 +181,17 @@ def sync_video_overview(osc_clips: dict[str, str]) -> None:
                 clip_id = (row.get("clip_id") or "").strip()
                 if clip_id:
                     existing[clip_id] = row
+
+    for row in rows:
+        clip_id = str(row["video_clip_id"])
+        pixera_name = str(row["scene_ref"])
+        existing[clip_id] = {
+            "clip_id": clip_id,
+            "pixera_name": pixera_name,
+            "beschreibung": pixera_name,
+            "tags": str(row.get("avatar", "")),
+            "stimmungen": "neutral,spannung",
+        }
 
     for clip_id, pixera_name in sorted(osc_clips.items()):
         if clip_id in existing:
@@ -210,11 +254,13 @@ def main() -> int:
     rows = export_from_numbers(numbers_path)
     write_avatar_csv(rows)
     write_script_txt(rows)
+    osc_line_count = write_osc_avatar_befehlliste(rows)
     osc_clips = parse_osc_clip_names()
-    sync_video_overview(osc_clips)
+    sync_video_overview(rows, osc_clips)
     duration_count = sync_video_cue_durations(rows)
     print(f"Exported {len(rows)} avatar cues → {CSV_OUT.name}")
-    print(f"Updated {VIDEO_CSV.name} ({len(osc_clips)} OSC clips)")
+    print(f"Wrote {osc_line_count} OSC lines → {OSC_AVATAR_OUT.name}")
+    print(f"Updated {VIDEO_CSV.name} ({len(rows)} avatar clips)")
     print(f"Updated {SCRIPT_TXT.name}")
     print(f"Set duration_ms on {duration_count} avatar clips in video_cues.json")
     return 0

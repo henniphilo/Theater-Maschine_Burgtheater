@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+import { apiBaseUrl, apiFetch } from "@/lib/api/base";
 
 export function performanceAudioUrl(
   scriptId: string,
@@ -13,7 +13,7 @@ export function performanceAudioUrl(
   } else {
     asset = `discussion-${turnIndex ?? 0}`;
   }
-  return `${API_BASE}/scripts/${scriptId}/performance/audio/${beatId}/${asset}`;
+  return `${apiBaseUrl()}/scripts/${scriptId}/performance/audio/${beatId}/${asset}`;
 }
 
 const prerenderCache = new Map<string, Promise<Blob>>();
@@ -35,7 +35,7 @@ export function clearPrerenderedCache(): void {
 }
 
 export async function exportPerformance(scriptId: string): Promise<{ blob: Blob; filename: string }> {
-  const res = await fetch(`${API_BASE}/scripts/${scriptId}/performance/export`, { method: "POST" });
+  const res = await apiFetch(`/scripts/${scriptId}/performance/export`, { method: "POST" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "Export fehlgeschlagen" }));
     throw new Error(body.detail ?? "Export fehlgeschlagen");
@@ -50,7 +50,7 @@ export async function exportPerformance(scriptId: string): Promise<{ blob: Blob;
 export async function importPerformance(file: File) {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${API_BASE}/scripts/performance/import`, {
+  const res = await apiFetch("/scripts/performance/import", {
     method: "POST",
     body: form
   });

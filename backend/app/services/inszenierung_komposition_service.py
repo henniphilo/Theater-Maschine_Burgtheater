@@ -7,7 +7,7 @@ from typing import AsyncIterator, Literal
 
 from app.schemas.inszenierung import CompositionPlan, SceneCorpus
 from app.services.inszenierung_validation import validate_composition
-from app.services.teil2_compose_service import ComposeScriptEvent, compose_script_plan
+from app.services.teil2_compose_service import compose_script_plan
 
 EventType = Literal["thinking", "moment", "composition_plan", "error", "done"]
 

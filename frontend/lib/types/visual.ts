@@ -10,8 +10,14 @@ export type VisualCue = {
   outputs?: VisualOutputAssignment[];
   recording_id?: string | null;
   blend?: string;
+  blend_mode?: "replace" | "layer";
   opacity?: number;
   fade_time?: number;
+  video_type?: "avatar" | "atmosphere" | "regie";
+  projector?: "adam" | "eva" | "rz21" | "led" | null;
+  duration_ms?: number | null;
+  lock_until_finished?: boolean;
+  can_be_interrupted?: boolean;
 };
 
 export function formatVisualCueLabel(visual?: VisualCue | null): string {

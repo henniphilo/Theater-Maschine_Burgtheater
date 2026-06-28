@@ -58,7 +58,7 @@ docker-native: native-deps ## Nur Infrastruktur für natives Backend (Postgres, 
 
 native-deps: ## Postgres/Redis/Frontend in Docker, Backend-Container aus
 	@echo "=== Docker: Postgres, Redis, Frontend (native-Modus) ==="
-	cd "$(ROOT)" && $(COMPOSE) $(COMPOSE_NATIVE) up -d --build postgres redis frontend
+	cd "$(ROOT)" && $(COMPOSE) $(COMPOSE_NATIVE) up -d --build --force-recreate postgres redis frontend
 	-cd "$(ROOT)" && $(COMPOSE) stop backend
 	@echo ""
 	@echo "Frontend:  http://localhost:3003"

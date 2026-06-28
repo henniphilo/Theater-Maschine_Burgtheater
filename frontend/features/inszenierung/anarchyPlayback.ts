@@ -1,6 +1,6 @@
 import { armDirectorForPerformance, postDirectorExecuteLayered, stopDirectorPerformance } from "@/lib/api/director";
 import type { CompositionMoment, CompositionPlan, SceneCorpus } from "@/lib/types/inszenierung";
-import { waitWhilePlaybackPaused } from "@/lib/api/client";
+import { getPlaybackRate, sleepWallMs, waitWhilePlaybackPaused } from "@/lib/api/client";
 import {
   activeLayeredVoiceCount,
   playBlobLayered,
@@ -36,12 +36,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function sleepAbortable(ms: number, shouldAbort: () => boolean): Promise<void> {
-  const step = 100;
-  let remaining = ms;
-  while (remaining > 0 && !shouldAbort()) {
-    await sleep(Math.min(step, remaining));
-    remaining -= step;
-  }
+  await sleepWallMs(ms, shouldAbort);
 }
 
 export function computeMomentDelayMs(moment: CompositionMoment, index: number): number {
@@ -104,7 +99,7 @@ export async function runAnarchyPlayback(
     const onCommands = async (commands: { bridge?: string }[]) => {
       const bridge = commands[0]?.bridge ?? null;
       onUpdate({ activeOscBridge: bridge });
-      await sleep(150);
+      await sleepWallMs(150, shouldAbort);
       onUpdate({ activeOscBridge: null });
     };
 
@@ -150,13 +145,14 @@ export async function runAnarchyPlayback(
       await speechPromise.catch(() => undefined);
     } else {
       void speechPromise.catch(() => undefined);
-      await sleep(Math.max(400, 1800 - Math.round(overlap * 1400)));
+      await sleepWallMs(Math.max(400, 1800 - Math.round(overlap * 1400)), shouldAbort);
     }
   }
 
   while (activeLayeredVoiceCount() > 0 && !shouldAbort()) {
     onUpdate({ activeVoices: activeLayeredVoiceCount() });
-    await sleep(120);
+    if (!(await waitWhilePlaybackPaused(shouldAbort))) break;
+    await sleep(120 / getPlaybackRate());
   }
 
   if (!shouldAbort()) {
@@ -176,7 +172,7 @@ export async function runAnarchyPlayback(
     } catch {
       // playback continues even if collapse cues fail
     }
-    await sleep(1200);
+    await sleepWallMs(1200, shouldAbort);
   }
 
   onUpdate({
