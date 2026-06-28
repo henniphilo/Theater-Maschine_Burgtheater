@@ -1,3 +1,5 @@
+import re
+
 from app.core.config import settings
 from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision, LightCue, SoundCue, VisualCue, VisualAction
 from app.director.cues.cue_points import normalize_cue_points
@@ -33,6 +35,15 @@ def test_normalize_legacy_decision_to_cue_points() -> None:
     assert points[0].visual is not None
 
 
+def _light_level_cmds(light_cmds: list) -> list:
+    """Partial-intensity channel commands: /eos/chan/N with percent arg (not /full)."""
+    return [
+        c
+        for c in light_cmds
+        if re.fullmatch(r"/eos/chan/\d+", c.address) and c.args
+    ]
+
+
 def test_build_osc_commands_from_multiple_cue_points() -> None:
     decision = DramaturgyDecision(
         reason="multi",
@@ -61,11 +72,11 @@ def test_build_osc_commands_from_multiple_cue_points() -> None:
     total_b, _, at_b = _light_osc_counts(_SCENE_B, 0.5)
     assert len(light_cmds) == expected_total + total_b
     full_cmds = [c for c in light_cmds if c.address.endswith("/full")]
-    at_cmds = [c for c in light_cmds if c.address.endswith("/at")]
+    level_cmds = _light_level_cmds(light_cmds)
     assert len(full_cmds) == expected_full
-    assert len(at_cmds) == at_b
-    if at_cmds:
-        assert at_cmds[0].args == [50.0]
+    assert len(level_cmds) == at_b
+    if level_cmds:
+        assert level_cmds[0].args == [50.0]
 
 
 def test_build_osc_commands_light_explicit_intensity() -> None:
@@ -78,10 +89,10 @@ def test_build_osc_commands_light_explicit_intensity() -> None:
     light_cmds = [c for c in commands if c.bridge == "light" and not c.mirror]
     assert light_cmds
     key_outs = [c for c in light_cmds if c.address.endswith("/key/out")]
-    at_cmds = [c for c in light_cmds if c.address.endswith("/at")]
+    level_cmds = _light_level_cmds(light_cmds)
     assert len(key_outs) == 1
-    assert at_cmds
-    assert all(c.args == [40.0] for c in at_cmds)
+    assert level_cmds
+    assert all(c.args == [40.0] for c in level_cmds)
 
 
 def test_light_osc_commands_use_desk_not_video_port() -> None:

@@ -19,9 +19,9 @@ def test_video_catalog_loads_pixera_clips() -> None:
     assert {p.id for p in catalog.projectors} == {"rz21", "adam", "eva", "led"}
     clip_ids = {c.id for c in catalog.clips}
     assert "clyde" in clip_ids
-    assert "gehirn" in clip_ids
     assert "inge" in clip_ids
-    assert len(catalog.clips) >= 20
+    assert "nicolas" in clip_ids
+    assert len(catalog.clips) >= 5
 
 
 def test_osc_befehlliste_matches_video_overview() -> None:
@@ -33,6 +33,7 @@ def test_osc_befehlliste_matches_video_overview() -> None:
     if not clips_path or not projectors_path or not osc_paths:
         pytest.skip("media/video CSV fixtures not available in CI")
 
+    get_video_cue_catalog_service().clear_cache()
     catalog = load_video_cues_from_csv(clips_path, projectors_path)
     clip_names = {c.pixera_name for c in catalog.clips}
     prefix_by_id = {p.id: p.pixera_prefix for p in catalog.projectors}

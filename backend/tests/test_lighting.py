@@ -59,8 +59,8 @@ def test_lighting_scene_at_partial_intensity(
     bridge.execute(LightCue(scene_id="seitenlicht_hart", fade_time=4.0, intensity=0.6), dry_run=False)
 
     tcp.send_osc.assert_any_call("/eos/key/out", [], dry_run=False)
-    tcp.send_osc.assert_any_call("/eos/chan/91/at", [60.0], dry_run=False)
-    tcp.send_osc.assert_any_call("/eos/chan/92/at", [60.0], dry_run=False)
+    tcp.send_osc.assert_any_call("/eos/chan/91", [60.0], dry_run=False)
+    tcp.send_osc.assert_any_call("/eos/chan/92", [60.0], dry_run=False)
 
 
 @patch("app.director.outputs.lighting.settings")

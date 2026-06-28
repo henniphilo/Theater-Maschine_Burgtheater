@@ -102,6 +102,9 @@ def test_validate_cues_against_script_warns_on_missing():
 
 
 def test_real_catalog_previews_match_csv_row_count():
-    previews = build_beat_previews()
+    from app.services.avatar_speech_catalog import get_avatar_speech_catalog_service
+
+    catalog = get_avatar_speech_catalog_service().load()
+    previews = build_beat_previews(catalog.cues)
     assert len(previews) >= 33
-    assert previews[0].avatar_ids[0] == "nicolas"
+    assert previews[0].avatar_ids[0] == catalog.cues[0].id

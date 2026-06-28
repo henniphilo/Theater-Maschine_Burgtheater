@@ -55,10 +55,14 @@ def _parse_osc_pairs(paths: list) -> list[tuple[str, str]]:
 
 def _clip_ids_for_scope(scope: VideoScope) -> set[str]:
     paths = _osc_paths_for_scope(scope)
-    if not paths:
-        return {clip.id for clip in _load_base_catalog().clips}
-
     base = _load_base_catalog()
+    all_ids = {clip.id for clip in base.clips}
+    if not paths:
+        if scope == "part1":
+            avatar_ids = {clip.id for clip in base.clips if clip.pixera_name in _AVATAR_PIXERA_NAMES}
+            return all_ids - avatar_ids
+        return all_ids
+
     name_to_id = {clip.pixera_name: clip.id for clip in base.clips}
     clip_ids: set[str] = set()
     for _prefix, pixera_name in _parse_osc_pairs(paths):

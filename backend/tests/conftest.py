@@ -10,6 +10,16 @@ import pytest
 
 from app.core.config import settings
 
+FIXTURE_MEDIA_VIDEO = Path(__file__).resolve().parent / "fixtures" / "media" / "video"
+
+
+def _fixture_osc_path(data_dir: Path, *, filename: str | None = None) -> Path | None:
+    from app.director.media.video_inventory import OSC_LEGACY_FILENAME
+
+    target = filename or OSC_LEGACY_FILENAME
+    candidate = FIXTURE_MEDIA_VIDEO / target
+    return candidate if candidate.is_file() else None
+
 
 @pytest.fixture(autouse=True)
 def director_test_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -29,6 +39,18 @@ def director_test_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(settings, "director_autopilot_default", True)
     monkeypatch.setattr(settings, "director_execute_mode", "sequenced")
     monkeypatch.setattr(settings, "director_dramaturgy_mode", "rules")
+
+    import app.director.media.video_inventory as video_inventory_mod
+
+    monkeypatch.setattr(
+        video_inventory_mod,
+        "resolve_osc_befehlliste_path",
+        lambda data_dir, *, filename=None: _fixture_osc_path(data_dir, filename=filename),
+    )
+
+    from app.services.video_cue_catalog import get_video_cue_catalog_service
+
+    get_video_cue_catalog_service().clear_cache()
 
     import app.director.pipeline as pipeline_mod
     import app.api.routes.director as director_routes

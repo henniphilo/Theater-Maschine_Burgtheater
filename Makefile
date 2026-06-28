@@ -72,8 +72,8 @@ native: run ## Alias für make run
 
 test: test-backend test-frontend ## Backend- und Frontend-Tests
 
-test-backend: ## pytest (nutzt Repo data/ via conftest)
-	cd "$(ROOT)/backend" && python -m pytest -q
+test-backend: ## pytest via backend/run-tests.sh (venv + deps)
+	cd "$(ROOT)/backend" && ./run-tests.sh -q
 
 test-frontend: ## vitest
 	cd "$(ROOT)/frontend" && npm test -- --run

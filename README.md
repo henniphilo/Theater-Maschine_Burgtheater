@@ -860,12 +860,25 @@ docker compose run --rm --no-deps frontend npm test -- --run
 
 ### Backend-Tests (lokal, Python 3.11+)
 
+**Nicht** globales `pytest` verwenden — Abhängigkeiten liegen in der Projekt-venv:
+
 ```bash
 cd backend
-python3 -m venv .venv && source .venv/bin/activate
+./run-tests.sh          # ruff + pytest (legt .venv an, installiert -e ".[dev]")
+./run-tests.sh -q       # nur Kurzausgabe
+./run-tests.sh tests/test_teil2_text_alignment.py -q
+```
+
+Alternativ manuell:
+
+```bash
+cd backend
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 OSC_DRY_RUN=true OSC_HOST=127.0.0.1 pytest
 ```
+
+Oder aus dem Projektroot: `make test-backend`
 
 ### Backend nativ (Sound / Ableton / Siri-TTS)
 
@@ -907,6 +920,7 @@ cd frontend && npm install && npm run dev   # → http://localhost:3000
 | **Sound: kein MIDI / rtmidi-Fehler** | Backend **nicht** in Docker — `cd backend && ./run-native.sh`. Log: `grep -i midi` |
 | **Sound: Port not found** | Deutscher Mac: `SOUND_MIDI_PORT="IAC-Treiber Bus 1"`; Ableton MIDI From gleich setzen |
 | **Sound: Log OK, kein Ton in Ableton** | Monitor `In`, Arm an, Drum Rack auf **C1** (Note 36), nicht C5 |
+| **pytest: python-multipart** | Globales `pytest` nutzt nicht die Projekt-deps — `cd backend && ./run-tests.sh` oder `make test-backend` |
 | **python3 / pip Fehler 3.9** | `brew install python@3.11`, dann `./run-native.sh` (nicht System-`python3`) |
 | **OSC_HOST nodename** (pytest / CI) | `OSC_DRY_RUN=true` und `OSC_HOST=127.0.0.1` — in CI gesetzt; lokal in `tests/conftest.py` |
 | **OSC_HOST nodename** (nativ) | `OSC_HOST=127.0.0.1` — `run-native.sh` setzt das automatisch |
