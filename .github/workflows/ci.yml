@@ -23,6 +23,9 @@ jobs:
       - name: Ruff
         run: ruff check app tests
       - name: Pytest
+        env:
+          OSC_DRY_RUN: "true"
+          OSC_HOST: "127.0.0.1"
         run: pytest
 
   frontend:

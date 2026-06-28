@@ -64,6 +64,7 @@ app/director/outputs/pixera.py
 app/director/outputs/sound.py
 app/director/outputs/sound_midi.py
 app/director/outputs/touchdesigner.py
+app/director/outputs/udp_client.py
 app/models/__init__.py
 app/models/entities.py
 app/schemas/__init__.py

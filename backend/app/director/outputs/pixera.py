@@ -2,6 +2,7 @@ from pythonosc import udp_client
 
 from app.core.config import settings
 from app.director.outputs.osc_log import log_osc_command
+from app.director.outputs.udp_client import create_udp_client
 
 
 class PixeraBridge:
@@ -16,7 +17,7 @@ class PixeraBridge:
         self.dry_run = settings.osc_dry_run if dry_run is None else dry_run
         self._client: udp_client.SimpleUDPClient | None = None
         if not self.dry_run:
-            self._client = udp_client.SimpleUDPClient(self.host, self.port)
+            self._client = create_udp_client(self.host, self.port)
 
     def _send(self, address: str, *args: object) -> None:
         dry_run = self.dry_run or self._client is None

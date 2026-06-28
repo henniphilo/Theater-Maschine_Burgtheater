@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.director.cues.cue_models import SoundCue
 from app.director.outputs.osc_log import log_osc_command
 from app.director.outputs.sound_midi import get_sound_midi_bridge
+from app.director.outputs.udp_client import create_udp_client
 from app.services.sound_cue_catalog import get_sound_cue_catalog_service
 
 
@@ -14,8 +15,14 @@ class SoundBridge:
         self.host = host or settings.osc_host
         self.port = port or settings.osc_port
         self._osc_client: udp_client.SimpleUDPClient | None = None
-        if settings.sound_output in {"osc", "both"} or settings.sound_osc_mirror:
-            self._osc_client = udp_client.SimpleUDPClient(self.host, self.port)
+        self._osc_enabled = settings.sound_output in {"osc", "both"} or settings.sound_osc_mirror
+
+    def _ensure_osc_client(self) -> udp_client.SimpleUDPClient | None:
+        if not self._osc_enabled or settings.osc_dry_run:
+            return None
+        if self._osc_client is None:
+            self._osc_client = create_udp_client(self.host, self.port)
+        return self._osc_client
 
     def execute(self, cue: SoundCue, dry_run: bool = False) -> None:
         if cue.cue_id is None:
@@ -84,6 +91,9 @@ class SoundBridge:
             dry_run=is_dry_run,
             bridge="sound",
         )
-        if is_dry_run or self._osc_client is None:
+        if is_dry_run:
             return
-        self._osc_client.send_message(address, list(args))
+        client = self._ensure_osc_client()
+        if client is None:
+            return
+        client.send_message(address, list(args))

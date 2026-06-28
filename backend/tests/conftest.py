@@ -1,3 +1,9 @@
+import os
+
+# Before app imports: avoid UDP socket setup during test collection (local .env may use host.docker.internal).
+os.environ.setdefault("OSC_DRY_RUN", "true")
+os.environ.setdefault("OSC_HOST", "127.0.0.1")
+
 from pathlib import Path
 
 import pytest

@@ -21,7 +21,7 @@ Zwei KIs (GPT und Claude) diskutieren live über ein Thema. Während sie spreche
 - [Konfiguration](#konfiguration)
 - [Bedienung](#bedienung)
 - [Teil 1 — Stücktext-Dramaturgie](#teil-1--stücktext-dramaturgie)
-- [Teil 2 — Anarchische Inszenierung](#teil-2--anarchische-inszenierung)
+- [Teil 2 — Text-Sync Inszenierung](#teil-2--text-sync-inszenierung)
 - [Live-Regie (Director)](#live-regie-director)
 - [TouchDesigner](#touchdesigner)
 - [Projektstruktur](#projektstruktur)
@@ -54,12 +54,14 @@ Der Operator steuert alles über **http://localhost:3003/director** (Autopilot, 
 
 ### Zwei Inszenierungs-Modi
 
-| | **Teil 1** — Stücktext | **Teil 2** — Anarchische Inszenierung |
+| | **Teil 1** — Stücktext | **Teil 2** — Text-Sync Inszenierung |
 |---|------------------------|----------------------------------------|
-| Textquelle | Ein Stücktext, Beats | Mehrere Tier-Szenen (Korpus), z. B. Jelinek *Unter Tieren* / Geld |
-| Workflow | Dramaturgie → Stücktext → Aufführung | Import → Analyse → Komposition → Aufführung |
-| Wiedergabe | Sequentiell: Diskussion, dann Stücktext | Eskalierende Überlagerung, parallele Stimmen & Beamer |
-| Stimmen | Dramaturgen + Stimme A/B/Erzähler | Avatar-Video (kein TTS) + eigene KI-Stimmen (Teil 2) |
+| Textquelle | Ein Stücktext, Dramaturgen-Workshop | AVATAR-Aufführungstext (z. B. *Delfin bis Wolf*) |
+| Workflow | Dramaturgie → Stücktext → Aufführung | Text hochladen → **Vorbereiten** → Aufführung |
+| Wiedergabe | Sequentiell: Diskussion, dann Stücktext | Eine KI-Stimme als Master-Clock; Avatar-OSC am CSV-Stichwort |
+| Stimmen | Dramaturgen + rotierend A/B/Erzähler | Eine gewählte Teil-2-Stimme (Eddy / Sandy / Helena) |
+| Video | Pixera-Clips per Dramaturgie | Avatar-Clips aus CSV, feuern wenn die Stimme die Textstelle erreicht |
+| Navigation | `/dramaturgie`, `/auffuehrung` | `/inszenierung`, `/inszenierung/auffuehrung` |
 | Doku | unten [Teil 1](#teil-1--stücktext-dramaturgie) | [`docs/teil2_inszenierung.md`](docs/teil2_inszenierung.md) |
 
 Ausführlicher Entwicklungsplan: [`PLAN.md`](PLAN.md)  
@@ -172,17 +174,16 @@ docker compose up --force-recreate backend
 
 | Dienst | URL |
 |--------|-----|
-| **Dramaturgie** (Teil 1) | http://localhost:3003/dramaturgie |
-| **Stücktext** (Teil 1) | http://localhost:3003/stueck |
-| **Aufführung** (Teil 1) | http://localhost:3003/auffuehrung |
-| **Inszenierung** (Teil 2) | http://localhost:3003/inszenierung |
-| **Analyse** (Teil 2) | http://localhost:3003/inszenierung/analyse |
-| **Komposition** (Teil 2) | http://localhost:3003/inszenierung/komposition |
-| **Aufführung** (Teil 2) | http://localhost:3003/inszenierung/auffuehrung |
-| **Live-Regie (Operator)** | http://localhost:3003/director |
+| **Teil 1 — Dramaturgie** | http://localhost:3003/dramaturgie |
+| **Teil 1 — Aufführung** | http://localhost:3003/auffuehrung |
+| **Teil 2 — Inszenierung** | http://localhost:3003/inszenierung |
+| **Teil 2 — Aufführung** | http://localhost:3003/inszenierung/auffuehrung |
 | **Technik-Test** (Video/Sound/Licht einzeln) | http://localhost:3003/technik |
+| **Live-Regie (Operator)** | http://localhost:3003/director |
 | **Backend (API)** | http://localhost:8000 |
 | **API-Docs** | http://localhost:8000/docs |
+
+Hauptnavigation im UI: **Technik-Test** · **Teil 1** · **Teil 2** · **Aufführung** (Teil 1). Stücktext-Editor weiterhin unter `/stueck` (Link aus Dramaturgie).
 
 ### 5. Prüfen
 
@@ -475,29 +476,81 @@ Clips/Projektoren: `media/video/Video Übersicht.csv`, `media/video/Projektor Ü
 
 `DIRECTOR_DRAMATURGY_MODE=llm` (Standard) oder `rules` für regelbasierte Cues.
 
-### Teil 2 — Anarchische Inszenierung
+### Teil 2 — Text-Sync Inszenierung
 
-Separater Modus für mehrere Tier-Szenen zum Thema **Geld** (z. B. Elfriede Jelinek — *Unter Tieren*). Persistenz: `data/inszenierungen/{id}.json`.
+Separater Modus für **Elfriede Jelinek — *Unter Tieren*** (AVATAR-Text *Delfin bis Wolf*): ein Aufführungstext, ein Vorbereitungsschritt, eine KI-Stimme als **Master-Clock**. Avatar-Videos feuern per OSC, wenn die Stimme die zugehörige CSV-Textstelle (**Stichwort**) erreicht — nicht schon am Satzanfang davor.
+
+Persistenz: `data/inszenierungen/{id}.json`  
+Ausführliche Doku: [`docs/teil2_inszenierung.md`](docs/teil2_inszenierung.md)
+
+#### Workflow
 
 ```text
-/inszenierung          Szenen importieren (TXT/JSON, Batch-Upload)
+/inszenierung              Text hochladen oder Kanon-Vorlage, Stimme wählen
         ↓
-/inszenierung/analyse  KI: Gesamtkonzept, Geld-Achsen, Anarchie-Kurve
+POST …/prepare             Analyse + Avatar-Anker + OSC-Dramaturgie
         ↓
-/inszenierung/komposition  KI wählt Textausschnitte + Regie pro Moment
-        ↓
-/inszenierung/auffuehrung  Anarchie-Player (parallele Stimmen, Layer-Cues)
+/inszenierung/auffuehrung  TTS-Puffer → Play (Pause, Tempo, Probebetrieb)
 ```
 
-**Sprache pro Moment (`speech_mode`):**
+1. **`/inszenierung`** — Korpus anlegen, Aufführungstext einfügen oder `.txt` hochladen (optional: **Kanon-Vorlage** aus `Stücktext/AVATAR Text Delfin bis Wolf.txt`). **Aufführungsstimme** wählen (Erzähler / Stimme A / B — Teil-2-TTS-Stimmen, siehe [Konfiguration](#konfiguration)).
+2. **Vorbereiten** — Backend erzeugt `teil2_plan`: Satzliste, Zeichenoffsets, Avatar-Segmente aus CSV, Licht/Sound/Video-Dramaturgie. Alignment-Warnungen erscheinen, wenn CSV-Texte im Skript fehlen.
+3. **`/inszenierung/auffuehrung`** — TTS wird für alle Sätze vorgepuffert; **Play** startet die Show. Transportleiste: **Play / Pause / Stop**, **Tempo** (0,5×–2,0×), **Probebetrieb**.
 
-| Modus | Bedeutung |
-|-------|-----------|
-| `avatar_video` | Gesprochener Text steckt im Pixera-Avatar-Clip — kein TTS |
-| `tts` | KI vertont den Jelinek-Ausschnitt (Teil-2-Stimmen: Eddy / Sandy / Helena) |
-| `silent` | Nur Video/Sound/Licht-Cues |
+Nach Text- oder CSV-Änderungen immer **neu vorbereiten**.
 
-Die KI matcht Ausschnitte an den **Avatar-Textkatalog** ([`media/video/Avatar Textzuordnung.csv`](media/video/Avatar%20Textzuordnung.csv), API `GET /api/v1/media/avatar-speech`). Frühe Momente bevorzugen Avatar-Videos; mit steigendem `anarchy_level` überlagern sich Stimmen, Clips auf mehreren Beamern (`layer`-Modus) und Sounds.
+#### Funktionsweise (Text-Sync)
+
+```text
+TTS-Stimme (Master-Clock)
+    ↓ onTimeUpdate: globale Textposition im Skript
+    ├── Avatar-OSC (Pixera play_clip) wenn Position ≥ CSV char_offset
+    ├── Dramaturgie-OSC (Licht / Sound / Atmosphäre) pro Satz + Zeit-Cues
+    └── Anarchie-Level steigt über den Text (mehr Layer / Überlagerung)
+```
+
+| Komponente | Rolle |
+|------------|-------|
+| `teil2_plan.sentences` | Satzliste (Backend `split_sentences`, identisch zum Frontend) |
+| `sentence_char_starts` | Zeichenoffset je Satz im `script_text` |
+| `avatar_segments` | CSV-Zeilen → `char_offset`, Clip-IDs, Chorus-Layer, `text_excerpt` |
+| `dramaturgy` | OSC-Regie mit `sentence_index`, Keywords, `time_offset_sec` |
+| `alignment_warnings` | CSV-Texte, die im Skript nicht gefunden wurden |
+
+**Avatar-Anker:** Service `teil2_text_alignment.py` matcht CSV-Text gegen das Skript (Unicode-normalisiert). Chorus: aufeinanderfolgende gleiche Texte → ein Segment mit mehreren `avatar_layers`. Clip-Dauer aus CSV-Spalte «Zeit» = **Sekunden** (z. B. `0:07:00` → 7 s) — steuert Beamer-Sperre zwischen Avatar-Clips.
+
+**Aufführungs-UI:** Avatar-Abschnitte werden wie in der CSV gelistet (nicht Satz für Satz). Klick auf einen Abschnitt testet nur diesen Block (Stimme + Signale von `start_sentence_index` bis `end_sentence_index`).
+
+#### Medien & Import
+
+| Datei | Rolle |
+|-------|-------|
+| `media/video/Avatar Textzuordnung.csv` | Avatar → Text → Clip, Reihenfolge, Dauer |
+| `media/video/OSCBefehllisteAvatare.txt` | Pixera OSC — Avatar-Clips (4 Projektoren: RZ21, Adam, Eva, LED) |
+| `media/video/OSCBefehllisteOhneAvatare.txt` | Atmosphären-Clips |
+| `media/video/Video Übersicht.csv` | Clip-Katalog für Teil 2 (`video_scope=part2`) |
+
+CSV aus Numbers exportieren und OSC-Listen regenerieren:
+
+```bash
+cd backend
+python scripts/import_avatar_textzuordnung.py
+# Optional: Pfad zur .numbers-Datei als Argument
+```
+
+`media/video/*` ist lokal (oft `.gitignore`) — nach Import auf dem Show-Rechner ausführen und **neu vorbereiten**.
+
+#### Probebetrieb
+
+Checkbox **Probebetrieb (OSC-Log, kein Licht)** auf der Aufführungsseite:
+
+- Licht-Cues werden aus der Dramaturgie entfernt (kein EOS-TCP, kein Blockieren von Video)
+- OSC wird als DRY-RUN geloggt (`logs/osc.log`)
+- Laufende Avatar-Clips können von neuen unterbrochen werden (`allow_avatar_interrupt`)
+
+#### Legacy (alte Korpora)
+
+Früherer Workflow mit separater **Analyse** und **Komposition** (`/inszenierung/analyse`, `/inszenierung/komposition`) leitet auf `/inszenierung` um. Alte `composition`-Timeline wird auf der Aufführungsseite noch unterstützt, wenn kein `teil2_plan` vorhanden ist.
 
 **Schnellstart Teil 2:**
 
@@ -506,12 +559,9 @@ make run
 # Browser: http://localhost:3003/inszenierung
 ```
 
-1. Korpus anlegen → Szenen hochladen  
-2. Analyse → Gesamtkonzept prüfen  
-3. Komposition → Momente reviewen (Badge: `Avatar BK3`, `KI Stimme B`, …)  
-4. Aufführung → TTS-Puffer (nur `tts`-Momente) → Play  
-
-Vollständige Anleitung: [`docs/teil2_inszenierung.md`](docs/teil2_inszenierung.md)
+1. Korpus anlegen → Text hochladen oder Kanon-Vorlage  
+2. **Vorbereiten** → Plan + Warnungen prüfen  
+3. **Aufführung** → TTS-Puffer abwarten → **Play**
 
 ### Debatte (Legacy) — Show-Modus
 
@@ -625,7 +675,7 @@ Theatermaschine/
 │   ├── app/
 │   │   ├── page.tsx            # Debatten-Oberfläche
 │   │   ├── dramaturgie/        # Teil 1: Dramaturgie-Workshop
-│   │   ├── inszenierung/       # Teil 2: Korpus, Analyse, Komposition, Aufführung
+│   │   ├── inszenierung/       # Teil 2: Text-Upload, Vorbereiten, Aufführung
 │   │   └── director/page.tsx   # Operator-UI
 │   ├── components/chat/
 │   └── lib/api/
@@ -686,13 +736,15 @@ Theatermaschine/
 
 | Pfad | Aufgabe |
 |------|---------|
-| [`backend/app/api/routes/inszenierung.py`](backend/app/api/routes/inszenierung.py) | CRUD Korpus, SSE Analyse & Komposition |
-| [`backend/app/services/inszenierung_analyse_service.py`](backend/app/services/inszenierung_analyse_service.py) | Gesamtkonzept aus Tier-Szenen |
-| [`backend/app/services/inszenierung_komposition_service.py`](backend/app/services/inszenierung_komposition_service.py) | Momente, `speech_mode`, Avatar-Matching |
+| [`backend/app/api/routes/inszenierung.py`](backend/app/api/routes/inszenierung.py) | Korpus-CRUD, `POST /prepare`, Script-Vorlage, Legacy-Analyse/Komposition |
+| [`backend/app/services/teil2_prepare_service.py`](backend/app/services/teil2_prepare_service.py) | **Vorbereiten** — Analyse, CSV-Alignment, Dramaturgie, `Teil2PerformancePlan` |
+| [`backend/app/services/teil2_text_alignment.py`](backend/app/services/teil2_text_alignment.py) | CSV-Text → `char_offset` / Satzindices, Chorus-Gruppierung |
+| [`backend/app/services/teil2_script_service.py`](backend/app/services/teil2_script_service.py) | Kanon-Skript, Beat-Vorschau aus CSV |
+| [`backend/app/services/teil2_dramaturgy_routing.py`](backend/app/services/teil2_dramaturgy_routing.py) | Beamer-Reservierung für Avatar vs. Atmosphäre |
+| [`backend/app/services/avatar_duration.py`](backend/app/services/avatar_duration.py) | CSV-Dauer parsen («Zeit» in Sekunden, Legacy-Minuten normalisieren) |
 | [`backend/app/services/avatar_speech_catalog.py`](backend/app/services/avatar_speech_catalog.py) | Avatar-Textkatalog (DEL/BK/LG/PET/WO) |
-| [`backend/app/services/inszenierung_import.py`](backend/app/services/inszenierung_import.py) | Szenen-Import aus TXT/JSON |
-| [`data/inszenierungen/`](data/inszenierungen/) | Persistierte Korpora & Kompositionen |
-| [`data/avatar_speech.json`](data/avatar_speech.json) | Cache des Avatar-Katalogs |
+| [`backend/scripts/import_avatar_textzuordnung.py`](backend/scripts/import_avatar_textzuordnung.py) | Numbers → CSV + OSC-Befehllisten + `video_cues.json` |
+| [`data/inszenierungen/`](data/inszenierungen/) | Persistierte Korpora & `teil2_plan` |
 
 ### Frontend
 
@@ -700,8 +752,13 @@ Theatermaschine/
 |------|---------|
 | [`frontend/app/page.tsx`](frontend/app/page.tsx) | Debatten-UI, SSE-Stream, TTS-Wiedergabe |
 | [`frontend/app/director/page.tsx`](frontend/app/director/page.tsx) | **Operator-Panel** — Safety, Status, Recording |
-| [`frontend/app/inszenierung/`](frontend/app/inszenierung/) | **Teil 2** — Import, Analyse, Komposition, Anarchie-Player |
-| [`frontend/features/inszenierung/anarchyPlayback.ts`](frontend/features/inszenierung/anarchyPlayback.ts) | Parallele Stimmen + Layer-Cues |
+| [`frontend/app/inszenierung/`](frontend/app/inszenierung/) | **Teil 2** — Text-Upload, Vorbereiten, Aufführung |
+| [`frontend/features/inszenierung/teil2TextSyncPlayback.ts`](frontend/features/inszenierung/teil2TextSyncPlayback.ts) | TTS Master-Clock, Avatar-OSC am Stichwort, Dramaturgie-Cues |
+| [`frontend/features/inszenierung/teil2AvatarSections.ts`](frontend/features/inszenierung/teil2AvatarSections.ts) | Avatar-Abschnitts-Labels & aktiver Index |
+| [`frontend/features/inszenierung/inszenierungBuffer.ts`](frontend/features/inszenierung/inszenierungBuffer.ts) | TTS-Vorpuffer für alle Sätze |
+| [`frontend/features/inszenierung/anarchyPlayback.ts`](frontend/features/inszenierung/anarchyPlayback.ts) | Legacy Anarchie-Timeline (alte `composition`) |
+| [`frontend/components/show/Teil2PerformanceBar.tsx`](frontend/components/show/Teil2PerformanceBar.tsx) | Play/Pause/Stop, Tempo, Probebetrieb |
+| [`frontend/components/show/Teil2AvatarSegmentBlock.tsx`](frontend/components/show/Teil2AvatarSegmentBlock.tsx) | Klickbare Avatar-Abschnitte in der Aufführung |
 | [`frontend/lib/api/client.ts`](frontend/lib/api/client.ts) | Debatten-API + SSE-Parser |
 | [`frontend/lib/api/director.ts`](frontend/lib/api/director.ts) | Director-API + Event-Stream |
 | [`frontend/components/chat/`](frontend/components/chat/) | Nachrichten, Denk-Bubble, Composer |
@@ -713,7 +770,7 @@ Theatermaschine/
 | [`data/media.json`](data/media.json) | Katalog: Videos + Sounds mit dramaturgischen Metadaten |
 | [`data/light_scenes.json`](data/light_scenes.json) | Lichtstimmungen (DMX-Kanäle) |
 | [`data/dramaturgy_rules.json`](data/dramaturgy_rules.json) | Keyword-Mapping, Cue-Mindestabstände |
-| [`media/video/`](media/video/) | Echte Videodateien (`.mp4`), `Video Übersicht.csv`, `Avatar Textzuordnung.csv` |
+| [`media/video/`](media/video/) | Videodateien, `Video Übersicht.csv`, `Avatar Textzuordnung.csv`, OSC-Befehllisten |
 | [`media/audio/`](media/audio/) | Echte Audiodateien (`.wav`) |
 | [`media/recordings/`](media/recordings/) | Live-Aufnahmen aus TouchDesigner |
 
@@ -726,8 +783,11 @@ Theatermaschine/
 | [`backend/tests/test_cue_scheduler.py`](backend/tests/test_cue_scheduler.py) | Safety, Scheduler |
 | [`backend/tests/test_touchdesigner_bridge.py`](backend/tests/test_touchdesigner_bridge.py) | OSC-Payload |
 | [`backend/tests/test_director_api.py`](backend/tests/test_director_api.py) | Director REST-Endpunkte |
-| [`backend/tests/test_inszenierung_*.py`](backend/tests/) | Teil 2: Import, Validierung, Komposition, Avatar-Katalog |
-| [`frontend/features/inszenierung/anarchyPlayback.test.ts`](frontend/features/inszenierung/anarchyPlayback.test.ts) | Anarchie-Scheduling & Speech-Labels |
+| [`backend/tests/test_teil2_text_alignment.py`](backend/tests/test_teil2_text_alignment.py) | CSV → Zeichenoffset, Unicode, Chorus |
+| [`backend/tests/test_teil2_prepare_service.py`](backend/tests/test_teil2_prepare_service.py) | Vorbereiten, Dramaturgie-Dichte |
+| [`backend/tests/test_inszenierung_*.py`](backend/tests/) | Import, Validierung, Legacy-Komposition |
+| [`frontend/features/inszenierung/teil2TextSyncPlayback.test.ts`](frontend/features/inszenierung/teil2TextSyncPlayback.test.ts) | Text-Sync, Avatar-Fire, Pause/Tempo |
+| [`frontend/features/inszenierung/anarchyPlayback.test.ts`](frontend/features/inszenierung/anarchyPlayback.test.ts) | Legacy Anarchie-Scheduling |
 
 ---
 
@@ -747,12 +807,12 @@ Theatermaschine/
 | Methode | Pfad | Beschreibung |
 |---------|------|--------------|
 | `POST` | `/api/v1/inszenierung` | Korpus anlegen |
-| `GET` | `/api/v1/inszenierung/{id}` | Korpus laden |
-| `POST` | `/api/v1/inszenierung/{id}/scenes/upload` | Szenen-Dateien importieren |
-| `POST` | `/api/v1/inszenierung/{id}/analyse/stream` | Analyse-Workshop (SSE) |
-| `POST` | `/api/v1/inszenierung/{id}/komposition/stream` | Komposition (SSE) |
+| `GET` | `/api/v1/inszenierung/{id}` | Korpus inkl. `teil2_plan` laden |
+| `PATCH` | `/api/v1/inszenierung/{id}` | `script_text` speichern |
+| `POST` | `/api/v1/inszenierung/{id}/prepare` | **Vorbereiten** — `teil2_plan` + `gesamtkonzept` |
+| `GET` | `/api/v1/inszenierung/script` | Kanon-Skript + CSV-Beat-Vorschau |
 | `GET` | `/api/v1/media/avatar-speech` | Avatar-Textkatalog |
-| `POST` | `/api/v1/director/execute-layered` | Layer-Cues für Anarchie-Player |
+| `POST` | `/api/v1/director/execute-layered` | Layer-Cues (Legacy Anarchie-Player) |
 
 ### Live-Regie (Director)
 
@@ -774,8 +834,15 @@ Theatermaschine/
 ### Backend-Tests (Docker — empfohlen)
 
 ```bash
-docker compose run --rm --no-deps backend sh -c \
+docker compose run --rm --no-deps -e OSC_DRY_RUN=true -e OSC_HOST=127.0.0.1 backend sh -c \
   "pip install pytest pytest-asyncio -q && PYTHONPATH=/app pytest -q"
+```
+
+Teil-2-Tests gezielt:
+
+```bash
+cd backend && ruff check app tests && pytest tests/test_teil2_text_alignment.py tests/test_teil2_prepare_service.py -q
+cd frontend && npm test -- teil2TextSyncPlayback.test.ts --run
 ```
 
 Einzelne Tests, z. B. Stimmen:
@@ -797,7 +864,7 @@ docker compose run --rm --no-deps frontend npm test -- --run
 cd backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest
+OSC_DRY_RUN=true OSC_HOST=127.0.0.1 pytest
 ```
 
 ### Backend nativ (Sound / Ableton / Siri-TTS)
@@ -841,7 +908,11 @@ cd frontend && npm install && npm run dev   # → http://localhost:3000
 | **Sound: Port not found** | Deutscher Mac: `SOUND_MIDI_PORT="IAC-Treiber Bus 1"`; Ableton MIDI From gleich setzen |
 | **Sound: Log OK, kein Ton in Ableton** | Monitor `In`, Arm an, Drum Rack auf **C1** (Note 36), nicht C5 |
 | **python3 / pip Fehler 3.9** | `brew install python@3.11`, dann `./run-native.sh` (nicht System-`python3`) |
-| **OSC_HOST nodename** | Nativ: `OSC_HOST=127.0.0.1` — `run-native.sh` setzt das automatisch |
+| **OSC_HOST nodename** (pytest / CI) | `OSC_DRY_RUN=true` und `OSC_HOST=127.0.0.1` — in CI gesetzt; lokal in `tests/conftest.py` |
+| **OSC_HOST nodename** (nativ) | `OSC_HOST=127.0.0.1` — `run-native.sh` setzt das automatisch |
+| **Teil 2: Alignment-Warnungen** | Skript muss CSV-Texte enthalten; Kanon `Stücktext/AVATAR Text Delfin bis Wolf.txt` oder passenden Upload verwenden, dann **neu vorbereiten** |
+| **Teil 2: Avatar zu früh / Beamer-Sperre** | Nach CSV-Import oder Dauer-Fix einmal **neu vorbereiten** (`duration_ms` aus «Zeit» in Sekunden) |
+| **Teil 2: keine Avatar-Clips** | `python backend/scripts/import_avatar_textzuordnung.py` lokal ausführen; `media/video/` liegt oft nur auf dem Show-Rechner |
 | Keine Videoclips | Dateien in `media/video/` ablegen; IDs müssen zur CSV passen |
 | Cues werden blockiert | Operator-UI: Autopilot an? Mindestabstand abgewartet? `/director/status` prüfen |
 | CORS-Fehler | `CORS_ORIGINS='["http://localhost:3003"]'` in `backend/.env` (Docker) |
