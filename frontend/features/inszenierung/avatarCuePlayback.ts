@@ -51,24 +51,50 @@ export function avatarVisualCuesForMoment(moment: CompositionMoment): VisualCue[
   return [];
 }
 
-export async function fireAvatarSegmentCues(
+export function sentenceSpanLength(
+  sentenceIndex: number,
+  sentenceCharStarts: number[],
+  scriptTextLength: number
+): number {
+  const start = sentenceCharStarts[sentenceIndex] ?? 0;
+  const end =
+    sentenceIndex + 1 < sentenceCharStarts.length
+      ? sentenceCharStarts[sentenceIndex + 1]!
+      : scriptTextLength;
+  return Math.max(1, end - start);
+}
+
+export async function fireAvatarSegmentIfDue(
   segment: AvatarTextSegment,
   anarchyLevel: number,
   onCommands: (commands: OscCommand[]) => Promise<void>,
   shouldAbort: () => boolean
-): Promise<void> {
+): Promise<boolean> {
+  if (shouldAbort()) return false;
+  if (!(await waitWhilePlaybackPaused(shouldAbort))) return false;
+  let anySent = false;
   for (const layer of segment.avatar_layers) {
     if (!layer.visual_cue) continue;
-    if (shouldAbort()) return;
-    if (!(await waitWhilePlaybackPaused(shouldAbort))) return;
-    await executeAvatarVisualCue(
+    if (shouldAbort()) return anySent;
+    const sent = await executeAvatarVisualCue(
       layer.visual_cue,
       anarchyLevel,
       onCommands,
       shouldAbort,
       segment.text_excerpt
     );
+    anySent = anySent || sent;
   }
+  return anySent;
+}
+
+export async function fireAvatarSegmentCues(
+  segment: AvatarTextSegment,
+  anarchyLevel: number,
+  onCommands: (commands: OscCommand[]) => Promise<void>,
+  shouldAbort: () => boolean
+): Promise<void> {
+  await fireAvatarSegmentIfDue(segment, anarchyLevel, onCommands, shouldAbort);
 }
 
 export async function fireAvatarMomentCues(
@@ -165,9 +191,15 @@ export async function fireAvatarSegmentsAtPosition(
   const due = avatarSegmentsDueAtPosition(plan, globalPos, fired, sentenceCharStarts);
   for (const segment of due) {
     if (shouldAbort()) return;
+    const sent = await fireAvatarSegmentIfDue(
+      segment,
+      anarchyLevelFor(segment),
+      onCommands,
+      shouldAbort
+    );
+    if (!sent) continue;
     fired.add(avatarSegmentKey(segment));
     onSegmentFired?.(segment);
-    await fireAvatarSegmentCues(segment, anarchyLevelFor(segment), onCommands, shouldAbort);
   }
 }
 
@@ -184,8 +216,36 @@ export async function fireRemainingSentenceSegments(
     if (segment.start_sentence_index !== sentenceIndex) continue;
     if (fired.has(avatarSegmentKey(segment))) continue;
     if (shouldAbort()) return;
+    const sent = await fireAvatarSegmentIfDue(segment, anarchyLevel, onCommands, shouldAbort);
+    if (!sent) continue;
     fired.add(avatarSegmentKey(segment));
     onSegmentFired?.(segment);
-    await fireAvatarSegmentCues(segment, anarchyLevel, onCommands, shouldAbort);
+  }
+}
+
+/** Last-chance pass: fire avatar OSC for segments never successfully sent. */
+export async function fireAllRemainingAvatarSegments(
+  plan: Teil2PerformancePlan,
+  fired: Set<string>,
+  anarchyLevelFor: (segment: AvatarTextSegment) => number,
+  onCommands: (commands: OscCommand[]) => Promise<void>,
+  shouldAbort: () => boolean,
+  onSegmentFired?: (segment: AvatarTextSegment) => void
+): Promise<void> {
+  const remaining = [...plan.avatar_segments].sort(
+    (a, b) => (a.char_offset ?? a.start_sentence_index) - (b.char_offset ?? b.start_sentence_index)
+  );
+  for (const segment of remaining) {
+    if (fired.has(avatarSegmentKey(segment))) continue;
+    if (shouldAbort()) return;
+    const sent = await fireAvatarSegmentIfDue(
+      segment,
+      anarchyLevelFor(segment),
+      onCommands,
+      shouldAbort
+    );
+    if (!sent) continue;
+    fired.add(avatarSegmentKey(segment));
+    onSegmentFired?.(segment);
   }
 }

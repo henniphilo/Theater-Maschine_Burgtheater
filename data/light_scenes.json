@@ -1,20 +1,42 @@
 {
-  "source": "media/light/Lichtstimmungen.txt (22.06.26)",
+  "source": "media/light/Light Channels KI.txt",
   "scenes": [
     {
-      "id": "blendung_zuschauerraum",
-      "description": "Blendung Zuschauerraum — Sola Wash Ch. 71–74",
-      "location": "Zuschauerraum",
+      "id": "gegenlicht_lichteinfall",
+      "description": "Gegenlicht Lichteinfall — Sola Wash Ch. 71–74",
+      "location": "OL 7er Gegenlicht",
       "channels": ["71-74"],
       "fixtures": ["Sola Wash"],
-      "moods": ["blendung", "zuschauer", "wash"],
+      "moods": ["gegenlicht", "lichteinfall", "kontur"],
+      "intensity_min": 0.3,
+      "intensity_max": 1.0,
+      "fade_time": 3.0
+    },
+    {
+      "id": "blendung_zuschauerraum",
+      "description": "Zuschauerraum Blendung — Vorbühnenzug Ch. 11–19",
+      "location": "Vorbühnenzug",
+      "channels": ["11-19"],
+      "fixtures": ["JB P12"],
+      "moods": ["blendung", "zuschauer", "vorbuehne"],
+      "intensity_min": 0.3,
+      "intensity_max": 1.0,
+      "fade_time": 3.0
+    },
+    {
+      "id": "vorbuehnenzug",
+      "description": "Zuschauerraum Blendung — Vorbühnenzug Ch. 11–19",
+      "location": "Vorbühnenzug",
+      "channels": ["11-19"],
+      "fixtures": ["JB P12"],
+      "moods": ["blendung", "zuschauer", "vorbuehne"],
       "intensity_min": 0.3,
       "intensity_max": 1.0,
       "fade_time": 3.0
     },
     {
       "id": "blendung_magenta",
-      "description": "Blendung magenta — CYC Fluter Ch. 1701",
+      "description": "Licht Blendung — CYC Fluter Ch. 1701",
       "location": "OL 8er",
       "channels": ["1701"],
       "fixtures": ["NanoPix CYC Fluter"],
@@ -36,7 +58,7 @@
     },
     {
       "id": "saallicht",
-      "description": "Saallicht — EOS Gruppe 2",
+      "description": "Saallicht Zuschauerraum — EOS Gruppe 2",
       "location": "Saal",
       "channels": [],
       "groups": ["2"],
@@ -48,7 +70,7 @@
     },
     {
       "id": "teppich_rot",
-      "description": "Teppich Rot — Ch. 22–26",
+      "description": "Lichtstimmung Teppich Rot — Ch. 22–26",
       "location": "OL 2er",
       "channels": ["22-26"],
       "fixtures": ["Sola Theatre"],
@@ -70,7 +92,7 @@
     },
     {
       "id": "gegenlicht_weich",
-      "description": "Gegenlicht weich — EOS Gruppen 13 und 23",
+      "description": "Gegenlicht weich, homogen ausgeleuchtete Bühne — EOS Gruppen 13 und 23",
       "location": "Gegenlicht",
       "channels": [],
       "groups": ["13", "23"],
@@ -82,7 +104,7 @@
     },
     {
       "id": "wolkenprospekt_boden",
-      "description": "Röhren vor dem Wolkenprospekt am Boden — EOS Gruppe 12",
+      "description": "Neonlicht vor dem Wolkenprospekt am Boden — EOS Gruppe 12",
       "location": "Wolkenprospekt",
       "channels": [],
       "groups": ["12"],
@@ -105,7 +127,7 @@
     },
     {
       "id": "klavier",
-      "description": "Klavier — Ch. 27",
+      "description": "Klavierlicht — Ch. 27",
       "location": "Bühne",
       "channels": ["27"],
       "fixtures": ["OL 2er"],
@@ -116,7 +138,7 @@
     },
     {
       "id": "fluegel",
-      "description": "Flügel — Ch. 33",
+      "description": "Flügellicht — Ch. 33",
       "location": "Bühne",
       "channels": ["33"],
       "fixtures": ["OL 3er"],
@@ -171,7 +193,7 @@
     },
     {
       "id": "zwei_spots",
-      "description": "2 Spots — Ch. 52 und 54",
+      "description": "2 Lichtspots nebeneinander — Ch. 52 und 54",
       "location": "OL 5er",
       "channels": ["52", "54"],
       "fixtures": ["Sola Theatre"],
@@ -182,7 +204,7 @@
     },
     {
       "id": "spot_tisch",
-      "description": "Spot am Tisch — Ch. 51",
+      "description": "Spot am Tisch, Schauspielergruppe — Ch. 51",
       "location": "Tisch",
       "channels": ["51"],
       "fixtures": ["Sola Theatre"],

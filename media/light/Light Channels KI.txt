@@ -1,0 +1,27 @@
+Scheinwerfer		Gruppen 	         Presets          Beschreibung
+
+Ch. 71-74					Pr.91		Gegenlicht Lichteinfall
+
+Ch. 1701					Pr.91		Licht Blendung
+
+Ch. 91-94					Pr.91		Seitenlicht hartes Licht
+
+			Gr.2					Saallicht Zuschauerraum
+
+Ch.22-26					Pr.91		Lichtstimmung Teppich Rot
+
+Ch.7-9						Pr.91		Fläche Bühne hartes kaltes Licht
+
+			Gr.13/23/23		Pr.91		Gegenlicht weiches Licht, homogen ausgeleuchtete Bühne
+
+			Gr.12					Neonlicht vor dem Wolkenprospekt am Boden
+
+Ch.27						Pr.91		Klavierlicht
+
+Ch.33						Pr.91		Flügellicht
+
+Ch.52/54					Pr.91		2 Lichtspots nebeneinander
+
+Ch.51						Pr.91		Spot am Tisch, Schauspielergruppe
+
+Ch.11-19					Pr.91		Zuschauerraum Blendung

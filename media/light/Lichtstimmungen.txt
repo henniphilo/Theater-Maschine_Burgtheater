@@ -1,26 +1,28 @@
-# Lichtstimmungen Unter Tieren (22.06.26)
+# Lichtstimmungen Unter Tieren — KI-Regie
 
-Quelle: OSC/Pixera-Regie — Preset Pr.91 wo nicht anders angegeben.
+Quelle: `media/light/Light Channels KI.txt` · Preset **Pr.91** wo nicht anders angegeben.
 
-| scene_id | Scheinwerfer / Gruppe | Wirkung |
-|----------|----------------------|---------|
-| blendung_zuschauerraum | Ch. 71–74 | Blendung Zuschauerraum |
-| blendung_magenta | Ch. 1701 | Blendung magenta |
+| scene_id | Kanäle / Gruppe | Wirkung (KI) |
+|----------|-----------------|--------------|
+| gegenlicht_lichteinfall | Ch. 71–74 | Gegenlicht Lichteinfall |
+| blendung_magenta | Ch. 1701 | Licht Blendung |
 | seitenlicht_hart | Ch. 91–94 | Seitenlicht hartes Licht |
-| saallicht | Gr. 2 | Saallicht |
-| teppich_rot | Ch. 22–26 | Teppich Rot |
+| saallicht | Gr. 2 | Saallicht Zuschauerraum |
+| teppich_rot | Ch. 22–26 | Lichtstimmung Teppich Rot |
 | buehne_kalt_hart | Ch. 7–9 | Fläche Bühne hartes kaltes Licht |
-| gegenlicht_weich | Gr. 13, 23 | Gegenlicht weich |
-| wolkenprospekt_boden | Gr. 12 | Röhren vor dem Wolkenprospekt am Boden |
-| musiker | Ch. 46 | Musiker |
-| klavier | Ch. 27 | Klavier |
-| fluegel | Ch. 33 | Flügel |
-| palmen | Ch. 372, 37 | Palmen links vorne rechts hinten |
-| lautsprecher_buehne | Ch. 34 | Lautsprecher auf der Bühne |
-| warme_buehnenflaeche | Ch. 6+10 | Warme Fläche auf der Bühne |
-| luster_treppen | Ch. 151, 152 | Luster über den Treppen |
-| zwei_spots | Ch. 52, 54 | 2 Spots |
-| spot_tisch | Ch. 51 | Spot am Tisch |
+| gegenlicht_weich | Gr. 13, 23 | Gegenlicht weich, homogen ausgeleuchtete Bühne |
+| wolkenprospekt_boden | Gr. 12 | Neonlicht vor dem Wolkenprospekt am Boden |
+| klavier | Ch. 27 | Klavierlicht |
+| fluegel | Ch. 33 | Flügellicht |
+| zwei_spots | Ch. 52, 54 | 2 Lichtspots nebeneinander |
+| spot_tisch | Ch. 51 | Spot am Tisch, Schauspielergruppe |
+| vorbuehnenzug | Ch. 11–19 | Zuschauerraum Blendung |
+| blendung_zuschauerraum | Ch. 11–19 | Alias: Zuschauerraum Blendung (wie vorbuehnenzug) |
+| musiker | Ch. 46 | Musiker (Erweiterung Inventar) |
+| palmen | Ch. 372, 37 | Palmen (Erweiterung Inventar) |
+| lautsprecher_buehne | Ch. 34 | Lautsprecher Bühne |
+| warme_buehnenflaeche | Ch. 6, 10 | Warme Fläche Bühne |
+| luster_treppen | Ch. 151, 152 | Luster Treppen |
 | blackout | /eos/key/out | Alles aus |
 
 Kombination: mehrere `scene_ids` in einem Licht-Cue — vorherige Lampen gehen aus, dann alle gewählten Stimmungen gemeinsam.

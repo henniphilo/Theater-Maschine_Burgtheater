@@ -30,6 +30,10 @@ def test_prepare_builds_plan_with_segments_and_dramaturgy(monkeypatch):
     assert plan.performance_speaker == "narrator"
     assert plan.dramaturgy.cue_points
     assert len(plan.dramaturgy.cue_points) >= max(2, len(plan.avatar_segments))
+    light_points = [p for p in plan.dramaturgy.cue_points if p.light is not None]
+    assert len(light_points) >= len(plan.sentences)
+    light_scene_ids = {p.light.scene_id for p in light_points if p.light and p.light.scene_id}
+    assert len(light_scene_ids) >= 2
     assert plan.model_dump_json()
 
 

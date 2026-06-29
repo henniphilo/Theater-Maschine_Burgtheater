@@ -4,15 +4,18 @@ import type { PerformanceSpeaker } from "@/lib/types/director";
 import type { AvatarTextSegment, SceneCorpus, Teil2PerformancePlan } from "@/lib/types/inszenierung";
 import {
   createCuePlaybackContext,
+  firePerformanceEndCues,
   fireSentenceCues,
   fireStartCues,
   fireTimeCues
 } from "@/features/show/cuePlayback";
 import { textPositionForPlayback } from "@/features/show/mediaMentions";
 import {
+  fireAllRemainingAvatarSegments,
   fireAvatarSegmentsAtPosition,
   fireRemainingSentenceSegments,
-  resolveSentenceCharStarts
+  resolveSentenceCharStarts,
+  sentenceSpanLength
 } from "@/features/inszenierung/avatarCuePlayback";
 import { resolveSentenceSpeech } from "@/features/inszenierung/inszenierungBuffer";
 
@@ -135,7 +138,8 @@ export async function runTextSyncPlayback(
       onTimeUpdate: (current, duration) => {
         if (Number.isFinite(duration)) lastDuration = duration;
         void fireTimeCues(cueCtx, sentenceStart + current);
-        const localPos = textPositionForPlayback(current, duration, sentence.length);
+        const spanLength = sentenceSpanLength(index, sentenceCharStarts, scriptText.length);
+        const localPos = textPositionForPlayback(current, duration, spanLength);
         const globalPos = sentenceCharStarts[index] + localPos;
         void fireAvatarSegmentsAtPosition(
           plan,
@@ -161,6 +165,18 @@ export async function runTextSyncPlayback(
     );
 
     cumulativeTime += Number.isFinite(lastDuration) ? lastDuration : 0;
+  }
+
+  if (!shouldAbort()) {
+    await fireAllRemainingAvatarSegments(
+      plan,
+      firedSegments,
+      anarchyForSegment,
+      cueCtx.onCommands,
+      shouldAbort,
+      onSegmentFired
+    );
+    await firePerformanceEndCues(cueCtx.onCommands, shouldAbort);
   }
 
   onUpdate({

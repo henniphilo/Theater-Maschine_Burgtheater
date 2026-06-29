@@ -535,8 +535,12 @@ CSV aus Numbers exportieren und OSC-Listen regenerieren:
 ```bash
 cd backend
 python scripts/import_avatar_textzuordnung.py
+python scripts/import_video_zuordnung.py
 # Optional: Pfad zur .numbers-Datei als Argument
+make avatar-import   # bzw. make video-import aus dem Projektroot
 ```
+
+`import_video_zuordnung.py` liest `media/video/Videozuordnung KI … .numbers` und ergänzt **Atmosphären-Clips** in `OSCBefehllisteOhneAvatare.txt` (alle 4 Projektoren), `Video Übersicht.csv` und `data/video_cues.json` (`video_type=atmosphere`, `can_be_interrupted=true`). Die KI-Regie nutzt diese Clips parallel zu den Avatar-Videos (Teil 2, `video_scope=part2`).
 
 `media/video/*` ist lokal (oft `.gitignore`) — nach Import auf dem Show-Rechner ausführen und **neu vorbereiten**.
 

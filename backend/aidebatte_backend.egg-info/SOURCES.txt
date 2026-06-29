@@ -149,6 +149,7 @@ tests/test_dramaturgy_workshop.py
 tests/test_eos_light.py
 tests/test_health.py
 tests/test_import_avatar_textzuordnung.py
+tests/test_import_video_zuordnung.py
 tests/test_inszenierung_analyse.py
 tests/test_inszenierung_bundle_service.py
 tests/test_inszenierung_import.py

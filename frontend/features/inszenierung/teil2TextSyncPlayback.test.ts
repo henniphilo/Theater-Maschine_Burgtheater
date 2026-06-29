@@ -5,6 +5,7 @@ import type { SceneCorpus, Teil2PerformancePlan } from "@/lib/types/inszenierung
 
 const fireAvatarSegmentsAtPosition = vi.fn().mockResolvedValue(undefined);
 const fireRemainingSentenceSegments = vi.fn().mockResolvedValue(undefined);
+const fireAllRemainingAvatarSegments = vi.fn().mockResolvedValue(undefined);
 const resolveSentenceSpeech = vi.fn().mockResolvedValue(new Blob(["audio"]));
 
 vi.mock("@/features/inszenierung/avatarCuePlayback", async (importOriginal) => {
@@ -12,7 +13,8 @@ vi.mock("@/features/inszenierung/avatarCuePlayback", async (importOriginal) => {
   return {
     ...actual,
     fireAvatarSegmentsAtPosition: (...args: unknown[]) => fireAvatarSegmentsAtPosition(...args),
-    fireRemainingSentenceSegments: (...args: unknown[]) => fireRemainingSentenceSegments(...args)
+    fireRemainingSentenceSegments: (...args: unknown[]) => fireRemainingSentenceSegments(...args),
+    fireAllRemainingAvatarSegments: (...args: unknown[]) => fireAllRemainingAvatarSegments(...args)
   };
 });
 
@@ -44,7 +46,8 @@ vi.mock("@/features/show/cuePlayback", () => ({
   })),
   fireSentenceCues: vi.fn(),
   fireStartCues: vi.fn(),
-  fireTimeCues: vi.fn()
+  fireTimeCues: vi.fn(),
+  firePerformanceEndCues: vi.fn().mockResolvedValue(undefined)
 }));
 
 function basePlan(overrides: Partial<Teil2PerformancePlan>): Teil2PerformancePlan {
@@ -114,6 +117,7 @@ describe("teil2TextSyncPlayback", () => {
     );
     expect(maxGlobalPos).toBeGreaterThanOrEqual(13);
     expect(fireRemainingSentenceSegments).toHaveBeenCalled();
+    expect(fireAllRemainingAvatarSegments).toHaveBeenCalled();
     expect(resolveSentenceSpeech).toHaveBeenCalledTimes(2);
     expect(updates.some((patch) => patch.completed === true)).toBe(true);
   });

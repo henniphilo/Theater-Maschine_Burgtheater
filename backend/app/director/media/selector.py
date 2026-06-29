@@ -7,6 +7,7 @@ class MediaSelector:
     def __init__(self, media_db: MediaDatabase, history_size: int = 5) -> None:
         self.media_db = media_db
         self._recent_ids: deque[str] = deque(maxlen=history_size)
+        self._recent_light_ids: deque[str] = deque(maxlen=history_size)
 
     def select_video(self, tags: list[str], mood: str, intensity: float) -> VideoAsset | None:
         asset = self.media_db.get_video_by_tags(tags, mood, intensity, list(self._recent_ids))
@@ -21,4 +22,7 @@ class MediaSelector:
         return asset
 
     def select_light(self, mood: str, intensity: float) -> LightScene | None:
-        return self.media_db.get_light_scene(mood, intensity)
+        scene = self.media_db.get_light_scene(mood, intensity, list(self._recent_light_ids))
+        if scene:
+            self._recent_light_ids.append(scene.id)
+        return scene

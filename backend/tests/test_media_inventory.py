@@ -56,9 +56,14 @@ def test_media_database_loads_pixera_videos() -> None:
 
 def test_light_scenes_reference_channel_inventory() -> None:
     db = MediaDatabase()
+    gegenlicht = next(s for s in db.light_scenes if s.id == "gegenlicht_lichteinfall")
+    assert gegenlicht.channels == ["71-74"]
+    assert "Sola Wash" in gegenlicht.fixtures
     scene = next(s for s in db.light_scenes if s.id == "blendung_zuschauerraum")
-    assert scene.channels == ["71-74"]
-    assert "Sola Wash" in scene.fixtures
+    assert scene.channels == ["11-19"]
+    assert "JB P12" in scene.fixtures
+    vorbuehne = next(s for s in db.light_scenes if s.id == "vorbuehnenzug")
+    assert vorbuehne.channels == ["11-19"]
     saal = next(s for s in db.light_scenes if s.id == "saallicht")
     assert saal.groups == ["2"]
     assert db.light_inventory.get("venue") == "Unter Tieren"

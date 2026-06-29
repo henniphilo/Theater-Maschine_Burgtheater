@@ -1,5 +1,6 @@
 import type { CuePoint, DramaturgyDecision, OscCommand } from "@/lib/types/director";
-import { isDirectorPerformanceAborted, postDirectorExecute } from "@/lib/api/director";
+import { fetchDirectorStatus, isDirectorPerformanceAborted, postDirectorExecute } from "@/lib/api/director";
+import { sleepWallMs } from "@/lib/api/client";
 import { splitSentences } from "@/lib/text/splitSentences";
 
 /** Execute cues without aborting playback when the director/OSC path fails. */
@@ -158,4 +159,73 @@ export function fireNeutralReset(
   shouldAbort: () => boolean
 ): void {
   void executeCueSafely(neutralResetDecision(), onCommands, shouldAbort);
+}
+
+const SOUND_FADE_SUFFIXES = ["_fade_out", "_fade_in", "_out"] as const;
+
+function soundFamilyFromCueId(cueId: string): string {
+  for (const suffix of SOUND_FADE_SUFFIXES) {
+    if (cueId.endsWith(suffix)) {
+      return cueId.slice(0, -suffix.length);
+    }
+  }
+  return cueId;
+}
+
+/** Fade out all active sound beds, wait, then hard-cut remaining audio. */
+export async function firePerformanceEndCues(
+  onCommands: (commands: OscCommand[]) => Promise<void>,
+  shouldAbort: () => boolean,
+  options?: { fadeMs?: number }
+): Promise<void> {
+  if (shouldAbort() || isDirectorPerformanceAborted()) return;
+
+  let activeCues: string[] = [];
+  try {
+    const status = await fetchDirectorStatus();
+    activeCues = status.active_cues ?? [];
+  } catch (err) {
+    console.warn("Performance end: could not read active cues", err);
+  }
+
+  const fadeFamilies = new Set<string>();
+  for (const cueId of activeCues) {
+    if (cueId === "alle_sounds_cut") continue;
+    const family = soundFamilyFromCueId(cueId);
+    if (family === "alle_sounds") continue;
+    fadeFamilies.add(family);
+  }
+
+  const fadeDecision = (family: string): DramaturgyDecision => ({
+    sound: { action: "trigger_cue", cue_id: `${family}_fade_out`, volume: 0 },
+    reason: "Aufführungsende — Sounds ausblenden",
+    tags: ["teil2", "ende", "fade_out"],
+    mood: "collapse",
+    intensity: 0,
+    timestamp: Date.now(),
+    cue_points: []
+  });
+
+  await Promise.all(
+    [...fadeFamilies].map((family) =>
+      executeCueSafely(fadeDecision(family), onCommands, shouldAbort)
+    )
+  );
+
+  const fadeMs = options?.fadeMs ?? 3000;
+  if (!(await sleepWallMs(fadeMs, shouldAbort))) return;
+
+  await executeCueSafely(
+    {
+      sound: { action: "trigger_cue", cue_id: "alle_sounds_cut", volume: 0 },
+      reason: "Aufführungsende — Sounds Cut",
+      tags: ["teil2", "ende", "cut_all"],
+      mood: "collapse",
+      intensity: 0,
+      timestamp: Date.now(),
+      cue_points: []
+    },
+    onCommands,
+    shouldAbort
+  );
 }

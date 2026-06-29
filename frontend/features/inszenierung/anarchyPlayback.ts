@@ -1,6 +1,7 @@
 import { armDirectorForPerformance, postDirectorExecuteLayered, stopDirectorPerformance } from "@/lib/api/director";
 import type { CompositionMoment, CompositionPlan, SceneCorpus } from "@/lib/types/inszenierung";
 import { getPlaybackRate, sleepWallMs, waitWhilePlaybackPaused } from "@/lib/api/client";
+import { firePerformanceEndCues } from "@/features/show/cuePlayback";
 import {
   activeLayeredVoiceCount,
   playBlobLayered,
@@ -77,6 +78,13 @@ export async function runAnarchyPlayback(
   const maxVoices = plan.max_concurrent_voices ?? 3;
   const needsTts = planRequiresTts(plan);
 
+  const onCommands = async (commands: { bridge?: string }[]) => {
+    const bridge = commands[0]?.bridge ?? null;
+    onUpdate({ activeOscBridge: bridge });
+    await sleepWallMs(150, shouldAbort);
+    onUpdate({ activeOscBridge: null });
+  };
+
   for (let index = 0; index < moments.length; index++) {
     if (shouldAbort()) break;
     if (!(await waitWhilePlaybackPaused(shouldAbort))) break;
@@ -96,12 +104,6 @@ export async function runAnarchyPlayback(
     }
 
     const speechMode = moment.speech_mode ?? "tts";
-    const onCommands = async (commands: { bridge?: string }[]) => {
-      const bridge = commands[0]?.bridge ?? null;
-      onUpdate({ activeOscBridge: bridge });
-      await sleepWallMs(150, shouldAbort);
-      onUpdate({ activeOscBridge: null });
-    };
 
     if (speechMode === "avatar_video") {
       await fireAvatarMomentCues(moment, moment.anarchy_level, onCommands, shouldAbort);
@@ -156,6 +158,7 @@ export async function runAnarchyPlayback(
   }
 
   if (!shouldAbort()) {
+    await firePerformanceEndCues(onCommands, shouldAbort);
     try {
       await postDirectorExecuteLayered(
         {

@@ -31,6 +31,30 @@
   ],
   "clips": [
     {
+      "id": "affenslowodysee2001",
+      "pixera_name": "AffenSlowOdysee2001",
+      "label": "AffenSlowOdysee2001",
+      "description": "Affen bekriegen sich",
+      "tags": [
+        "affen",
+        "bekriegen",
+        "sich"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "automassendrohnenflug",
       "pixera_name": "AutomassenDrohnenflug",
       "label": "AutomassenDrohnenflug",
@@ -85,6 +109,57 @@
       "moods": [
         "neutral",
         "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "avatarivvideo",
+      "pixera_name": "AvatarIVVideo",
+      "label": "AvatarIVVideo",
+      "description": "Ein ausgestopfter Hundswolf spricht ausgestellt im Museum",
+      "tags": [
+        "ausgestopfter",
+        "hundswolf",
+        "spricht",
+        "ausgestellt",
+        "museum"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "avatarivvideo2",
+      "pixera_name": "AvatarIVVideo2",
+      "label": "AvatarIVVideo2",
+      "description": "Ein ausgestopfter Bär spricht ausgestellt im Museum",
+      "tags": [
+        "ausgestopfter",
+        "spricht",
+        "ausgestellt",
+        "museum"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -254,6 +329,31 @@
       "moods": [
         "weit",
         "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "bitcoinfahrt",
+      "pixera_name": "Bitcoinfahrt",
+      "label": "Bitcoinfahrt",
+      "description": "Zufahrt auf eine Menge Bitcoins",
+      "tags": [
+        "zufahrt",
+        "eine",
+        "menge",
+        "bitcoins"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -775,13 +875,19 @@
       "id": "derhaseverlaesstdiebuehne",
       "pixera_name": "DerHaseVerlaesstDieBuehne",
       "label": "DerHaseVerlaesstDieBuehne",
-      "description": "DerHaseVerlaesstDieBuehne",
+      "description": "Ein sprechender Hase verlässt die Bühne und geht vor sich hin redend aus dem Haus.",
       "tags": [
-        "derhaseverlaesstdiebuehne"
+        "sprechender",
+        "hase",
+        "verlässt",
+        "bühne",
+        "geht",
+        "sich"
       ],
       "moods": [
         "neutral",
-        "spannung"
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -814,6 +920,60 @@
       "can_be_interrupted": true
     },
     {
+      "id": "esellaeuft2705",
+      "pixera_name": "EselLaeuft2705",
+      "label": "EselLaeuft2705",
+      "description": "Ein Esel läuft auf der Stelle. Es fallen Geld, Gold und Wertgegenstände auf ihn.",
+      "tags": [
+        "esel",
+        "läuft",
+        "stelle",
+        "fallen",
+        "geld",
+        "gold"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "fischundwassergewaechs",
+      "pixera_name": "FischUndWassergewaechs",
+      "label": "FischUndWassergewaechs",
+      "description": "Fisch im Wasser schwimmt von Links nach rechts",
+      "tags": [
+        "fisch",
+        "wasser",
+        "schwimmt",
+        "links",
+        "nach",
+        "rechts"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "gehirn",
       "pixera_name": "Gehirn",
       "label": "Gehirn",
@@ -825,6 +985,33 @@
       "moods": [
         "unheimlich",
         "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "gehirntest",
+      "pixera_name": "GehirnTest",
+      "label": "GehirnTest",
+      "description": "Eine Kamera fährt in die Synapsen eines Gehirns hinein",
+      "tags": [
+        "eine",
+        "kamera",
+        "fährt",
+        "synapsen",
+        "eines",
+        "gehirns"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -942,6 +1129,59 @@
       "can_be_interrupted": true
     },
     {
+      "id": "kaeferimmuseumlaufendavon",
+      "pixera_name": "KaeferImMuseumLaufenDavon",
+      "label": "KaeferImMuseumLaufenDavon",
+      "description": "Käfer laufen aus einem Ausstellungskasten davon",
+      "tags": [
+        "käfer",
+        "laufen",
+        "einem",
+        "ausstellungskasten",
+        "davon"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "konzeptionuntertierentest",
+      "pixera_name": "KonzeptionUnterTierenTest",
+      "label": "KonzeptionUnterTierenTest",
+      "description": "Endlos viele Nachrichtenbilder und Bilder aus der Geschichte der Menschheit überlagern sich",
+      "tags": [
+        "endlos",
+        "viele",
+        "nachrichtenbilder",
+        "bilder",
+        "geschichte",
+        "menschheit"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "kurzthiel",
       "pixera_name": "KurzThiel",
       "label": "KurzThiel",
@@ -967,13 +1207,18 @@
       "id": "kuscheltierschlachtung",
       "pixera_name": "KuscheltierSchlachtung",
       "label": "KuscheltierSchlachtung",
-      "description": "KuscheltierSchlachtung",
+      "description": "Ein Kuscheltier wird mit Schere und Kunstblut geschlachtet.",
       "tags": [
-        "kuscheltierschlachtung"
+        "kuscheltier",
+        "wird",
+        "schere",
+        "kunstblut",
+        "geschlachtet"
       ],
       "moods": [
         "neutral",
-        "spannung"
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -1122,6 +1367,31 @@
       "moods": [
         "neutral",
         "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "mehlwuermerlangsam",
+      "pixera_name": "MehlwuermerLangsam",
+      "label": "MehlwuermerLangsam",
+      "description": "Mehlwürmer graben sich in die Erde ein",
+      "tags": [
+        "mehlwürmer",
+        "graben",
+        "sich",
+        "erde"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -1493,6 +1763,30 @@
       "can_be_interrupted": true
     },
     {
+      "id": "peterthielalspipita",
+      "pixera_name": "PeterThielAlsPipita",
+      "label": "PeterThielAlsPipita",
+      "description": "Ein sprechender kleiner Hund",
+      "tags": [
+        "sprechender",
+        "kleiner",
+        "hund"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "random",
       "pixera_name": "Random",
       "label": "Random",
@@ -1746,6 +2040,33 @@
       "can_be_interrupted": true
     },
     {
+      "id": "sebastianblurryundgruen",
+      "pixera_name": "SebastianBlurryUndGruen",
+      "label": "SebastianBlurryUndGruen",
+      "description": "Sebastian spricht ist aber nicht zu hören und er leuchtet grün",
+      "tags": [
+        "sebastian",
+        "spricht",
+        "aber",
+        "nicht",
+        "hören",
+        "leuchtet"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "strand",
       "pixera_name": "Strand",
       "label": "Strand",
@@ -1757,6 +2078,33 @@
       "moods": [
         "ruhig",
         "melancholisch"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "sturmfischskelett",
+      "pixera_name": "SturmFischskelett",
+      "label": "SturmFischskelett",
+      "description": "ein wilder Sturm, Endzeit, ein Skelett von einem Fisch",
+      "tags": [
+        "wilder",
+        "sturm",
+        "endzeit",
+        "skelett",
+        "einem",
+        "fisch"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -1863,6 +2211,60 @@
       ],
       "moods": [
         "neutral"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "tierunterdererde",
+      "pixera_name": "TierUnterDerErde",
+      "label": "TierUnterDerErde",
+      "description": "Ein Schauspieler läuft unter der Bühne umher und spielt ein Tier unter der Erde. Einen Dachs.",
+      "tags": [
+        "schauspieler",
+        "läuft",
+        "unter",
+        "bühne",
+        "umher",
+        "spielt"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "wasserfahrt",
+      "pixera_name": "Wasserfahrt",
+      "label": "Wasserfahrt",
+      "description": "Länge Eine Flutwelle rauscht ein Haus hinunter in den Ozean",
+      "tags": [
+        "länge",
+        "eine",
+        "flutwelle",
+        "rauscht",
+        "haus",
+        "hinunter"
+      ],
+      "moods": [
+        "neutral",
+        "spannung",
+        "atmosphaere"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,

@@ -151,7 +151,7 @@ Alle Dateien in `media/video/` werden automatisch erkannt (`clip_id` = Dateiname
 | `insekten` | `Insekten.mp4` |
 | `mehlwurmer` | `Mehlwürmer.mp4` |
 
-Licht-Szenen kommen aus `data/light_scenes.json` (abgeleitet aus `media/light/Kanal Übersicht.xlsx`). OSC: `/light/set_scene <scene_id> <fade_time>` — z. B. `vorbuehnenzug` → Kanäle 11–19.
+Licht-Szenen kommen aus `data/light_scenes.json` (abgeleitet aus `media/light/Light Channels KI.txt` / `Lichtstimmungen.txt`). OSC: `/light/set_scene <scene_id> <fade_time>` — z. B. `vorbuehnenzug` → Ch. 11–19 (Zuschauerraum Blendung), `gegenlicht_lichteinfall` → Ch. 71–74.
 
 Sounds sind aktuell **Dummy-WAVs** in `media/audio/dummy_*.wav` bis echte Cues eingepflegt sind.
 

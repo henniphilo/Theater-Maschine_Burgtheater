@@ -4,7 +4,8 @@ import {
   avatarSegmentKey,
   avatarSegmentsDueAtPosition,
   effectiveCharOffset,
-  resolveSentenceCharStarts
+  resolveSentenceCharStarts,
+  sentenceSpanLength
 } from "@/features/inszenierung/avatarCuePlayback";
 import type { Teil2PerformancePlan } from "@/lib/types/inszenierung";
 
@@ -40,5 +41,12 @@ describe("avatarCuePlayback position helpers", () => {
     expect(due).toHaveLength(1);
     expect(avatarSegmentKey(due[0])).toBe("offset:12");
     expect(effectiveCharOffset(due[0], starts)).toBe(12);
+  });
+
+  it("uses script span length between sentence starts", () => {
+    const starts = [0, 7, 20];
+    expect(sentenceSpanLength(0, starts, 30)).toBe(7);
+    expect(sentenceSpanLength(1, starts, 30)).toBe(13);
+    expect(sentenceSpanLength(2, starts, 30)).toBe(10);
   });
 });

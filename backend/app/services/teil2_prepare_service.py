@@ -7,7 +7,13 @@ import re
 from datetime import UTC, datetime
 
 from app.core.config import settings
-from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision, PerformanceSpeaker
+from app.director.cues.cue_models import (
+    CuePoint,
+    CuePointTrigger,
+    DramaturgyDecision,
+    LightCue,
+    PerformanceSpeaker,
+)
 from app.director.dialogue.builder import build_dialogue_event
 from app.director.dramaturgy.llm_director import LLMDirector
 from app.director.dramaturgy.rules_text import dramaturgy_rules_excerpt
@@ -279,8 +285,6 @@ class Teil2PrepareService:
         for index in range(0, max(1, total)):
             if index in covered:
                 continue
-            if index % 2 != 0 and index + 1 < total:
-                continue
             chunk = sentences[index]
             if not chunk.strip():
                 continue
@@ -290,6 +294,7 @@ class Teil2PrepareService:
             covered.add(index)
 
         merged_points.sort(key=lambda point: point.sentence_index or 0)
+        merged_points = self._boost_light_cue_density(merged_points, sentences, curve)
 
         return DramaturgyDecision(
             reason=f"Teil-2 OSC-Regie — {gesamtkonzept.thesis[:120]}",
@@ -299,6 +304,123 @@ class Teil2PrepareService:
             cue_points=merged_points,
         )
 
+    def _light_mood_for_sentence(self, sentence: str, index: int) -> str:
+        """Rotate moods so light selection is not stuck on one scene."""
+        text = sentence.lower()
+        mood_keywords = (
+            ("warm", ("warm", "herz", "nähe", "mensch")),
+            ("unheimlich", ("fremd", "dunkel", "schatten", "kalt")),
+            ("melancholisch", ("verloren", "traurig", "leer", "stille")),
+            ("spannung", ("plötzlich", "alarm", "!", "gefahr")),
+            ("gegenlicht", ("licht", "schein", "bühne")),
+            ("blendung", ("blend", "zuschauer", "saal")),
+            ("musik", ("musik", "klavier", "chor", "ton")),
+        )
+        for mood, keywords in mood_keywords:
+            if any(kw in text for kw in keywords):
+                return mood
+        fallback_moods = (
+            "spannung",
+            "warm",
+            "gegenlicht",
+            "blendung",
+            "unheimlich",
+            "melancholisch",
+            "musik",
+        )
+        return fallback_moods[index % len(fallback_moods)]
+
+    def _light_scene_for_sentence(
+        self,
+        sentence: str,
+        index: int,
+        total: int,
+        anarchy: float,
+        recent_scene_ids: list[str],
+    ):
+        mood = self._light_mood_for_sentence(sentence, index)
+        selector = self.llm.rule_engine.selector
+        scene = selector.select_light(mood, anarchy)
+        if scene and scene.id not in recent_scene_ids[-2:]:
+            recent_scene_ids.append(scene.id)
+            return scene
+
+        db = self.llm.rule_engine.media_db
+        pool = [
+            s
+            for s in db.light_scenes
+            if s.id != "blackout" and s.intensity_min <= anarchy <= s.intensity_max
+        ]
+        if not pool:
+            pool = [s for s in db.light_scenes if s.id != "blackout"]
+        if not pool:
+            return scene
+
+        recent = set(recent_scene_ids[-3:])
+        for offset in range(len(pool)):
+            candidate = pool[(index + offset) % len(pool)]
+            if candidate.id not in recent:
+                recent_scene_ids.append(candidate.id)
+                selector._recent_light_ids.append(candidate.id)
+                return candidate
+        if scene:
+            return scene
+        chosen = pool[index % len(pool)]
+        recent_scene_ids.append(chosen.id)
+        return chosen
+
+    def _boost_light_cue_density(
+        self,
+        points: list[CuePoint],
+        sentences: list[str],
+        curve: AnarchyCurve,
+    ) -> list[CuePoint]:
+        """Ensure a dedicated light shift on (almost) every sentence for Teil 2."""
+        total = len(sentences)
+        if total == 0:
+            return points
+        by_index = {p.sentence_index: p for p in points if p.sentence_index is not None}
+        boosted: list[CuePoint] = []
+        recent_scene_ids: list[str] = []
+        for index in range(total):
+            anarchy = _anarchy_at(index, total, curve)
+            sentence = sentences[index]
+            existing = by_index.get(index)
+            if existing is not None:
+                if existing.light is None:
+                    light_scene = self._light_scene_for_sentence(
+                        sentence, index, total, anarchy, recent_scene_ids
+                    )
+                    if light_scene:
+                        existing.light = LightCue(
+                            scene_id=light_scene.id,
+                            fade_time=light_scene.fade_time,
+                            intensity=round(0.3 + anarchy * 0.7, 2),
+                        )
+                elif existing.light.scene_id:
+                    recent_scene_ids.append(existing.light.scene_id)
+                boosted.append(existing)
+                continue
+            light_scene = self._light_scene_for_sentence(
+                sentence, index, total, anarchy, recent_scene_ids
+            )
+            if not light_scene:
+                continue
+            boosted.append(
+                CuePoint(
+                    trigger=CuePointTrigger.SENTENCE_END,
+                    sentence_index=index,
+                    function="licht_wechsel",
+                    intensity=anarchy,
+                    light=LightCue(
+                        scene_id=light_scene.id,
+                        fade_time=max(1.5, light_scene.fade_time * 0.75),
+                        intensity=round(0.35 + anarchy * 0.65, 2),
+                    ),
+                )
+            )
+        return boosted or points
+
     def _ensure_sentence_cue_points(
         self,
         decision: DramaturgyDecision,
@@ -306,7 +428,7 @@ class Teil2PrepareService:
         segments: list[AvatarTextSegment],
         curve: AnarchyCurve,
     ) -> DramaturgyDecision:
-        min_cues = max(len(segments), len(sentences) // 2, 8)
+        min_cues = max(len(segments), len(sentences), 12)
         if not decision.cue_points or len(decision.cue_points) < min_cues:
             rule_based = self._rule_dramaturgy_for_script(
                 sentences,
@@ -321,6 +443,9 @@ class Teil2PrepareService:
                 if point.sentence_index not in existing:
                     decision.cue_points.append(point)
             decision.cue_points.sort(key=lambda point: point.sentence_index or 0)
+        decision.cue_points = self._boost_light_cue_density(
+            decision.cue_points, sentences, curve
+        )
         for index, point in enumerate(decision.cue_points):
             if point.sentence_index is None:
                 point.sentence_index = min(

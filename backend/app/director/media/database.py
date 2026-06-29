@@ -186,14 +186,40 @@ class MediaDatabase:
         ]
         return candidates[0] if candidates else self._fallback_sound(exclude, intensity, dramaturgy_only=dramaturgy_only)
 
-    def get_light_scene(self, mood: str, intensity: float) -> LightScene | None:
-        candidates = [
-            s
-            for s in self.light_scenes
-            if s.intensity_min <= intensity <= s.intensity_max
-            and (not mood or mood in s.moods or not s.moods)
+    def get_light_scene(
+        self,
+        mood: str,
+        intensity: float,
+        exclude_ids: list[str] | None = None,
+    ) -> LightScene | None:
+        exclude = set(exclude_ids or [])
+        playable = [s for s in self.light_scenes if s.id != "blackout"]
+        if not playable:
+            return None
+
+        in_range = [
+            s for s in playable if s.intensity_min <= intensity <= s.intensity_max
         ]
-        return candidates[0] if candidates else (self.light_scenes[0] if self.light_scenes else None)
+        pool = in_range or playable
+
+        mood_matches = [
+            s
+            for s in pool
+            if not mood or mood in s.moods or not s.moods
+        ]
+        if mood_matches:
+            candidates = mood_matches
+        else:
+            start = abs(hash(mood)) % len(pool) if mood else 0
+            candidates = pool[start:] + pool[:start]
+
+        for scene in candidates:
+            if scene.id not in exclude:
+                return scene
+        for scene in pool:
+            if scene.id not in exclude:
+                return scene
+        return candidates[0] if candidates else pool[0]
 
     @staticmethod
     def _matches(

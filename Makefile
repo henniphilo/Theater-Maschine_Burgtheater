@@ -83,3 +83,6 @@ avatar-catalog: ## Avatar-Textkatalog aus CSV nach data/avatar_speech.json
 
 avatar-import: ## Textzuordnung.numbers → CSV, Video Übersicht, Skript.txt
 	cd "$(ROOT)/backend" && .venv/bin/python scripts/import_avatar_textzuordnung.py
+
+video-import: ## Videozuordnung.numbers → OSC ohne Avatare, Video Übersicht, video_cues.json
+	cd "$(ROOT)/backend" && .venv/bin/python scripts/import_video_zuordnung.py
