@@ -16,7 +16,7 @@ COMPOSE_NATIVE := $(COMPOSE_BASE) -f docker-compose.native.yml
 
 .PHONY: help setup build up down stop ps logs \
         docker-native native-deps run native \
-        test test-backend test-frontend
+        test test-backend test-frontend visualize-logs
 
 help: ## Ziele anzeigen
 	@echo "Theatermaschine — make targets"
@@ -71,6 +71,12 @@ run: native-deps ## Docker-Infrastruktur + natives Backend (run-native.sh)
 native: run ## Alias für make run
 
 test: test-backend test-frontend ## Backend- und Frontend-Tests
+
+visualize-logs: ## Timeline aus logs/osc.log (matplotlib, nutzt backend/.venv)
+	cd "$(ROOT)/backend" && .venv/bin/pip install -q -e ".[viz]"
+	cd "$(ROOT)/backend" && MPLCONFIGDIR="$(ROOT)/logs/.mplcache" .venv/bin/python scripts/visualize_show_logs.py \
+		--osc "$(ROOT)/logs/osc.log" \
+		-o "$(ROOT)/logs/show_timeline.png"
 
 test-backend: ## pytest via backend/run-tests.sh (venv + deps)
 	cd "$(ROOT)/backend" && ./run-tests.sh -q

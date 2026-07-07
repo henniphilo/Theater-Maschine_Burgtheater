@@ -22,3 +22,6 @@ pytest>=8.3.0
 pytest-asyncio>=0.23.0
 ruff>=0.5.0
 mypy>=1.11.0
+
+[viz]
+matplotlib>=3.8.0

@@ -200,4 +200,5 @@ tests/test_touchdesigner_bridge.py
 tests/test_video_pixera_aliases.py
 tests/test_video_scope.py
 tests/test_visual_outputs.py
+tests/test_visualize_show_logs.py
 tests/test_voice_map.py

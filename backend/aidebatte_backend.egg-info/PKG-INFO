@@ -26,3 +26,5 @@ Requires-Dist: pytest>=8.3.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
 Requires-Dist: ruff>=0.5.0; extra == "dev"
 Requires-Dist: mypy>=1.11.0; extra == "dev"
+Provides-Extra: viz
+Requires-Dist: matplotlib>=3.8.0; extra == "viz"
