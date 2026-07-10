@@ -63,7 +63,7 @@ export function Teil2PerformanceBar({
           <span className="textMuted performanceTransportDetail">{detail}</span>
         </div>
         <div className="performanceTransportRight">
-          <PerformanceTryoutControl disabled={running && !paused} />
+          <PerformanceTryoutControl />
           <PlaybackSpeedControl compact disabled={running && !paused} />
         </div>
       </div>

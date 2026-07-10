@@ -14,6 +14,7 @@ type PendingAvatarPositionFire = {
   globalPos: number;
   fired: Set<string>;
   sentenceCharStarts: number[];
+  scriptText: string;
   anarchyLevelFor: (segment: AvatarTextSegment) => number;
   onCommands: (commands: OscCommand[]) => Promise<void>;
   shouldAbort: () => boolean;
@@ -165,8 +166,30 @@ export function teil2PlanRequiresTts(): boolean {
 }
 
 export function avatarSegmentKey(segment: AvatarTextSegment): string {
-  if (segment.char_offset != null) return `offset:${segment.char_offset}`;
-  return `sentence:${segment.start_sentence_index}:${segment.csv_cue_ids.join(",")}`;
+  if (segment.char_offset != null) return `offset:${segment.char_offset}:${segment.csv_sequence_index ?? 0}`;
+  return `sequence:${segment.csv_sequence_index ?? 0}:${segment.start_sentence_index}:${segment.csv_cue_ids.join(",")}`;
+}
+
+function compareAvatarSegments(
+  a: AvatarTextSegment,
+  b: AvatarTextSegment,
+  sentenceCharStarts: number[],
+  scriptText?: string
+): number {
+  const offsetA = effectiveCharOffset(a, sentenceCharStarts, scriptText);
+  const offsetB = effectiveCharOffset(b, sentenceCharStarts, scriptText);
+  if (offsetA !== offsetB) return offsetA - offsetB;
+  return (a.csv_sequence_index ?? 0) - (b.csv_sequence_index ?? 0);
+}
+
+export function sortedAvatarSegments(
+  plan: Teil2PerformancePlan,
+  sentenceCharStarts: number[],
+  scriptText?: string
+): AvatarTextSegment[] {
+  return [...plan.avatar_segments].sort((a, b) =>
+    compareAvatarSegments(a, b, sentenceCharStarts, scriptText)
+  );
 }
 
 export function resolveSentenceCharStarts(plan: Teil2PerformancePlan, scriptText: string): number[] {
@@ -191,8 +214,23 @@ export function resolveSentenceCharStarts(plan: Teil2PerformancePlan, scriptText
   return starts;
 }
 
-export function effectiveCharOffset(segment: AvatarTextSegment, sentenceCharStarts: number[]): number {
+export function effectiveCharOffset(
+  segment: AvatarTextSegment,
+  sentenceCharStarts: number[],
+  scriptText?: string
+): number {
   if (segment.char_offset != null) return segment.char_offset;
+  if (scriptText && segment.text_excerpt) {
+    const needle = segment.text_excerpt.trim().slice(0, 48);
+    if (needle.length >= 3) {
+      const direct = scriptText.indexOf(needle);
+      if (direct >= 0) return direct;
+      const lowerHay = scriptText.toLowerCase();
+      const lowerNeedle = needle.toLowerCase();
+      const insensitive = lowerHay.indexOf(lowerNeedle);
+      if (insensitive >= 0) return insensitive;
+    }
+  }
   return sentenceCharStarts[segment.start_sentence_index] ?? 0;
 }
 
@@ -200,39 +238,47 @@ export function avatarSegmentsInSentence(
   plan: Teil2PerformancePlan,
   sentenceIndex: number,
   sentenceCharStarts: number[],
-  scriptTextLength: number
+  scriptTextLength: number,
+  scriptText?: string
 ): AvatarTextSegment[] {
   const sentenceStart = sentenceCharStarts[sentenceIndex] ?? 0;
   const sentenceEnd =
     sentenceIndex + 1 < sentenceCharStarts.length
       ? sentenceCharStarts[sentenceIndex + 1]!
       : scriptTextLength;
-  return plan.avatar_segments
-    .filter((segment) => {
-      const offset = effectiveCharOffset(segment, sentenceCharStarts);
-      return offset >= sentenceStart && offset < sentenceEnd;
-    })
-    .sort(
-      (a, b) =>
-        effectiveCharOffset(a, sentenceCharStarts) - effectiveCharOffset(b, sentenceCharStarts)
-    );
+  return sortedAvatarSegments(plan, sentenceCharStarts, scriptText).filter((segment) => {
+    const offset = effectiveCharOffset(segment, sentenceCharStarts, scriptText);
+    return offset >= sentenceStart && offset < sentenceEnd;
+  });
 }
 
+export function nextUnfiredAvatarSegment(
+  plan: Teil2PerformancePlan,
+  globalPos: number,
+  fired: Set<string>,
+  sentenceCharStarts: number[],
+  scriptText?: string
+): AvatarTextSegment | null {
+  for (const segment of sortedAvatarSegments(plan, sentenceCharStarts, scriptText)) {
+    if (fired.has(avatarSegmentKey(segment))) continue;
+    if (globalPos >= effectiveCharOffset(segment, sentenceCharStarts, scriptText)) {
+      return segment;
+    }
+    return null;
+  }
+  return null;
+}
+
+/** @deprecated Prefer nextUnfiredAvatarSegment for strict CSV order. */
 export function avatarSegmentsDueAtPosition(
   plan: Teil2PerformancePlan,
   globalPos: number,
   fired: Set<string>,
-  sentenceCharStarts: number[]
+  sentenceCharStarts: number[],
+  scriptText?: string
 ): AvatarTextSegment[] {
-  return plan.avatar_segments
-    .filter((segment) => {
-      if (fired.has(avatarSegmentKey(segment))) return false;
-      return globalPos >= effectiveCharOffset(segment, sentenceCharStarts);
-    })
-    .sort(
-      (a, b) =>
-        effectiveCharOffset(a, sentenceCharStarts) - effectiveCharOffset(b, sentenceCharStarts)
-    );
+  const next = nextUnfiredAvatarSegment(plan, globalPos, fired, sentenceCharStarts, scriptText);
+  return next ? [next] : [];
 }
 
 export function scheduleAvatarSegmentsAtPosition(
@@ -243,13 +289,15 @@ export function scheduleAvatarSegmentsAtPosition(
   anarchyLevelFor: (segment: AvatarTextSegment) => number,
   onCommands: (commands: OscCommand[]) => Promise<void>,
   shouldAbort: () => boolean,
-  onSegmentFired?: (segment: AvatarTextSegment) => void
+  onSegmentFired?: (segment: AvatarTextSegment) => void,
+  scriptText?: string
 ): void {
   pendingAvatarPositionFire = {
     plan,
     globalPos,
     fired,
     sentenceCharStarts,
+    scriptText: scriptText ?? "",
     anarchyLevelFor,
     onCommands,
     shouldAbort,
@@ -269,7 +317,8 @@ export function scheduleAvatarSegmentsAtPosition(
       pending.anarchyLevelFor,
       pending.onCommands,
       pending.shouldAbort,
-      pending.onSegmentFired
+      pending.onSegmentFired,
+      pending.scriptText
     );
   }, AVATAR_POSITION_DEBOUNCE_MS);
 }
@@ -282,24 +331,27 @@ export async function fireAvatarSegmentsAtPosition(
   anarchyLevelFor: (segment: AvatarTextSegment) => number,
   onCommands: (commands: OscCommand[]) => Promise<void>,
   shouldAbort: () => boolean,
-  onSegmentFired?: (segment: AvatarTextSegment) => void
+  onSegmentFired?: (segment: AvatarTextSegment) => void,
+  scriptText?: string
 ): Promise<void> {
   await withAvatarFireLock(async () => {
-    let due = avatarSegmentsDueAtPosition(plan, globalPos, fired, sentenceCharStarts);
-    while (due.length > 0) {
-      const segment = due[0]!;
-      if (shouldAbort()) return;
-      const sent = await fireAvatarSegmentIfDue(
-        segment,
-        anarchyLevelFor(segment),
-        onCommands,
-        shouldAbort
-      );
-      if (!sent) break;
-      fired.add(avatarSegmentKey(segment));
-      onSegmentFired?.(segment);
-      due = avatarSegmentsDueAtPosition(plan, globalPos, fired, sentenceCharStarts);
-    }
+    const segment = nextUnfiredAvatarSegment(
+      plan,
+      globalPos,
+      fired,
+      sentenceCharStarts,
+      scriptText
+    );
+    if (!segment || shouldAbort()) return;
+    const sent = await fireAvatarSegmentIfDue(
+      segment,
+      anarchyLevelFor(segment),
+      onCommands,
+      shouldAbort
+    );
+    if (!sent) return;
+    fired.add(avatarSegmentKey(segment));
+    onSegmentFired?.(segment);
   });
 }
 
@@ -310,7 +362,8 @@ export async function fireInitialAvatarSegments(
   anarchyLevelFor: (segment: AvatarTextSegment) => number,
   onCommands: (commands: OscCommand[]) => Promise<void>,
   shouldAbort: () => boolean,
-  onSegmentFired?: (segment: AvatarTextSegment) => void
+  onSegmentFired?: (segment: AvatarTextSegment) => void,
+  scriptText?: string
 ): Promise<void> {
   await fireAvatarSegmentsAtPosition(
     plan,
@@ -320,7 +373,8 @@ export async function fireInitialAvatarSegments(
     anarchyLevelFor,
     onCommands,
     shouldAbort,
-    onSegmentFired
+    onSegmentFired,
+    scriptText
   );
 }
 
@@ -333,50 +387,43 @@ export async function fireRemainingSentenceSegments(
   anarchyLevel: number,
   onCommands: (commands: OscCommand[]) => Promise<void>,
   shouldAbort: () => boolean,
-  onSegmentFired?: (segment: AvatarTextSegment) => void
+  onSegmentFired?: (segment: AvatarTextSegment) => void,
+  scriptText?: string
 ): Promise<void> {
+  const sentenceEnd =
+    sentenceIndex + 1 < sentenceCharStarts.length
+      ? sentenceCharStarts[sentenceIndex + 1]!
+      : scriptTextLength;
   await withAvatarFireLock(async () => {
-    for (const segment of avatarSegmentsInSentence(
+    let segment = nextUnfiredAvatarSegment(
       plan,
-      sentenceIndex,
+      sentenceEnd,
+      fired,
       sentenceCharStarts,
-      scriptTextLength
-    )) {
-      if (fired.has(avatarSegmentKey(segment))) continue;
+      scriptText
+    );
+    while (segment) {
+      const offset = effectiveCharOffset(segment, sentenceCharStarts, scriptText);
+      if (offset >= sentenceEnd) break;
       if (shouldAbort()) return;
       const sent = await fireAvatarSegmentIfDue(segment, anarchyLevel, onCommands, shouldAbort);
-      if (!sent) continue;
+      if (!sent) break;
       fired.add(avatarSegmentKey(segment));
       onSegmentFired?.(segment);
+      segment = nextUnfiredAvatarSegment(
+        plan,
+        sentenceEnd,
+        fired,
+        sentenceCharStarts,
+        scriptText
+      );
     }
   });
 }
-export async function fireAllRemainingAvatarSegments(
+
+export function countUnfiredAvatarSegments(
   plan: Teil2PerformancePlan,
-  fired: Set<string>,
-  sentenceCharStarts: number[],
-  anarchyLevelFor: (segment: AvatarTextSegment) => number,
-  onCommands: (commands: OscCommand[]) => Promise<void>,
-  shouldAbort: () => boolean,
-  onSegmentFired?: (segment: AvatarTextSegment) => void
-): Promise<void> {
-  const remaining = [...plan.avatar_segments].sort(
-    (a, b) =>
-      effectiveCharOffset(a, sentenceCharStarts) - effectiveCharOffset(b, sentenceCharStarts)
-  );
-  await withAvatarFireLock(async () => {
-    for (const segment of remaining) {
-      if (fired.has(avatarSegmentKey(segment))) continue;
-      if (shouldAbort()) return;
-      const sent = await fireAvatarSegmentIfDue(
-        segment,
-        anarchyLevelFor(segment),
-        onCommands,
-        shouldAbort
-      );
-      if (!sent) continue;
-      fired.add(avatarSegmentKey(segment));
-      onSegmentFired?.(segment);
-    }
-  });
+  fired: Set<string>
+): number {
+  return plan.avatar_segments.filter((segment) => !fired.has(avatarSegmentKey(segment))).length;
 }

@@ -1,0 +1,40 @@
+---
+description: Teil 2 text-sync, avatar timing, and sentence-split alignment
+globs: backend/app/services/teil2_*.py,backend/app/services/text_split.py,backend/app/services/teil2_text_alignment.py,frontend/features/inszenierung/**/*,frontend/lib/text/splitSentences.ts
+alwaysApply: false
+---
+
+# Teil 2 Text-Sync
+
+Teil 2 uses TTS as the master clock. Avatar OSC fires at CSV `char_offset`, not at sentence start.
+
+## Canonical sentence split
+
+These two files **must stay in sync**:
+
+- `backend/app/services/text_split.py`
+- `frontend/lib/text/splitSentences.ts`
+
+`script_splitter.py` is for Teil 1 / dramaturgy — **do not** use it for Teil 2 avatar offsets or `sentence_char_starts`.
+
+When changing sentence boundaries:
+
+1. Update both canonical files
+2. Run alignment tests: `backend/tests/test_teil2_*`
+3. Run `frontend/features/inszenierung/teil2TextSyncPlayback.test.ts`
+
+## Prepare flow
+
+- API: `POST /api/v1/inszenierung/{id}/prepare` returns 202 (background job)
+- Service: `backend/app/services/teil2_prepare_service.py`
+- Do not block synchronously — check `prepare_phase` / `prepare_error` on the corpus
+- Plan fields: `sentences`, `sentence_char_starts`, `avatar_segments`, `dramaturgy`, `atmosphere_cue_points`
+
+## Playback split
+
+- Plan built on backend; avatar OSC timing runs in frontend (`teil2TextSyncPlayback.ts`)
+- Correlate frontend/backend events via `run_epoch`, `frontend_run_id` in `signal_trace.jsonl`
+
+## Docs
+
+- [docs/teil2_inszenierung.md](docs/teil2_inszenierung.md)

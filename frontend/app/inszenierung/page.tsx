@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { AppNav } from "@/components/layout/AppNav";
+import { Teil2ScriptCueOverview } from "@/components/show/Teil2ScriptCueOverview";
 import {
   createCorpus,
   fetchCorpus,
   fetchScript,
   patchCorpus,
-  prepareCorpus
+  prepareCorpus,
+  pollCorpusUntilReady
 } from "@/lib/api/inszenierung";
 import type { PerformanceSpeaker } from "@/lib/types/director";
 import type { SceneCorpus, ScriptBeatPreview, Teil2ScriptResponse } from "@/lib/types/inszenierung";
@@ -35,6 +37,13 @@ export default function InszenierungPage() {
           setScriptText(data.script_text ?? "");
           if (data.teil2_plan?.performance_speaker) {
             setPerformanceSpeaker(data.teil2_plan.performance_speaker);
+          }
+          if (data.status === "preparing") {
+            setPreparing(true);
+            void pollCorpusUntilReady(id, { onUpdate: setCorpus })
+              .then(setCorpus)
+              .catch((err) => setError(err instanceof Error ? err.message : "Vorbereiten fehlgeschlagen"))
+              .finally(() => setPreparing(false));
           }
         })
         .catch(() => sessionStorage.removeItem("currentCorpusId"));
@@ -104,7 +113,10 @@ export default function InszenierungPage() {
         const saved = await patchCorpus(corpus.id, { script_text: scriptText });
         setCorpus(saved);
       }
-      const updated = await prepareCorpus(corpus.id, { performance_speaker: performanceSpeaker });
+      const updated = await prepareCorpus(corpus.id, {
+        performance_speaker: performanceSpeaker,
+        onUpdate: setCorpus
+      });
       setCorpus(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Vorbereiten fehlgeschlagen");
@@ -114,8 +126,11 @@ export default function InszenierungPage() {
   }
 
   const hasText = Boolean(corpus?.script_text?.trim() || scriptText.trim());
-  const canPrepare = hasText && !preparing;
+  const canPrepare = hasText && !preparing && corpus?.status !== "preparing";
   const canShow = Boolean(corpus?.teil2_plan?.sentences?.length);
+  const preparePhaseLabel = corpus?.prepare_phase
+    ? ` (${corpus.prepare_phase})`
+    : "";
 
   return (
     <main className="container col">
@@ -141,7 +156,12 @@ export default function InszenierungPage() {
         <>
           <section className="card col">
             <h2>{corpus.title}</h2>
-            <p className="textMuted">Status: {corpus.status}</p>
+            <p className="textMuted">Status: {corpus.status}{preparePhaseLabel}</p>
+            {corpus.prepare_error ? (
+              <p className="textError" role="alert">
+                {corpus.prepare_error}
+              </p>
+            ) : null}
             <label htmlFor="performance-text">Aufführungstext</label>
             <textarea
               id="performance-text"
@@ -183,7 +203,9 @@ export default function InszenierungPage() {
               <option value="AI_B">Stimme B</option>
             </select>
             <button type="button" className="machineStartBtn" disabled={!canPrepare} onClick={() => void handlePrepare()}>
-              {preparing ? "Vorbereiten …" : "Vorbereiten"}
+              {preparing || corpus.status === "preparing"
+                ? `Vorbereiten …${preparePhaseLabel}`
+                : "Vorbereiten"}
             </button>
             {corpus.teil2_plan?.alignment_warnings?.length ? (
               <div className="textError" role="alert">
@@ -201,25 +223,21 @@ export default function InszenierungPage() {
             ) : null}
           </section>
 
-          {corpus.teil2_plan ? (
+          {corpus.teil2_plan?.cue_overview ? (
+            <section className="card col">
+              <h2>Stücktext mit Cues</h2>
+              <p className="textMuted">
+                {corpus.teil2_plan.sentences.length} Sätze · {corpus.teil2_plan.avatar_segments.length}{" "}
+                Avatar-Segmente · {corpus.teil2_plan.atmosphere_cue_points?.length ?? 0} Atmosphären-Cues
+              </p>
+              <Teil2ScriptCueOverview overview={corpus.teil2_plan.cue_overview} />
+            </section>
+          ) : corpus.teil2_plan ? (
             <section className="card col">
               <h2>Plan</h2>
               <p className="textMuted">
                 {corpus.teil2_plan.sentences.length} Sätze · {corpus.teil2_plan.avatar_segments.length} Avatar-Segmente
               </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {corpus.teil2_plan.avatar_segments.slice(0, 8).map((segment) => (
-                  <li key={segment.csv_cue_ids.join("-")} style={{ marginBottom: "0.5rem" }}>
-                    {segment.csv_cue_ids.join(", ")}
-                    {segment.char_offset != null ? ` · Zeichen ${segment.char_offset}` : ""}
-                    <p className="textMuted" style={{ margin: "0.15rem 0 0", fontSize: "0.85rem" }}>
-                      {segment.text_excerpt.length > 120
-                        ? `${segment.text_excerpt.slice(0, 120)}…`
-                        : segment.text_excerpt}
-                    </p>
-                  </li>
-                ))}
-              </ul>
             </section>
           ) : null}
         </>

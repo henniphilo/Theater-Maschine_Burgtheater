@@ -1,0 +1,32 @@
+---
+description: Data catalogs, media assets, and import scripts
+globs: data/**/*,media/**/*,backend/scripts/import_*.py
+alwaysApply: false
+---
+
+# Data & Media
+
+## Runtime data
+
+- `data/*.json` — catalogs (video_cues, sound_cues, light_scenes, dramaturgy_rules, etc.)
+- `data/inszenierungen/{uuid}.json` — persisted Teil 2 productions
+- Do not change schemas without migration path and tests
+
+## Media assets
+
+- `media/video/` — OSC command lists, CSV mappings (often local, not always in git)
+- `media/light/`, `media/sound/` — stage definitions
+- Do not assume `media/video/` exists from git alone
+
+## Import scripts
+
+Regenerate catalogs from source files:
+
+```bash
+make avatar-import   # Textzuordnung → avatar_speech.json, OSC lists
+make video-import    # Videozuordnung → video_cues.json, OSC ohne Avatare
+```
+
+Scripts: `backend/scripts/import_avatar_textzuordnung.py`, `import_video_zuordnung.py`
+
+After import: run relevant catalog tests and spot-check one cue in the generated JSON.

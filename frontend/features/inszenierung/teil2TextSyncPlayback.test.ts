@@ -6,7 +6,7 @@ import type { SceneCorpus, Teil2PerformancePlan } from "@/lib/types/inszenierung
 const fireAvatarSegmentsAtPosition = vi.fn().mockResolvedValue(undefined);
 const fireInitialAvatarSegments = vi.fn().mockResolvedValue(undefined);
 const fireRemainingSentenceSegments = vi.fn().mockResolvedValue(undefined);
-const fireAllRemainingAvatarSegments = vi.fn().mockResolvedValue(undefined);
+const countUnfiredAvatarSegments = vi.fn().mockReturnValue(0);
 const resolveSentenceSpeech = vi.fn().mockResolvedValue(new Blob(["audio"]));
 
 vi.mock("@/features/inszenierung/avatarCuePlayback", async (importOriginal) => {
@@ -17,7 +17,7 @@ vi.mock("@/features/inszenierung/avatarCuePlayback", async (importOriginal) => {
     fireAvatarSegmentsAtPosition: (...args: unknown[]) => fireAvatarSegmentsAtPosition(...args),
     fireInitialAvatarSegments: (...args: unknown[]) => fireInitialAvatarSegments(...args),
     fireRemainingSentenceSegments: (...args: unknown[]) => fireRemainingSentenceSegments(...args),
-    fireAllRemainingAvatarSegments: (...args: unknown[]) => fireAllRemainingAvatarSegments(...args)
+    countUnfiredAvatarSegments: (...args: unknown[]) => countUnfiredAvatarSegments(...args)
   };
 });
 
@@ -120,7 +120,7 @@ describe("teil2TextSyncPlayback", () => {
     );
     expect(maxGlobalPos).toBeGreaterThanOrEqual(13);
     expect(fireRemainingSentenceSegments).toHaveBeenCalled();
-    expect(fireAllRemainingAvatarSegments).toHaveBeenCalled();
+    expect(countUnfiredAvatarSegments).toHaveBeenCalled();
     expect(resolveSentenceSpeech).toHaveBeenCalledTimes(2);
     expect(updates.some((patch) => patch.completed === true)).toBe(true);
   });
@@ -176,6 +176,36 @@ describe("teil2TextSyncPlayback", () => {
 
     const maxPos = Math.max(...fireAvatarSegmentsAtPosition.mock.calls.map((call) => call[1] as number));
     expect(maxPos).toBeGreaterThanOrEqual(anchorOffset);
+  });
+
+  it("fires atmosphere time cues during playback", async () => {
+    const { fireTimeCues } = await import("@/features/show/cuePlayback");
+    const plan = basePlan({
+      atmosphere_cue_points: [
+        {
+          trigger: "time",
+          time_offset_sec: 5,
+          function: "atmosphaere",
+          intensity: 0.5,
+          visual: { clip_id: "clyde", projector: "adam", video_type: "atmosphere" }
+        }
+      ]
+    });
+    const corpus: SceneCorpus = {
+      id: "corpus-atmo",
+      title: "Test",
+      scenes: [],
+      status: "ready",
+      gesamtkonzept: null,
+      composition: null,
+      teil2_plan: plan,
+      script_text: plan.sentences.join(" ")
+    };
+
+    await runTextSyncPlayback(corpus, plan, "narrator", true, () => undefined, () => false);
+
+    expect(fireTimeCues).toHaveBeenCalled();
+    expect(vi.mocked(fireTimeCues).mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
   it("starts from a given sentence index", async () => {

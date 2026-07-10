@@ -1,0 +1,35 @@
+---
+description: Next.js/TypeScript frontend conventions for Theatermaschine
+globs: frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend TypeScript
+
+## Layout
+
+- App Router pages: `frontend/app/`
+- Feature logic: `frontend/features/` (show, inszenierung, debate, etc.)
+- API clients: `frontend/lib/api/`
+- Types: `frontend/lib/types/`
+- Shared text utils: `frontend/lib/text/`
+
+## Tests
+
+- Vitest: `make test-frontend` or `cd frontend && npm test -- --run`
+- Test files: `*.test.ts` next to source or under `frontend/lib/`
+
+## Teil 2 playback
+
+- Master playback: `frontend/features/inszenierung/teil2TextSyncPlayback.ts`
+- Timing changes must align with backend `Teil2PerformancePlan` and pass `teil2TextSyncPlayback.test.ts`
+- Do not add direct OSC calls outside established playback paths
+
+## API
+
+- Use typed clients in `frontend/lib/api/` — do not scatter raw fetch URLs
+- Match backend schemas in `frontend/lib/types/`
+
+## Sentence split
+
+For Teil 2, keep `frontend/lib/text/splitSentences.ts` aligned with `backend/app/services/text_split.py`.

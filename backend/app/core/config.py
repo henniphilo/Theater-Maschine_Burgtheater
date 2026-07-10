@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     osc_dry_run: bool = False
     osc_log_commands: bool = True
     osc_log_path: str = "logs/osc.log"
+    signal_trace_path: str = "logs/signal_trace.jsonl"
+    signal_trace_enabled: bool | None = None
     light_output: Literal["tcp", "osc"] = "tcp"
     light_osc_mirror: bool = False
     light_tcp_host: str = "10.101.90.112"
@@ -76,6 +78,10 @@ class Settings(BaseSettings):
     dramaturgy_media_package_max_tokens: int = 1200
     dramaturgy_decision_max_tokens: int = 1200
     dramaturgy_rules_excerpt_chars: int = 3500
+    teil2_dramaturgy_chunk_size: int = 12
+    teil2_atmosphere_use_llm: bool = False
+    teil2_use_analyse_llm: bool = False
+    teil2_prepare_model: str = "gpt-4o-mini"
     dramaturgy_whole_text_max_chars: int = 8000
     dramaturgy_statements_per_dramaturg: int = 2
     dramaturgy_statement_max_chars: int = 450

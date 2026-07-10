@@ -139,7 +139,7 @@ def align_avatar_csv_to_script(
     segments: list[AvatarTextSegment] = []
     used_projectors: set[str] = set()
 
-    for group in group_cues_into_segments(cues):
+    for sequence_index, group in enumerate(group_cues_into_segments(cues)):
         cue_text = group[0].text
         offset = find_text_offset(script_text, cue_text)
         if offset is None:
@@ -171,10 +171,12 @@ def align_avatar_csv_to_script(
                 csv_cue_ids=[c.id for c in group],
                 text_excerpt=cue_text.strip(),
                 char_offset=offset,
+                csv_sequence_index=sequence_index,
                 start_sentence_index=start_index,
                 end_sentence_index=max(start_index, end_index),
                 avatar_layers=enriched_layers,
             )
         )
 
+    segments.sort(key=lambda segment: (segment.char_offset or 0, segment.csv_sequence_index))
     return segments, warnings

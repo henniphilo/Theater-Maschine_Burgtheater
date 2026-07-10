@@ -1,4 +1,4 @@
-from app.director.cues.cue_models import DramaturgyDecision, LightCue
+from app.director.cues.cue_models import LightCue
 from app.director.outputs.light_scene_tracker import reset_light_scene_tracker
 from app.director.outputs.lighting import LightingBridge
 from app.director.media.database import LightScene

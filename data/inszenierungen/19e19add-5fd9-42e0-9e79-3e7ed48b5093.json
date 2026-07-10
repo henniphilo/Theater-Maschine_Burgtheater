@@ -1,0 +1,13 @@
+{
+  "id": "19e19add-5fd9-42e0-9e79-3e7ed48b5093",
+  "title": "Job Test",
+  "scenes": [],
+  "script_source": null,
+  "script_text": "23. Der Delphin spricht.\n\n24. Der Bärenklauer folgt.",
+  "status": "preparing",
+  "prepare_phase": "analyse",
+  "prepare_error": null,
+  "gesamtkonzept": null,
+  "composition": null,
+  "teil2_plan": null
+}

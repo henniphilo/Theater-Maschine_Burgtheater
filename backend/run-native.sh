@@ -41,6 +41,7 @@ export TTS_PROVIDER="${TTS_PROVIDER:-say}"
 export DIRECTOR_DATA_DIR="${DIRECTOR_DATA_DIR:-$ROOT/data}"
 export OSC_LOG_PATH="${OSC_LOG_PATH:-$ROOT/logs/osc.log}"
 export DIRECTOR_LOG_PATH="${DIRECTOR_LOG_PATH:-$ROOT/logs/director.log}"
+export SIGNAL_TRACE_PATH="${SIGNAL_TRACE_PATH:-$ROOT/logs/signal_trace.jsonl}"
 
 _db_host="${DATABASE_URL:-}"
 if [[ "$_db_host" == *"@localhost:"* ]] || [[ -z "$_db_host" ]]; then

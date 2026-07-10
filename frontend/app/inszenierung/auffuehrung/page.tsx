@@ -114,7 +114,7 @@ function AuffuehrungContent() {
             if (gen === genRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
           },
           () => abortRef.current,
-          { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex }
+          { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex, playbackGeneration: gen }
         );
         return;
       }
@@ -128,7 +128,8 @@ function AuffuehrungContent() {
         (patch) => {
           if (gen === genRef.current) setAnarchyPlayback((prev) => ({ ...prev, ...patch }));
         },
-        () => abortRef.current
+        () => abortRef.current,
+        { playbackGeneration: gen }
       );
     },
     [corpus, canPlay, ttsAvailable, usesTextSync, plan, speaker, paused, running]

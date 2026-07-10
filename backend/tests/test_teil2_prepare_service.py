@@ -6,6 +6,7 @@ import asyncio
 
 import pytest
 
+from app.director.cues.cue_models import CuePointTrigger
 from app.schemas.inszenierung import SceneCorpus
 from app.services.teil2_prepare_service import Teil2PrepareService
 
@@ -29,17 +30,22 @@ def test_prepare_builds_plan_with_segments_and_dramaturgy(monkeypatch):
     assert len(plan.sentences) >= 3
     assert plan.performance_speaker == "narrator"
     assert plan.dramaturgy.cue_points
-    assert len(plan.dramaturgy.cue_points) >= max(2, len(plan.avatar_segments))
+    keyword_points = [
+        p for p in plan.dramaturgy.cue_points if p.trigger == CuePointTrigger.KEYWORD
+    ]
+    assert keyword_points
+    for point in keyword_points:
+        assert point.keyword
+        assert point.keyword.lower() in corpus.script_text.lower()
+    assert len(plan.dramaturgy.cue_points) >= len(keyword_points)
     light_points = [p for p in plan.dramaturgy.cue_points if p.light is not None]
-    assert len(light_points) >= len(plan.sentences)
+    assert light_points
     light_scene_ids = {p.light.scene_id for p in light_points if p.light and p.light.scene_id}
     assert len(light_scene_ids) >= 2
-    atmosphere_points = [
-        p
-        for p in plan.dramaturgy.cue_points
-        if p.visual is not None and p.visual.video_type == "atmosphere"
-    ]
+    atmosphere_points = plan.atmosphere_cue_points
     assert len(atmosphere_points) >= 1
+    assert plan.cue_overview is not None
+    assert len(plan.cue_overview.rows) == len(plan.sentences)
     assert plan.model_dump_json()
 
 

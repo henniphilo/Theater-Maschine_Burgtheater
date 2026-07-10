@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/before-shell-guard.py",
+        "failClosed": false
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "python3 .cursor/hooks/after-file-edit.py",
+        "matcher": "Write|StrReplace",
+        "timeout": 45
+      }
+    ],
+    "stop": [
+      {
+        "type": "prompt",
+        "prompt": "The agent session is ending. If code was changed in this session, remind the agent to: (1) run make test-backend for backend changes, (2) run make test-frontend for frontend/Director/Teil2 timing changes, (3) verify no secrets or .env files are in the diff, (4) state the exact test commands run. Keep the reminder concise.",
+        "timeout": 15
+      }
+    ]
+  }
+}

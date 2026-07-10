@@ -6,8 +6,10 @@ import {
   avatarSegmentsInSentence,
   effectiveCharOffset,
   fireRemainingSentenceSegments,
+  nextUnfiredAvatarSegment,
   resolveSentenceCharStarts,
-  sentenceSpanLength
+  sentenceSpanLength,
+  sortedAvatarSegments
 } from "@/features/inszenierung/avatarCuePlayback";
 import type { Teil2PerformancePlan } from "@/lib/types/inszenierung";
 
@@ -30,6 +32,7 @@ describe("avatarCuePlayback position helpers", () => {
         csv_cue_ids: ["a"],
         text_excerpt: "gamma",
         char_offset: 12,
+        csv_sequence_index: 0,
         start_sentence_index: 1,
         end_sentence_index: 1,
         avatar_layers: []
@@ -50,7 +53,7 @@ describe("avatarCuePlayback position helpers", () => {
     expect(avatarSegmentsDueAtPosition(plan, 10, fired, starts)).toHaveLength(0);
     const due = avatarSegmentsDueAtPosition(plan, 12, fired, starts);
     expect(due).toHaveLength(1);
-    expect(avatarSegmentKey(due[0])).toBe("offset:12");
+    expect(avatarSegmentKey(due[0])).toBe("offset:12:0");
     expect(effectiveCharOffset(due[0], starts)).toBe(12);
   });
 
@@ -70,6 +73,7 @@ describe("avatarCuePlayback position helpers", () => {
           csv_cue_ids: ["a"],
           text_excerpt: "start",
           char_offset: 0,
+          csv_sequence_index: 0,
           start_sentence_index: 0,
           end_sentence_index: 0,
           avatar_layers: []
@@ -78,6 +82,7 @@ describe("avatarCuePlayback position helpers", () => {
           csv_cue_ids: ["b"],
           text_excerpt: "mid",
           char_offset: 5,
+          csv_sequence_index: 1,
           start_sentence_index: 0,
           end_sentence_index: 0,
           avatar_layers: []
@@ -86,6 +91,7 @@ describe("avatarCuePlayback position helpers", () => {
           csv_cue_ids: ["c"],
           text_excerpt: "next",
           char_offset: 7,
+          csv_sequence_index: 2,
           start_sentence_index: 1,
           end_sentence_index: 1,
           avatar_layers: []
@@ -93,7 +99,7 @@ describe("avatarCuePlayback position helpers", () => {
       ]
     };
     const inSentence0 = avatarSegmentsInSentence(multi, 0, multi.sentence_char_starts!, 30);
-    expect(inSentence0.map((s) => avatarSegmentKey(s))).toEqual(["offset:0", "offset:5"]);
+    expect(inSentence0.map((s) => avatarSegmentKey(s))).toEqual(["offset:0:0", "offset:5:1"]);
     expect(avatarSegmentsInSentence(multi, 1, multi.sentence_char_starts!, 30)).toHaveLength(1);
   });
 
@@ -105,6 +111,7 @@ describe("avatarCuePlayback position helpers", () => {
           csv_cue_ids: ["a"],
           text_excerpt: "one",
           char_offset: 0,
+          csv_sequence_index: 0,
           start_sentence_index: 0,
           end_sentence_index: 0,
           avatar_layers: [{ avatar_speech_id: "a", avatar: "x", video_clip_id: "clip_a", visual_cue: { clip_id: "clip_a", video_type: "avatar", projector: "adam" } }]
@@ -113,6 +120,7 @@ describe("avatarCuePlayback position helpers", () => {
           csv_cue_ids: ["b"],
           text_excerpt: "two",
           char_offset: 5,
+          csv_sequence_index: 1,
           start_sentence_index: 0,
           end_sentence_index: 0,
           avatar_layers: [{ avatar_speech_id: "b", avatar: "x", video_clip_id: "clip_b", visual_cue: { clip_id: "clip_b", video_type: "avatar", projector: "eva" } }]
@@ -131,7 +139,47 @@ describe("avatarCuePlayback position helpers", () => {
       onCommands,
       () => false
     );
-    expect(fired).toEqual(new Set(["offset:0", "offset:5"]));
+    expect(fired).toEqual(new Set(["offset:0:0", "offset:5:1"]));
     expect(onCommands).toHaveBeenCalledTimes(2);
+  });
+
+  it("fires only the next CSV segment in strict order", () => {
+    const ordered: Teil2PerformancePlan = {
+      ...plan,
+      avatar_segments: [
+        {
+          csv_cue_ids: ["first"],
+          text_excerpt: "Alpha.",
+          char_offset: 0,
+          csv_sequence_index: 0,
+          start_sentence_index: 0,
+          end_sentence_index: 0,
+          avatar_layers: []
+        },
+        {
+          csv_cue_ids: ["second"],
+          text_excerpt: "gamma",
+          char_offset: 12,
+          csv_sequence_index: 1,
+          start_sentence_index: 1,
+          end_sentence_index: 1,
+          avatar_layers: []
+        }
+      ]
+    };
+    const fired = new Set<string>();
+    const starts = ordered.sentence_char_starts!;
+    expect(nextUnfiredAvatarSegment(ordered, 20, fired, starts)).toMatchObject({
+      csv_cue_ids: ["first"]
+    });
+    fired.add(avatarSegmentKey(ordered.avatar_segments[0]!));
+    expect(nextUnfiredAvatarSegment(ordered, 20, fired, starts)).toMatchObject({
+      csv_cue_ids: ["second"]
+    });
+    expect(nextUnfiredAvatarSegment(ordered, 10, fired, starts)).toBeNull();
+    expect(sortedAvatarSegments(ordered, starts).map((s) => s.csv_cue_ids[0])).toEqual([
+      "first",
+      "second"
+    ]);
   });
 });

@@ -1,6 +1,6 @@
-import { armDirectorForPerformance, stopDirectorPerformance } from "@/lib/api/director";
+import { armDirectorForPerformance, startFrontendPlaybackTrace, stopDirectorPerformance } from "@/lib/api/director";
 import { getPlaybackRate, playBlob, sleepWallMs, waitWhilePlaybackPaused } from "@/lib/api/client";
-import type { PerformanceSpeaker } from "@/lib/types/director";
+import type { DramaturgyDecision, PerformanceSpeaker } from "@/lib/types/director";
 import type { AvatarTextSegment, SceneCorpus, Teil2PerformancePlan } from "@/lib/types/inszenierung";
 import {
   createCuePlaybackContext,
@@ -11,7 +11,7 @@ import {
 } from "@/features/show/cuePlayback";
 import { textPositionForPlayback } from "@/features/show/mediaMentions";
 import {
-  fireAllRemainingAvatarSegments,
+  countUnfiredAvatarSegments,
   fireInitialAvatarSegments,
   fireRemainingSentenceSegments,
   resolveSentenceCharStarts,
@@ -54,11 +54,23 @@ function anarchyForSentence(
 }
 
 export function stopTextSyncPlayback(): void {
-  stopDirectorPerformance();
+  void stopDirectorPerformance().catch(() => undefined);
 }
 
 function scaledHighlightMs(): number {
   return 150 / getPlaybackRate();
+}
+
+function atmosphereDramaturgy(plan: Teil2PerformancePlan): DramaturgyDecision {
+  return {
+    ...plan.dramaturgy,
+    visual: null,
+    sound: null,
+    light: null,
+    reason: "Teil-2 Atmosphäre (parallel)",
+    tags: ["teil2", "atmosphere"],
+    cue_points: plan.atmosphere_cue_points ?? []
+  };
 }
 
 export async function runTextSyncPlayback(
@@ -68,9 +80,16 @@ export async function runTextSyncPlayback(
   ttsAvailable: boolean,
   onUpdate: (patch: Partial<TextSyncPlaybackState>) => void,
   shouldAbort: () => boolean,
-  options?: { tryout?: boolean; startSentenceIndex?: number; endSentenceIndex?: number }
+  options?: { tryout?: boolean; startSentenceIndex?: number; endSentenceIndex?: number; playbackGeneration?: number }
 ): Promise<void> {
-  armDirectorForPerformance({ tryout: options?.tryout });
+  if (options?.playbackGeneration != null) {
+    startFrontendPlaybackTrace({
+      generation: options.playbackGeneration,
+      source: "teil2_text_sync",
+      route: "/auffuehrung"
+    });
+  }
+  await armDirectorForPerformance({ tryout: options?.tryout });
   const sentences = plan.sentences;
   const startIndex = Math.max(0, Math.min(options?.startSentenceIndex ?? 0, sentences.length - 1));
   const endIndex = Math.max(
@@ -94,6 +113,18 @@ export async function runTextSyncPlayback(
     shouldAbort
   );
 
+  const atmosphereCtx = createCuePlaybackContext(
+    atmosphereDramaturgy(plan),
+    scriptText,
+    cueCtx.onCommands,
+    shouldAbort
+  );
+
+  const fireTimedCues = (elapsedSec: number) => {
+    fireTimeCues(cueCtx, elapsedSec);
+    fireTimeCues(atmosphereCtx, elapsedSec);
+  };
+
   const onSegmentFired = (segment: AvatarTextSegment) => {
     onUpdate({ activeAvatarSegment: segment });
   };
@@ -110,7 +141,8 @@ export async function runTextSyncPlayback(
       anarchyForSegment,
       cueCtx.onCommands,
       shouldAbort,
-      onSegmentFired
+      onSegmentFired,
+      scriptText
     );
   }
 
@@ -135,7 +167,8 @@ export async function runTextSyncPlayback(
         anarchyLevel,
         cueCtx.onCommands,
         shouldAbort,
-        onSegmentFired
+        onSegmentFired,
+        scriptText
       );
       continue;
     }
@@ -149,7 +182,7 @@ export async function runTextSyncPlayback(
       shouldAbort,
       onTimeUpdate: (current, duration) => {
         if (Number.isFinite(duration)) lastDuration = duration;
-        void fireTimeCues(cueCtx, sentenceStart + current);
+        void fireTimedCues(sentenceStart + current);
         const spanLength = sentenceSpanLength(index, sentenceCharStarts, scriptText.length);
         const localPos = textPositionForPlayback(current, duration, spanLength);
         const globalPos = sentenceCharStarts[index] + localPos;
@@ -161,7 +194,8 @@ export async function runTextSyncPlayback(
           anarchyForSegment,
           cueCtx.onCommands,
           shouldAbort,
-          onSegmentFired
+          onSegmentFired,
+          scriptText
         );
       }
     });
@@ -175,22 +209,20 @@ export async function runTextSyncPlayback(
       anarchyLevel,
       cueCtx.onCommands,
       shouldAbort,
-      onSegmentFired
+      onSegmentFired,
+      scriptText
     );
 
     cumulativeTime += Number.isFinite(lastDuration) ? lastDuration : 0;
   }
 
   if (!shouldAbort()) {
-    await fireAllRemainingAvatarSegments(
-      plan,
-      firedSegments,
-      sentenceCharStarts,
-      anarchyForSegment,
-      cueCtx.onCommands,
-      shouldAbort,
-      onSegmentFired
-    );
+    const unfired = countUnfiredAvatarSegments(plan, firedSegments);
+    if (unfired > 0) {
+      console.warn(
+        `[teil2] ${unfired} Avatar-Segmente nicht ausgelöst — Textzuordnung neu vorbereiten (char_offset / CSV-Reihenfolge).`
+      );
+    }
     await firePerformanceEndCues(cueCtx.onCommands, shouldAbort);
   }
 

@@ -1,6 +1,6 @@
 """Runtime routing of dramaturgy away from active avatar beamers."""
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 from app.director.cues.cue_models import DramaturgyDecision, VisualCue
 from app.director.cues.projector_state import ProjectorState

@@ -18,6 +18,14 @@ from app.director.outputs.osc_queue import CUE_STAGGER_SECONDS, get_osc_command_
 from app.director.outputs.pixera import PixeraBridge
 from app.director.outputs.sound import SoundBridge
 from app.director.outputs.touchdesigner import TouchDesignerBridge
+from app.director.outputs.signal_trace import (
+    RequestTrace,
+    attach_command_traces,
+    begin_request_trace,
+    emit_signal_trace_event,
+)
+from app.director.run_state import get_director_run_state
+from app.schemas.director import TraceContext
 from app.services.teil2_dramaturgy_routing import (
     active_avatar_reserved_projectors,
     route_dramaturgy_away_from_projectors,
@@ -114,6 +122,7 @@ class DirectorPipeline:
         self.logger = logger or DirectorLogger()
         self.projectors = ProjectorState()
         self.state = DirectorState()
+        self.run_state = get_director_run_state()
         self._lock = RLock()
 
     def plan(self, event: DialogueEvent) -> DirectorResult:
@@ -149,9 +158,17 @@ class DirectorPipeline:
         *,
         force: bool = False,
         stagger: bool = True,
+        trace: TraceContext | None = None,
+        request_trace: RequestTrace | None = None,
     ) -> DirectorResult:
         with self._lock:
-            return self._execute_locked(decision, force=force, stagger=stagger)
+            return self._execute_locked(
+                decision,
+                force=force,
+                stagger=stagger,
+                trace=trace,
+                request_trace=request_trace,
+            )
 
     def _execute_locked(
         self,
@@ -159,8 +176,17 @@ class DirectorPipeline:
         *,
         force: bool,
         stagger: bool,
+        trace: TraceContext | None = None,
+        request_trace: RequestTrace | None = None,
     ) -> DirectorResult:
+        req_trace = request_trace or begin_request_trace(trace)
         if self.safety.emergency_stop_active:
+            emit_signal_trace_event(
+                "director.execute_blocked",
+                status="blocked",
+                blocked_reason="emergency_stop_active",
+                request_trace=req_trace,
+            )
             return self._emergency_blocked_result(decision, "(script beat)")
 
         decision = _filter_decision_for_safety(decision, self.safety)
@@ -172,9 +198,25 @@ class DirectorPipeline:
 
         dry_run = _effective_dry_run(self.safety)
         planned = build_osc_commands(decision, dry_run=dry_run)
+        emit_signal_trace_event(
+            "signal.planned",
+            status="planned",
+            planned_command_count=len(planned),
+            request_trace=req_trace,
+        )
+        if planned:
+            planned = attach_command_traces(planned, req_trace)
+            self._emit_command_built_events(planned, req_trace)
         osc_commands: list[OscCommand] = []
 
-        if allowed and planned:
+        if not allowed:
+            emit_signal_trace_event(
+                "director.execute_blocked",
+                status="blocked",
+                blocked_reason=blocked_reason,
+                request_trace=req_trace,
+            )
+        elif allowed and planned:
             osc_commands = self._dispatch_commands(planned, stagger=stagger)
             self.scheduler.mark_executed(decision)
 
@@ -208,6 +250,8 @@ class DirectorPipeline:
         skip_interval_check: bool = True,
         stagger: bool = False,
         text_excerpt: str | None = None,
+        trace: TraceContext | None = None,
+        request_trace: RequestTrace | None = None,
     ) -> DirectorResult:
         with self._lock:
             return self._execute_layered_locked(
@@ -217,6 +261,8 @@ class DirectorPipeline:
                 skip_interval_check=skip_interval_check,
                 stagger=stagger,
                 text_excerpt=text_excerpt,
+                trace=trace,
+                request_trace=request_trace,
             )
 
     def _execute_layered_locked(
@@ -228,8 +274,17 @@ class DirectorPipeline:
         skip_interval_check: bool,
         stagger: bool,
         text_excerpt: str | None,
+        trace: TraceContext | None = None,
+        request_trace: RequestTrace | None = None,
     ) -> DirectorResult:
+        req_trace = request_trace or begin_request_trace(trace)
         if self.safety.emergency_stop_active:
+            emit_signal_trace_event(
+                "director.execute_blocked",
+                status="blocked",
+                blocked_reason="emergency_stop_active",
+                request_trace=req_trace,
+            )
             return self._emergency_blocked_result(decision, "(inszenierung moment)")
 
         if stack and decision.visual:
@@ -258,9 +313,25 @@ class DirectorPipeline:
 
         dry_run = _effective_dry_run(self.safety)
         planned = build_osc_commands(decision, dry_run=dry_run)
+        emit_signal_trace_event(
+            "signal.planned",
+            status="planned",
+            planned_command_count=len(planned),
+            request_trace=req_trace,
+        )
+        if planned:
+            planned = attach_command_traces(planned, req_trace)
+            self._emit_command_built_events(planned, req_trace)
         osc_commands: list[OscCommand] = []
 
-        if allowed and planned:
+        if not allowed:
+            emit_signal_trace_event(
+                "director.execute_blocked",
+                status="blocked",
+                blocked_reason=blocked_reason,
+                request_trace=req_trace,
+            )
+        elif allowed and planned:
             osc_commands = self._dispatch_commands(planned, stagger=stagger)
             self.scheduler.mark_executed(decision)
             if decision.visual:
@@ -328,6 +399,19 @@ class DirectorPipeline:
         self._store_result(result, log_executed=False)
         return result
 
+    def _emit_command_built_events(
+        self,
+        commands: list[OscCommand],
+        request_trace: RequestTrace,
+    ) -> None:
+        for cmd in commands:
+            emit_signal_trace_event(
+                "command.built",
+                status="built",
+                command=cmd,
+                request_trace=request_trace,
+            )
+
     def _dispatch_commands(self, commands: list[OscCommand], *, stagger: bool) -> list[OscCommand]:
         bridges = self._osc_bridges()
         if settings.director_osc_queue:
@@ -377,25 +461,50 @@ class DirectorPipeline:
             self.state.history = self.state.history[-50:]
 
     def clear_for_performance(self) -> None:
+        context = self.run_state.start_run()
+        emit_signal_trace_event(
+            "run.started",
+            status="started",
+            run_id=context.run_id,
+            run_epoch=context.run_epoch,
+            context_source="backend_authoritative",
+        )
         self.safety.clear_emergency_stop()
         self.projectors.reset()
         self.projectors.allow_avatar_interrupt = True
 
     def emergency_stop(self) -> None:
+        barrier = self.run_state.create_barrier("emergency_stop")
+        emit_signal_trace_event(
+            "run.barrier_created",
+            status="barrier_created",
+            run_id=barrier.run_id,
+            run_epoch=barrier.run_epoch,
+            barrier_id=barrier.barrier_id,
+            barrier_reason=barrier.barrier_reason,
+        )
+        emit_signal_trace_event(
+            "run.epoch_advanced",
+            status="epoch_advanced",
+            run_id=barrier.run_id,
+            run_epoch=barrier.run_epoch,
+            barrier_id=barrier.barrier_id,
+            barrier_reason=barrier.barrier_reason,
+        )
         from app.director.technik_hold import get_technik_hold_manager
 
         get_technik_hold_manager(self).stop()
         self.safety.emergency_stop()
         self.projectors.reset()
         self.scheduler.clear_active()
-        dry_run = settings.osc_dry_run
-        if settings.visual_output in ("pixera", "both"):
+        dry_run = _effective_dry_run(self.safety)
+        if not dry_run and settings.visual_output in ("pixera", "both"):
             from app.services.video_cue_catalog import get_video_cue_catalog_service
 
             catalog = get_video_cue_catalog_service().load()
             for projector in catalog.projectors:
                 self.pixera.apply_cue(f"{projector.pixera_prefix}.Black")
-        if settings.visual_output in ("touchdesigner", "both"):
+        if not dry_run and settings.visual_output in ("touchdesigner", "both"):
             self.touchdesigner.blackout()
         self.sound.stop_all(dry_run=dry_run)
         self.lighting.blackout(dry_run=dry_run)

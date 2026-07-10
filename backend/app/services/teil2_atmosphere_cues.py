@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.director.cues.cue_models import CuePoint, DramaturgyDecision, VisualCue, VisualOutputAssignment
+from app.director.cues.cue_models import DramaturgyDecision, VisualCue, VisualOutputAssignment
 from app.schemas.inszenierung import AnarchyCurve, AvatarTextSegment
 from app.services.teil2_projector_assignment import pick_atmosphere_projectors
 from app.services.video_scope import _clip_ids_for_scope

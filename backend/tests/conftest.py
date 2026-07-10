@@ -40,6 +40,13 @@ def director_test_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(settings, "director_execute_mode", "sequenced")
     monkeypatch.setattr(settings, "director_dramaturgy_mode", "rules")
     monkeypatch.setattr(settings, "director_osc_queue", False)
+    monkeypatch.setattr(settings, "signal_trace_enabled", True)
+    monkeypatch.setattr(settings, "signal_trace_path", str(tmp_path / "signal_trace.jsonl"))
+
+    from app.director.outputs.signal_trace import SignalTraceWriter, reset_run_state_for_tests
+
+    SignalTraceWriter.reset_for_tests(tmp_path / "signal_trace.jsonl")
+    reset_run_state_for_tests()
 
     import app.director.media.video_inventory as video_inventory_mod
 

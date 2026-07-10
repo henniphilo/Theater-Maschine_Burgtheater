@@ -63,6 +63,8 @@ class InszenierungStore:
                 corpus.script_text = text
                 corpus.teil2_plan = None
                 corpus.composition = None
+                corpus.prepare_error = None
+                corpus.prepare_phase = None
         return self.save(corpus)
 
     def add_scene(self, corpus_id: str, payload: CreateAnimalSceneRequest) -> SceneCorpus:
@@ -125,10 +127,38 @@ class InszenierungStore:
         corpus.teil2_plan = plan
         if gesamtkonzept is not None:
             corpus.gesamtkonzept = gesamtkonzept
+        corpus.prepare_phase = None
+        corpus.prepare_error = None
+        return self.save(corpus)
+
+    def set_preparing(self, corpus_id: str, *, phase: str = "analyse") -> SceneCorpus:
+        corpus = self.get(corpus_id)
+        corpus.status = "preparing"
+        corpus.prepare_phase = phase
+        corpus.prepare_error = None
+        corpus.teil2_plan = None
+        return self.save(corpus)
+
+    def set_prepare_phase(self, corpus_id: str, phase: str) -> SceneCorpus:
+        corpus = self.get(corpus_id)
+        corpus.prepare_phase = phase
+        if corpus.status != "preparing":
+            corpus.status = "preparing"
+        return self.save(corpus)
+
+    def set_prepare_error(self, corpus_id: str, message: str) -> SceneCorpus:
+        corpus = self.get(corpus_id)
+        corpus.status = "draft"
+        corpus.prepare_phase = None
+        corpus.prepare_error = message
         return self.save(corpus)
 
     @staticmethod
     def _recompute_status(corpus: SceneCorpus) -> SceneCorpus:
+        if corpus.status == "preparing" and not (
+            corpus.teil2_plan and corpus.teil2_plan.sentences
+        ):
+            return corpus
         has_script = bool(corpus.script_text and corpus.script_text.strip())
         has_scenes = bool(corpus.scenes)
         if corpus.teil2_plan and corpus.teil2_plan.sentences and corpus.gesamtkonzept:

@@ -1,0 +1,605 @@
+{
+  "id": "dd868d1f-6a06-454c-b5ef-de49730db963",
+  "title": "Job Test",
+  "scenes": [],
+  "script_source": null,
+  "script_text": "23. Der Delphin spricht.\n\n24. Der Bärenklauer folgt.",
+  "status": "ready",
+  "prepare_phase": null,
+  "prepare_error": null,
+  "gesamtkonzept": {
+    "thesis": "Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske.",
+    "money_themes": [
+      "Austausch",
+      "Schuld",
+      "Wert",
+      "Rendite"
+    ],
+    "animal_positions": [
+      {
+        "animal": "Der Delphin spricht.",
+        "stance": "im Aufführungstext",
+        "money_angle": "Geld / Ökonomie"
+      },
+      {
+        "animal": "Der Bärenklauer folgt.",
+        "stance": "im Aufführungstext",
+        "money_angle": "Geld / Ökonomie"
+      }
+    ],
+    "cross_scene_links": [
+      {
+        "label": "Geld-Klammer",
+        "scene_ids": [
+          "avatar"
+        ],
+        "note": "Querverweis über den Aufführungstext"
+      }
+    ],
+    "anarchy_curve": {
+      "start": 0.35,
+      "end": 1.0
+    },
+    "discussion_summary": "Kompakt-Analyse (Regel-Fallback)"
+  },
+  "composition": null,
+  "teil2_plan": {
+    "performance_speaker": "narrator",
+    "sentences": [
+      "23.",
+      "Der Delphin spricht.",
+      "24.",
+      "Der Bärenklauer folgt."
+    ],
+    "sentence_char_starts": [
+      0,
+      4,
+      26,
+      30
+    ],
+    "avatar_segments": [],
+    "dramaturgy": {
+      "visual": null,
+      "sound": null,
+      "light": null,
+      "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske.",
+      "dramaturgical_reading": "",
+      "cue_points": [
+        {
+          "trigger": "sentence_end",
+          "keyword": null,
+          "sentence_index": 0,
+          "time_offset_sec": 0.0,
+          "function": "verstärken",
+          "intensity": 0.36,
+          "visual": {
+            "action": "play_clip",
+            "clip_id": "black",
+            "outputs": [
+              {
+                "output_id": "adam",
+                "clip_id": "black",
+                "action": null
+              }
+            ],
+            "recording_id": null,
+            "blend": "slow_fade",
+            "blend_mode": "layer",
+            "opacity": 0.71,
+            "fade_time": 4.0,
+            "video_type": "atmosphere",
+            "projector": "adam",
+            "duration_ms": null,
+            "text_content_id": null,
+            "lock_until_finished": false,
+            "can_be_interrupted": true
+          },
+          "sound": {
+            "action": "trigger_cue",
+            "cue_id": "maschinen_grundader",
+            "volume": 0.54
+          },
+          "light": {
+            "action": "set_scene",
+            "scene_id": "musiker",
+            "scene_ids": [],
+            "fade_time": 2.0,
+            "intensity": 0.52,
+            "replace_previous": true
+          }
+        },
+        {
+          "trigger": "sentence_end",
+          "keyword": null,
+          "sentence_index": 1,
+          "time_offset_sec": 0.0,
+          "function": "verstärken",
+          "intensity": 0.5666666666666667,
+          "visual": {
+            "action": "play_clip",
+            "clip_id": "clyde",
+            "outputs": [
+              {
+                "output_id": "eva",
+                "clip_id": "clyde",
+                "action": null
+              }
+            ],
+            "recording_id": null,
+            "blend": "slow_fade",
+            "blend_mode": "layer",
+            "opacity": 0.81,
+            "fade_time": 4.0,
+            "video_type": "atmosphere",
+            "projector": "eva",
+            "duration_ms": null,
+            "text_content_id": null,
+            "lock_until_finished": false,
+            "can_be_interrupted": true
+          },
+          "sound": {
+            "action": "trigger_cue",
+            "cue_id": "maschinen_grundader_fade_in",
+            "volume": 0.66
+          },
+          "light": {
+            "action": "set_scene",
+            "scene_id": "gegenlicht_lichteinfall",
+            "scene_ids": [],
+            "fade_time": 3.0,
+            "intensity": 0.55,
+            "replace_previous": true
+          }
+        },
+        {
+          "trigger": "sentence_end",
+          "keyword": null,
+          "sentence_index": 2,
+          "time_offset_sec": 0.0,
+          "function": "verstärken",
+          "intensity": 0.7833333333333333,
+          "visual": {
+            "action": "play_clip",
+            "clip_id": "musiker",
+            "outputs": [
+              {
+                "output_id": "rz21",
+                "clip_id": "musiker",
+                "action": null
+              }
+            ],
+            "recording_id": null,
+            "blend": "slow_fade",
+            "blend_mode": "layer",
+            "opacity": 0.9,
+            "fade_time": 4.0,
+            "video_type": "atmosphere",
+            "projector": "rz21",
+            "duration_ms": null,
+            "text_content_id": null,
+            "lock_until_finished": false,
+            "can_be_interrupted": true
+          },
+          "sound": {
+            "action": "trigger_cue",
+            "cue_id": "maschinen_grundader_fade_out",
+            "volume": 0.78
+          },
+          "light": {
+            "action": "set_scene",
+            "scene_id": "klavier",
+            "scene_ids": [],
+            "fade_time": 2.0,
+            "intensity": 0.52,
+            "replace_previous": true
+          }
+        },
+        {
+          "trigger": "sentence_end",
+          "keyword": null,
+          "sentence_index": 3,
+          "time_offset_sec": 0.0,
+          "function": "verstärken",
+          "intensity": 1.0,
+          "visual": {
+            "action": "play_clip",
+            "clip_id": "black",
+            "outputs": [
+              {
+                "output_id": "led",
+                "clip_id": "black",
+                "action": null
+              }
+            ],
+            "recording_id": null,
+            "blend": "slow_fade",
+            "blend_mode": "layer",
+            "opacity": 1.0,
+            "fade_time": 4.0,
+            "video_type": "atmosphere",
+            "projector": "led",
+            "duration_ms": null,
+            "text_content_id": null,
+            "lock_until_finished": false,
+            "can_be_interrupted": true
+          },
+          "sound": {
+            "action": "trigger_cue",
+            "cue_id": "maschinen_grundader",
+            "volume": 0.9
+          },
+          "light": {
+            "action": "set_scene",
+            "scene_id": "blendung_zuschauerraum",
+            "scene_ids": [],
+            "fade_time": 3.0,
+            "intensity": 0.55,
+            "replace_previous": true
+          }
+        }
+      ],
+      "performance_speakers": [],
+      "tags": [
+        "teil2",
+        "text_sync"
+      ],
+      "mood": "tension",
+      "intensity": 1.0,
+      "timestamp": 0.0
+    },
+    "atmosphere_cue_points": [
+      {
+        "trigger": "time",
+        "keyword": null,
+        "sentence_index": null,
+        "time_offset_sec": 0.0,
+        "function": "verstärken",
+        "intensity": 0.36,
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "black",
+          "outputs": [
+            {
+              "output_id": "adam",
+              "clip_id": "black",
+              "action": null
+            }
+          ],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "blend_mode": "layer",
+          "opacity": 0.8,
+          "fade_time": 4.0,
+          "video_type": "atmosphere",
+          "projector": "adam",
+          "duration_ms": null,
+          "text_content_id": null,
+          "lock_until_finished": false,
+          "can_be_interrupted": true
+        },
+        "sound": null,
+        "light": null
+      },
+      {
+        "trigger": "time",
+        "keyword": null,
+        "sentence_index": null,
+        "time_offset_sec": 18.75,
+        "function": "verstärken",
+        "intensity": 0.5666666666666667,
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "clyde",
+          "outputs": [
+            {
+              "output_id": "eva",
+              "clip_id": "clyde",
+              "action": null
+            }
+          ],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "blend_mode": "layer",
+          "opacity": 0.8,
+          "fade_time": 4.0,
+          "video_type": "atmosphere",
+          "projector": "eva",
+          "duration_ms": null,
+          "text_content_id": null,
+          "lock_until_finished": false,
+          "can_be_interrupted": true
+        },
+        "sound": null,
+        "light": null
+      },
+      {
+        "trigger": "time",
+        "keyword": null,
+        "sentence_index": null,
+        "time_offset_sec": 37.5,
+        "function": "verstärken",
+        "intensity": 0.7833333333333333,
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "musiker",
+          "outputs": [
+            {
+              "output_id": "rz21",
+              "clip_id": "musiker",
+              "action": null
+            }
+          ],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "blend_mode": "layer",
+          "opacity": 0.8,
+          "fade_time": 4.0,
+          "video_type": "atmosphere",
+          "projector": "rz21",
+          "duration_ms": null,
+          "text_content_id": null,
+          "lock_until_finished": false,
+          "can_be_interrupted": true
+        },
+        "sound": null,
+        "light": null
+      },
+      {
+        "trigger": "time",
+        "keyword": null,
+        "sentence_index": null,
+        "time_offset_sec": 56.25,
+        "function": "verstärken",
+        "intensity": 1.0,
+        "visual": {
+          "action": "play_clip",
+          "clip_id": "black",
+          "outputs": [
+            {
+              "output_id": "led",
+              "clip_id": "black",
+              "action": null
+            }
+          ],
+          "recording_id": null,
+          "blend": "slow_fade",
+          "blend_mode": "layer",
+          "opacity": 0.8,
+          "fade_time": 4.0,
+          "video_type": "atmosphere",
+          "projector": "led",
+          "duration_ms": null,
+          "text_content_id": null,
+          "lock_until_finished": false,
+          "can_be_interrupted": true
+        },
+        "sound": null,
+        "light": null
+      }
+    ],
+    "cue_overview": {
+      "rows": [
+        {
+          "sentence_index": 0,
+          "text": "23.",
+          "annotations": [
+            {
+              "kind": "video",
+              "label": "black",
+              "projector": "adam",
+              "time_sec": null,
+              "sentence_index": 0,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "sound",
+              "label": "maschinen_grundader",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 0,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "light",
+              "label": "musiker",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 0,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            }
+          ]
+        },
+        {
+          "sentence_index": 1,
+          "text": "Der Delphin spricht.",
+          "annotations": [
+            {
+              "kind": "video",
+              "label": "clyde",
+              "projector": "eva",
+              "time_sec": null,
+              "sentence_index": 1,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "sound",
+              "label": "maschinen_grundader_fade_in",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 1,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "light",
+              "label": "gegenlicht_lichteinfall",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 1,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            }
+          ]
+        },
+        {
+          "sentence_index": 2,
+          "text": "24.",
+          "annotations": [
+            {
+              "kind": "video",
+              "label": "musiker",
+              "projector": "rz21",
+              "time_sec": null,
+              "sentence_index": 2,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "sound",
+              "label": "maschinen_grundader_fade_out",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 2,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "light",
+              "label": "klavier",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 2,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            }
+          ]
+        },
+        {
+          "sentence_index": 3,
+          "text": "Der Bärenklauer folgt.",
+          "annotations": [
+            {
+              "kind": "video",
+              "label": "black",
+              "projector": "led",
+              "time_sec": null,
+              "sentence_index": 3,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "sound",
+              "label": "maschinen_grundader",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 3,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            },
+            {
+              "kind": "light",
+              "label": "blendung_zuschauerraum",
+              "projector": null,
+              "time_sec": null,
+              "sentence_index": 3,
+              "reason": "Teil-2 OSC-Regie — Geld erscheint bei den Tieren als Austauschlogik, Schuldzuweisung und Sprachmaske."
+            }
+          ]
+        }
+      ],
+      "atmosphere_timeline": [
+        {
+          "kind": "video",
+          "label": "black",
+          "projector": "adam",
+          "time_sec": 0.0,
+          "sentence_index": null,
+          "reason": "Atmosphäre (parallel)"
+        },
+        {
+          "kind": "video",
+          "label": "clyde",
+          "projector": "eva",
+          "time_sec": 18.75,
+          "sentence_index": null,
+          "reason": "Atmosphäre (parallel)"
+        },
+        {
+          "kind": "video",
+          "label": "musiker",
+          "projector": "rz21",
+          "time_sec": 37.5,
+          "sentence_index": null,
+          "reason": "Atmosphäre (parallel)"
+        },
+        {
+          "kind": "video",
+          "label": "black",
+          "projector": "led",
+          "time_sec": 56.25,
+          "sentence_index": null,
+          "reason": "Atmosphäre (parallel)"
+        }
+      ]
+    },
+    "anarchy_level_end": 1.0,
+    "alignment_warnings": [
+      "bak1_nicolaspflanzen3: Text nicht im Aufführungstext gefunden",
+      "bak2_krabbe: Text nicht im Aufführungstext gefunden",
+      "bak3_hasen: Text nicht im Aufführungstext gefunden",
+      "bak3_mavie: Text nicht im Aufführungstext gefunden",
+      "bak4_inge: Text nicht im Aufführungstext gefunden",
+      "bak5_thiemo: Text nicht im Aufführungstext gefunden",
+      "bak6_azaria: Text nicht im Aufführungstext gefunden",
+      "del1_nicolas: Text nicht im Aufführungstext gefunden",
+      "del2: Text nicht im Aufführungstext gefunden",
+      "del3: Text nicht im Aufführungstext gefunden",
+      "del4: Text nicht im Aufführungstext gefunden",
+      "bk0_waran: Text nicht im Aufführungstext gefunden",
+      "bk1_caro: Text nicht im Aufführungstext gefunden",
+      "bk1_caroline: Text nicht im Aufführungstext gefunden",
+      "bk1_thomas: Text nicht im Aufführungstext gefunden",
+      "bk2_hundswolf: Text nicht im Aufführungstext gefunden",
+      "bk2_mavie: Text nicht im Aufführungstext gefunden",
+      "bk3_thomas: Text nicht im Aufführungstext gefunden",
+      "daslammgottes: Text nicht im Aufführungstext gefunden",
+      "lg2_inge: Text nicht im Aufführungstext gefunden",
+      "lg3_seb: Text nicht im Aufführungstext gefunden",
+      "lg4_azaria: Text nicht im Aufführungstext gefunden",
+      "lg5_henrike: Text nicht im Aufführungstext gefunden",
+      "lg6_hai: Text nicht im Aufführungstext gefunden",
+      "bk5_nicolas: Text nicht im Aufführungstext gefunden",
+      "bk6_branko: Text nicht im Aufführungstext gefunden",
+      "bk7_caroline: Text nicht im Aufführungstext gefunden",
+      "bk7_nasenfisch: Text nicht im Aufführungstext gefunden",
+      "bk8_haischaedel: Text nicht im Aufführungstext gefunden",
+      "bk8_mavie1: Text nicht im Aufführungstext gefunden",
+      "bk8_mavie: Text nicht im Aufführungstext gefunden",
+      "bk9_thiemo: Text nicht im Aufführungstext gefunden",
+      "pet0_baer_thomas: Text nicht im Aufführungstext gefunden",
+      "pet1_azaria: Text nicht im Aufführungstext gefunden",
+      "pet1_thomas: Text nicht im Aufführungstext gefunden",
+      "pet2_inge: Text nicht im Aufführungstext gefunden",
+      "pet3_caroline: Text nicht im Aufführungstext gefunden",
+      "pet3_koala: Text nicht im Aufführungstext gefunden",
+      "pet4_sebastian: Text nicht im Aufführungstext gefunden",
+      "pet5_azaria: Text nicht im Aufführungstext gefunden",
+      "wo1_kaenguru: Text nicht im Aufführungstext gefunden",
+      "wo2_branko: Text nicht im Aufführungstext gefunden",
+      "wo3_seb_musik: Text nicht im Aufführungstext gefunden",
+      "wo4_nicolas: Text nicht im Aufführungstext gefunden",
+      "wo4_schimpanse: Text nicht im Aufführungstext gefunden",
+      "wo5_thiemo: Text nicht im Aufführungstext gefunden",
+      "wo6_mavie: Text nicht im Aufführungstext gefunden",
+      "wo6_schimpanse: Text nicht im Aufführungstext gefunden",
+      "wo7_sebastian: Text nicht im Aufführungstext gefunden",
+      "mo1_sebmusik: Text nicht im Aufführungstext gefunden",
+      "mo2_branko: Text nicht im Aufführungstext gefunden",
+      "mo3_dachs: Text nicht im Aufführungstext gefunden",
+      "mo3_caro: Text nicht im Aufführungstext gefunden",
+      "sch1_sebastian: Text nicht im Aufführungstext gefunden",
+      "sch2_azariawirdschaf: Text nicht im Aufführungstext gefunden",
+      "sch2_azaria_als_schaf: Text nicht im Aufführungstext gefunden",
+      "sch2_azaria: Text nicht im Aufführungstext gefunden",
+      "sch3_ingewirdschaf: Text nicht im Aufführungstext gefunden",
+      "sch4_thomas: Text nicht im Aufführungstext gefunden",
+      "sch5_schafsolo_mavie: Text nicht im Aufführungstext gefunden",
+      "sch6_schafherde: Text nicht im Aufführungstext gefunden",
+      "sch7_schaf_single_sebastian: Text nicht im Aufführungstext gefunden",
+      "sch8_viele_schafe_caro: Text nicht im Aufführungstext gefunden"
+    ]
+  }
+}

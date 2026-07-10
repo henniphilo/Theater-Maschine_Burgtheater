@@ -9,6 +9,14 @@ VideoType = Literal["avatar", "atmosphere", "regie"]
 PerformanceSpeaker = Literal["AI_A", "AI_B", "narrator"]
 
 
+class CommandTraceMeta(BaseModel):
+    logical_signal_id: str
+    command_id: str
+    run_id: str | None = None
+    run_epoch: int | None = None
+    http_request_id: str | None = None
+
+
 class OscCommand(BaseModel):
     bridge: str
     host: str
@@ -17,6 +25,7 @@ class OscCommand(BaseModel):
     args: list[Any] = Field(default_factory=list)
     dry_run: bool = False
     mirror: bool = False
+    trace: CommandTraceMeta | None = None
 
 
 class VisualAction(str, Enum):

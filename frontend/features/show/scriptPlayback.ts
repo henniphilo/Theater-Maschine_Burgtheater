@@ -1,7 +1,8 @@
 import { getCachedSpeech, prefetchSpeech } from "@/lib/tts/prefetch";
 import { performanceAudioUrl, prefetchPrerenderedSpeech } from "@/lib/api/performance";
 import { playBlob, setPlaybackPaused, stopPlayback, waitWhilePlaybackPaused } from "@/lib/api/client";
-import { armDirectorForPerformance, stopDirectorPerformance } from "@/lib/api/director";
+import { armDirectorForPerformance, startFrontendPlaybackTrace, stopDirectorPerformance } from "@/lib/api/director";
+import { readPerformanceTryout } from "@/components/show/PerformanceTryoutControl";
 import { sentenceIndexForProgress } from "@/lib/text/splitSentences";
 import { speakerForPerformanceSentence } from "@/lib/show/performanceVoices";
 import { progressFromBeat } from "@/lib/show/performanceTimeline";
@@ -753,7 +754,8 @@ export async function runPart1ScriptPlayback(
   shouldAbort: () => boolean,
   topic = "Teil 1 — Bärenklau",
   part1Selection?: Part1BaerenklauSelection | null,
-  mode: PlaybackMode = "full"
+  mode: PlaybackMode = "full",
+  playbackGeneration?: number
 ): Promise<void> {
   const part1 = part1Beats(beats);
   return runScriptPlayback(
@@ -764,7 +766,8 @@ export async function runPart1ScriptPlayback(
     shouldAbort,
     topic,
     part1Selection,
-    mode
+    mode,
+    playbackGeneration
   );
 }
 
@@ -818,9 +821,18 @@ export async function runScriptPlayback(
   shouldAbort: () => boolean,
   topic = "Aufführung",
   part1Selection?: Part1BaerenklauSelection | null,
-  mode: PlaybackMode = "full"
+  mode: PlaybackMode = "full",
+  playbackGeneration?: number
 ): Promise<void> {
-  armDirectorForPerformance();
+  if (playbackGeneration != null) {
+    startFrontendPlaybackTrace({
+      generation: playbackGeneration,
+      source: "teil1_script",
+      route: "/auffuehrung",
+      mode
+    });
+  }
+  await armDirectorForPerformance({ tryout: readPerformanceTryout() });
   const start = Math.max(0, Math.min(startBeatIndex, beats.length - 1));
   onState({
     running: true,
@@ -891,5 +903,5 @@ export async function runScriptPlayback(
 
 export function stopScriptPlayback() {
   stopPlayback();
-  stopDirectorPerformance();
+  void stopDirectorPerformance().catch(() => undefined);
 }

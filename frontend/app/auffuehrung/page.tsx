@@ -9,7 +9,7 @@ import { PerformanceTransport, beatIndexFromProgress } from "@/components/show/P
 import { Teil2PerformanceBar } from "@/components/show/Teil2PerformanceBar";
 import { Teil2AvatarSegmentBlock } from "@/components/show/Teil2AvatarSegmentBlock";
 import { activeAvatarSegmentIndex } from "@/features/inszenierung/teil2AvatarSections";
-import { readPerformanceTryout } from "@/components/show/PerformanceTryoutControl";
+import { readPerformanceTryout, PerformanceTryoutControl } from "@/components/show/PerformanceTryoutControl";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
 import { fetchTTSStatus, setPlaybackPaused, stopPlayback } from "@/lib/api/client";
 import { downloadBlob, exportPerformance, importPerformance } from "@/lib/api/performance";
@@ -317,7 +317,8 @@ function AuffuehrungContent() {
         () => abortRef.current,
         `${script.title} — Teil 1`,
         script.part1_selection ?? null,
-        mode
+        mode,
+        gen
       );
 
       if (gen === playbackGenRef.current && !abortRef.current && script.teil2_corpus_id) {
@@ -359,7 +360,7 @@ function AuffuehrungContent() {
           if (gen === playbackGenRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
         },
         () => abortRef.current,
-        { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex }
+        { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex, playbackGeneration: gen }
       );
       return;
     }
@@ -385,7 +386,8 @@ function AuffuehrungContent() {
       (patch) => {
         if (gen === playbackGenRef.current) setAnarchyPlayback((prev) => ({ ...prev, ...patch }));
       },
-      () => abortRef.current
+      () => abortRef.current,
+      { playbackGeneration: gen }
     );
     if (gen === playbackGenRef.current) {
       setAnarchyPlayback((prev) => ({ ...prev, running: false, completed: true }));
@@ -567,7 +569,7 @@ function AuffuehrungContent() {
         if (!next.script_text?.trim()) {
           throw new Error("Kein Aufführungstext — zuerst auf /inszenierung hochladen");
         }
-        next = await prepareCorpus(next.id);
+        next = await prepareCorpus(next.id, { onUpdate: setCorpus });
       }
       setCorpus(next);
       sessionStorage.setItem("currentCorpusId", next.id);
@@ -693,7 +695,8 @@ function AuffuehrungContent() {
                 Stimmen bereit — Play startet ohne Wartezeit.
               </p>
             ) : null}
-            <div className="row" style={{ gap: "0.75rem", flexWrap: "wrap" }}>
+            <div className="row" style={{ gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+              <PerformanceTryoutControl />
               <button
                 type="button"
                 className="machineStartBtn"

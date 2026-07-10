@@ -1,6 +1,13 @@
-import type { DramaturgyDecision, OscCommand } from "@/lib/types/director";
+import type { DramaturgyDecision, OscCommand, TraceContext } from "@/lib/types/director";
 
 import { apiBaseUrl, apiFetch } from "@/lib/api/base";
+import {
+  buildTraceContext,
+  logSignalTraceEvent,
+  startFrontendPlaybackTrace
+} from "@/lib/debug/signalTrace";
+
+export { buildTraceContext, logSignalTraceEvent, startFrontendPlaybackTrace };
 
 let performanceOscAbort: AbortController | null = null;
 
@@ -8,25 +15,43 @@ export function isDirectorPerformanceAborted(): boolean {
   return performanceOscAbort?.signal.aborted ?? false;
 }
 
+export async function syncPerformanceTryoutToDirector(tryout: boolean): Promise<DirectorStatus> {
+  return patchDirectorSafety({
+    lights_enabled: !tryout,
+    performance_tryout: tryout
+  });
+}
+
 /** Re-enable director outputs and reset abort handle before a performance run. */
-export function armDirectorForPerformance(options?: { tryout?: boolean }): void {
+export async function armDirectorForPerformance(options?: { tryout?: boolean }): Promise<void> {
   performanceOscAbort?.abort();
   performanceOscAbort = new AbortController();
-  void postDirectorEmergencyClear().catch(() => undefined);
-  void patchDirectorSafety({
-    autopilot_enabled: true,
-    visuals_enabled: true,
-    sound_enabled: true,
-    lights_enabled: !options?.tryout,
-    performance_tryout: Boolean(options?.tryout)
-  }).catch(() => undefined);
+  const tryout = Boolean(options?.tryout);
+  logSignalTraceEvent(
+    "frontend.playback_started",
+    { source: "armDirectorForPerformance", tryout },
+    { status: "arm" }
+  );
+  await postDirectorEmergencyClear();
+  try {
+    await patchDirectorSafety({
+      autopilot_enabled: true,
+      visuals_enabled: true,
+      sound_enabled: true,
+      lights_enabled: !tryout,
+      performance_tryout: tryout
+    });
+  } catch (err) {
+    console.warn("Director Probebetrieb konnte nicht gesetzt werden:", err);
+  }
 }
 
 /** Cancel in-flight cue requests and block further OSC during performance stop. */
-export function stopDirectorPerformance(): void {
+export async function stopDirectorPerformance(): Promise<void> {
+  logSignalTraceEvent("frontend.stop_requested", {}, { status: "stop_requested" });
   performanceOscAbort?.abort();
   performanceOscAbort = null;
-  void postDirectorEmergencyStop().catch(() => undefined);
+  await postDirectorEmergencyStop();
 }
 
 function directorPerformanceSignal(): AbortSignal | undefined {
@@ -47,6 +72,8 @@ export type DirectorStatus = {
   safety: DirectorSafety;
   active_cues: string[];
   osc_queue_depth?: number;
+  run_id?: string | null;
+  run_epoch?: number;
   last_event: Record<string, unknown> | null;
   last_decision: Record<string, unknown> | null;
   last_executed: boolean | null;
@@ -299,22 +326,67 @@ export async function postDirectorDialogueEvent(payload: {
   return res.json();
 }
 
+async function directorExecuteFetch(
+  path: string,
+  body: Record<string, unknown>,
+  errorMessage: string
+): Promise<ExecuteResponse> {
+  const trace = buildTraceContext(
+    typeof body.trace === "object" && body.trace !== null
+      ? (body.trace as TraceContext)
+      : undefined
+  );
+  const payload = trace ? { ...body, trace } : body;
+  logSignalTraceEvent(
+    "frontend.request_started",
+    { source: trace?.source, trigger: trace?.trigger, route: path },
+    { status: "started" }
+  );
+  try {
+    const res = await apiFetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: directorPerformanceSignal()
+    });
+    if (!res.ok) throw new Error(errorMessage);
+    const data = (await res.json()) as ExecuteResponse;
+    logSignalTraceEvent(
+      "frontend.request_completed",
+      {
+        executed: data.executed,
+        blocked_reason: data.blocked_reason,
+        route: path
+      },
+      { status: "completed" }
+    );
+    return data;
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      logSignalTraceEvent(
+        "frontend.request_aborted",
+        { route: path, abort_seen: true },
+        { status: "aborted" }
+      );
+    }
+    throw err;
+  }
+}
+
 export async function postDirectorExecute(
   decision: DramaturgyDecision,
-  options?: { force?: boolean; stagger?: boolean }
+  options?: { force?: boolean; stagger?: boolean; trace?: TraceContext }
 ): Promise<ExecuteResponse> {
-  const res = await apiFetch("/director/execute", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  return directorExecuteFetch(
+    "/director/execute",
+    {
       decision,
       force: options?.force ?? false,
-      stagger: options?.stagger ?? true
-    }),
-    signal: directorPerformanceSignal()
-  });
-  if (!res.ok) throw new Error("Director execute failed");
-  return res.json();
+      stagger: options?.stagger ?? true,
+      trace: options?.trace
+    },
+    "Director execute failed"
+  );
 }
 
 export async function postDirectorExecuteLayered(
@@ -325,23 +397,22 @@ export async function postDirectorExecuteLayered(
     skip_interval_check?: boolean;
     stagger?: boolean;
     text_excerpt?: string;
+    trace?: TraceContext;
   }
 ): Promise<ExecuteResponse> {
-  const res = await apiFetch("/director/execute-layered", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  return directorExecuteFetch(
+    "/director/execute-layered",
+    {
       decision,
       anarchy_level: options?.anarchy_level ?? 0.5,
       stack: options?.stack ?? true,
       skip_interval_check: options?.skip_interval_check ?? true,
       stagger: options?.stagger ?? false,
-      text_excerpt: options?.text_excerpt
-    }),
-    signal: directorPerformanceSignal()
-  });
-  if (!res.ok) throw new Error("Director layered execute failed");
-  return res.json();
+      text_excerpt: options?.text_excerpt,
+      trace: options?.trace
+    },
+    "Director layered execute failed"
+  );
 }
 
 export type DirectorStreamUpdate = {

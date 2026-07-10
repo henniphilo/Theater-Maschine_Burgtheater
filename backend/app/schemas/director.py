@@ -43,10 +43,21 @@ class DirectorProcessResponse(BaseModel):
     osc_commands: list[OscCommand] = Field(default_factory=list)
 
 
+class TraceContext(BaseModel):
+    frontend_run_id: str | None = None
+    frontend_generation: int | None = None
+    source: str | None = None
+    trigger: str | None = None
+    cue_point_key: str | None = None
+    segment_key: str | None = None
+    frontend_route: str | None = None
+
+
 class ExecuteRequest(BaseModel):
     decision: DramaturgyDecision
     force: bool = False
     stagger: bool = True
+    trace: TraceContext | None = None
 
 
 class ExecuteLayeredRequest(BaseModel):
@@ -56,6 +67,7 @@ class ExecuteLayeredRequest(BaseModel):
     skip_interval_check: bool = True
     stagger: bool = False
     text_excerpt: str | None = None
+    trace: TraceContext | None = None
 
 
 class ExecuteResponse(BaseModel):
@@ -68,6 +80,8 @@ class DirectorStatusResponse(BaseModel):
     safety: dict[str, bool]
     active_cues: list[str]
     osc_queue_depth: int = 0
+    run_id: str | None = None
+    run_epoch: int = 0
     last_event: DialogueEvent | None = None
     last_decision: DramaturgyDecision | None = None
     last_executed: bool | None = None

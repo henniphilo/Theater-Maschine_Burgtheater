@@ -31,6 +31,27 @@
   ],
   "clips": [
     {
+      "id": "affenslowodysee",
+      "pixera_name": "AffenSlowOdysee",
+      "label": "AffenSlowOdysee",
+      "description": "AffenSlowOdysee",
+      "tags": [
+        "affenslowodysee"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "affenslowodysee2001",
       "pixera_name": "AffenSlowOdysee2001",
       "label": "AffenSlowOdysee2001",
@@ -105,6 +126,48 @@
       "tags": [
         "figur",
         "digital"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "avatar_iv_video",
+      "pixera_name": "Avatar_IV_Video",
+      "label": "Avatar_IV_Video",
+      "description": "Avatar_IV_Video",
+      "tags": [
+        "avatar_iv_video"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "avatar_iv_video2",
+      "pixera_name": "Avatar_IV_Video2",
+      "label": "Avatar_IV_Video2",
+      "description": "Avatar_IV_Video2",
+      "tags": [
+        "avatar_iv_video2"
       ],
       "moods": [
         "neutral",
@@ -920,6 +983,27 @@
       "can_be_interrupted": true
     },
     {
+      "id": "esellaeuft",
+      "pixera_name": "EselLaeuft",
+      "label": "EselLaeuft",
+      "description": "EselLaeuft",
+      "tags": [
+        "esellaeuft"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "esellaeuft2705",
       "pixera_name": "EselLaeuft2705",
       "label": "EselLaeuft2705",
@@ -963,6 +1047,27 @@
         "neutral",
         "spannung",
         "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "fischundwassergewasch",
+      "pixera_name": "FischUndWassergewäsch",
+      "label": "FischUndWassergewäsch",
+      "description": "FischUndWassergewäsch",
+      "tags": [
+        "fischundwassergewasch"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -1066,6 +1171,27 @@
       "can_be_interrupted": true
     },
     {
+      "id": "hundethielalspipita",
+      "pixera_name": "HundeThielAlsPipita",
+      "label": "HundeThielAlsPipita",
+      "description": "HundeThielAlsPipita",
+      "tags": [
+        "hundethielalspipita"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "inge",
       "pixera_name": "Inge",
       "label": "Inge",
@@ -1129,6 +1255,27 @@
       "can_be_interrupted": true
     },
     {
+      "id": "kaeferimmuseum",
+      "pixera_name": "KaeferImMuseum",
+      "label": "KaeferImMuseum",
+      "description": "KaeferImMuseum",
+      "tags": [
+        "kaeferimmuseum"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "kaeferimmuseumlaufendavon",
       "pixera_name": "KaeferImMuseumLaufenDavon",
       "label": "KaeferImMuseumLaufenDavon",
@@ -1144,6 +1291,27 @@
         "neutral",
         "spannung",
         "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "konzeptionuntertieren",
+      "pixera_name": "KonzeptionUnterTieren",
+      "label": "KonzeptionUnterTieren",
+      "description": "KonzeptionUnterTieren",
+      "tags": [
+        "konzeptionuntertieren"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,
@@ -2040,6 +2208,27 @@
       "can_be_interrupted": true
     },
     {
+      "id": "sebastianblurry",
+      "pixera_name": "SebastianBlurry",
+      "label": "SebastianBlurry",
+      "description": "SebastianBlurry",
+      "tags": [
+        "sebastianblurry"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
       "id": "sebastianblurryundgruen",
       "pixera_name": "SebastianBlurryUndGruen",
       "label": "SebastianBlurryUndGruen",
@@ -2105,6 +2294,27 @@
         "neutral",
         "spannung",
         "atmosphaere"
+      ],
+      "intensity_min": 0.0,
+      "intensity_max": 1.0,
+      "video_type": "atmosphere",
+      "projector_preference": null,
+      "duration_ms": null,
+      "text_content_id": null,
+      "animal": null,
+      "can_be_interrupted": true
+    },
+    {
+      "id": "sturmfischskellet",
+      "pixera_name": "SturmFischskellet",
+      "label": "SturmFischskellet",
+      "description": "SturmFischskellet",
+      "tags": [
+        "sturmfischskellet"
+      ],
+      "moods": [
+        "neutral",
+        "spannung"
       ],
       "intensity_min": 0.0,
       "intensity_max": 1.0,

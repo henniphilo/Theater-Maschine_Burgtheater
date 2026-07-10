@@ -27,7 +27,7 @@ from app.services.teil2_script_service import (
     load_canonical_script_text,
     validate_cues_against_script,
 )
-from app.services.teil2_prepare_service import get_teil2_prepare_service
+from app.services.teil2_prepare_job import get_teil2_prepare_job_service
 from app.services.avatar_speech_catalog import get_avatar_speech_catalog_service
 
 router = APIRouter(prefix="/inszenierung", tags=["inszenierung"])
@@ -35,7 +35,7 @@ _store = get_inszenierung_store()
 _analyse = InszenierungAnalyseService()
 _komposition = InszenierungKompositionService()
 _bundle = get_inszenierung_bundle_service()
-_prepare = get_teil2_prepare_service()
+_prepare_job = get_teil2_prepare_job_service()
 
 
 @router.get("/script", response_model=Teil2ScriptResponse)
@@ -80,18 +80,21 @@ def patch_corpus(corpus_id: str, payload: PatchCorpusRequest) -> SceneCorpus:
     return _store.patch(corpus_id, payload)
 
 
-@router.post("/{corpus_id}/prepare", response_model=SceneCorpus)
+@router.post(
+    "/{corpus_id}/prepare",
+    response_model=SceneCorpus,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def prepare_corpus(corpus_id: str, payload: PrepareCorpusRequest) -> SceneCorpus:
-    corpus = _store.get(corpus_id)
     try:
-        gesamtkonzept, plan = await _prepare.prepare(
-            corpus,
+        _prepare_job.start(
+            corpus_id,
             openai_model=payload.openai_model,
             performance_speaker=payload.performance_speaker,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    return _store.set_teil2_plan(corpus_id, plan, gesamtkonzept=gesamtkonzept)
+    return _store.get(corpus_id)
 
 
 @router.post("/{corpus_id}/compose-script", response_model=SceneCorpus)

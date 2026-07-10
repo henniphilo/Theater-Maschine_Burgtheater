@@ -3,13 +3,15 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.director.cues.cue_models import (
+    CuePoint,
     DramaturgyDecision,
     PerformanceSpeaker,
     VisualCue,
     VisualOutputAssignment,
 )
 
-InszenierungStatus = Literal["draft", "analyzed", "composed", "ready"]
+InszenierungStatus = Literal["draft", "analyzed", "composed", "preparing", "ready"]
+CueAnnotationKind = Literal["light", "sound", "video", "avatar"]
 SpeechMode = Literal["tts", "avatar_video", "silent"]
 ScriptSource = Literal["avatar_delfin_wolf"]
 ProjectorMode = Literal["single", "all"]
@@ -89,9 +91,30 @@ class AvatarTextSegment(BaseModel):
     csv_cue_ids: list[str] = Field(default_factory=list)
     text_excerpt: str = Field(min_length=1)
     char_offset: int | None = Field(default=None, ge=0)
+    csv_sequence_index: int = Field(default=0, ge=0)
     start_sentence_index: int = Field(ge=0)
     end_sentence_index: int = Field(ge=0)
     avatar_layers: list[AvatarSpeechLayer] = Field(default_factory=list)
+
+
+class CueAnnotation(BaseModel):
+    kind: CueAnnotationKind
+    label: str
+    projector: str | None = None
+    time_sec: float | None = None
+    sentence_index: int | None = None
+    reason: str | None = None
+
+
+class ScriptCueRow(BaseModel):
+    sentence_index: int = Field(ge=0)
+    text: str
+    annotations: list[CueAnnotation] = Field(default_factory=list)
+
+
+class ScriptCueOverview(BaseModel):
+    rows: list[ScriptCueRow] = Field(default_factory=list)
+    atmosphere_timeline: list[CueAnnotation] = Field(default_factory=list)
 
 
 class Teil2PerformancePlan(BaseModel):
@@ -100,6 +123,8 @@ class Teil2PerformancePlan(BaseModel):
     sentence_char_starts: list[int] = Field(default_factory=list)
     avatar_segments: list[AvatarTextSegment] = Field(default_factory=list)
     dramaturgy: DramaturgyDecision
+    atmosphere_cue_points: list[CuePoint] = Field(default_factory=list)
+    cue_overview: ScriptCueOverview | None = None
     anarchy_level_end: float = Field(default=1.0, ge=0.0, le=1.0)
     alignment_warnings: list[str] = Field(default_factory=list)
 
@@ -111,6 +136,8 @@ class SceneCorpus(BaseModel):
     script_source: ScriptSource | None = None
     script_text: str | None = None
     status: InszenierungStatus = "draft"
+    prepare_phase: str | None = None
+    prepare_error: str | None = None
     gesamtkonzept: Gesamtkonzept | None = None
     composition: CompositionPlan | None = None
     teil2_plan: Teil2PerformancePlan | None = None
@@ -153,12 +180,12 @@ class PatchCorpusRequest(BaseModel):
 
 
 class PrepareCorpusRequest(BaseModel):
-    openai_model: str = Field(default="gpt-4o", min_length=3, max_length=80)
+    openai_model: str = Field(default="gpt-4o-mini", min_length=3, max_length=80)
     performance_speaker: PerformanceSpeaker = "narrator"
 
 
 class AnalyseStreamRequest(BaseModel):
-    openai_model: str = Field(default="gpt-4o", min_length=3, max_length=80)
+    openai_model: str = Field(default="gpt-4o-mini", min_length=3, max_length=80)
     anthropic_model: str = Field(default="claude-sonnet-4-6", min_length=3, max_length=80)
 
 

@@ -1,0 +1,41 @@
+---
+description: Python/FastAPI backend conventions for Theatermaschine
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# Backend Python
+
+## Layout
+
+- Routes: `backend/app/api/routes/`
+- Schemas: `backend/app/schemas/`
+- Services: `backend/app/services/`
+- Director: `backend/app/director/`
+- Config: `backend/app/core/config.py` (Pydantic Settings) — no hardcoded hosts/ports
+
+## Tests
+
+- Location: `backend/tests/`
+- Runner: `make test-backend` or `backend/run-tests.sh`
+- Autouse fixtures in `backend/tests/conftest.py` set `OSC_DRY_RUN=true`, patch data dirs, reset signal trace
+- Never set `OSC_DRY_RUN=false` without explicit fake receivers (`backend/app/director/testing/fake_osc_receiver.py`)
+
+## Lint
+
+```bash
+cd backend && ruff check app tests
+```
+
+Line length: 100 (py311).
+
+## Director outputs
+
+When adding or changing output paths (OSC, MIDI, TCP):
+
+- Emit signal-trace events via `backend/app/director/outputs/signal_trace.py`
+- Add/update tests: `test_signal_trace.py`, `test_osc_queue_trace.py`, `test_run_epoch_queue.py`
+
+## Imports from scripts
+
+Scripts under `backend/scripts/` import from `app.*` with `PYTHONPATH=.` (set by run-tests.sh / run-native.sh).

@@ -1,7 +1,7 @@
 """Tests for Teil-2 atmosphere cue injection."""
 
 from app.director.cues.cue_models import CuePoint, CuePointTrigger, DramaturgyDecision
-from app.schemas.inszenierung import AnarchyCurve, AvatarSpeechLayer, AvatarTextSegment, Gesamtkonzept
+from app.schemas.inszenierung import AnarchyCurve, AvatarSpeechLayer, AvatarTextSegment
 from app.services.teil2_atmosphere_cues import inject_atmosphere_visuals
 
 

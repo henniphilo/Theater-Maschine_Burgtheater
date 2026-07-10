@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "theatermaschine-debug": {
+      "command": "bash",
+      "args": ["tools/mcp-theatermaschine/run.sh"]
+    }
+  }
+}

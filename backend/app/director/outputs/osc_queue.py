@@ -11,6 +11,12 @@ from typing import Any
 
 from app.director.cues.cue_models import OscCommand
 from app.director.outputs.osc_commands import send_osc_commands
+from app.director.outputs.signal_trace import (
+    emit_signal_trace_event,
+    log_command_send_lifecycle,
+    new_queue_batch_id,
+)
+from app.director.run_state import get_director_run_state
 
 CUE_STAGGER_SECONDS = 0.15
 _logger = logging.getLogger("theatermaschine.osc")
@@ -21,6 +27,9 @@ class _OscBatch:
     commands: list[OscCommand]
     stagger: bool
     bridges: dict[str, Any]
+    queue_batch_id: str
+    run_id: str | None = None
+    run_epoch: int | None = None
     done: threading.Event = field(default_factory=threading.Event)
     sent: list[OscCommand] = field(default_factory=list)
 
@@ -56,15 +65,30 @@ class OscCommandQueue:
         if not commands:
             return []
         self.start()
-        batch = _OscBatch(commands=commands, stagger=stagger, bridges=bridges)
+        batch_id = new_queue_batch_id()
+        batch = _OscBatch(
+            commands=commands,
+            stagger=stagger,
+            bridges=bridges,
+            queue_batch_id=batch_id,
+            run_id=commands[0].trace.run_id if commands[0].trace else None,
+            run_epoch=commands[0].trace.run_epoch if commands[0].trace else None,
+        )
         wait_timeout = timeout if timeout is not None else 30.0
         enqueued_at = time.monotonic()
+        depth_after = self.depth + 1
         _logger.info(
             "[OSC QUEUE] enqueue depth=%d cmds=%d stagger=%s",
-            self.depth + 1,
+            depth_after,
             len(commands),
             stagger,
         )
+        for cmd in commands:
+            base: dict[str, Any] = {"queue_batch_id": batch_id, "queue_depth_after": depth_after}
+            if cmd.trace:
+                base["command_id"] = cmd.trace.command_id
+                base["logical_signal_id"] = cmd.trace.logical_signal_id
+            emit_signal_trace_event("queue.enqueued", status="enqueued", **base)
         self._queue.put(batch)
         if wait:
             if not batch.done.wait(timeout=wait_timeout):
@@ -81,7 +105,7 @@ class OscCommandQueue:
     def flush(self, timeout: float = 30.0) -> None:
         """Block until all queued batches finish (tests)."""
         self.start()
-        sentinel = _OscBatch(commands=[], stagger=False, bridges={})
+        sentinel = _OscBatch(commands=[], stagger=False, bridges={}, queue_batch_id="batch-sentinel")
         self._queue.put(sentinel)
         if not sentinel.done.wait(timeout):
             raise TimeoutError("OSC queue flush timed out")
@@ -91,6 +115,17 @@ class OscCommandQueue:
             batch = self._queue.get()
             try:
                 if batch.commands:
+                    if _batch_is_stale(batch):
+                        for cmd in batch.commands:
+                            _log_stale_dropped(cmd, queue_batch_id=batch.queue_batch_id)
+                        batch.sent = []
+                        continue
+                    for cmd in batch.commands:
+                        base: dict[str, Any] = {"queue_batch_id": batch.queue_batch_id}
+                        if cmd.trace:
+                            base["command_id"] = cmd.trace.command_id
+                            base["logical_signal_id"] = cmd.trace.logical_signal_id
+                        emit_signal_trace_event("queue.dequeued", status="dequeued", **base)
                     batch.sent = self._send_batch(
                         batch.commands,
                         stagger=batch.stagger,
@@ -121,6 +156,9 @@ def send_osc_batch(
     sent: list[OscCommand] = []
     last_bridge: str | None = None
     for cmd in commands:
+        if _command_is_stale(cmd):
+            _log_stale_dropped(cmd)
+            continue
         if stagger and last_bridge is not None and cmd.bridge != last_bridge:
             time.sleep(CUE_STAGGER_SECONDS)
         last_bridge = cmd.bridge
@@ -133,8 +171,45 @@ def send_osc_batch(
                 cmd.address,
                 exc,
             )
+            log_command_send_lifecycle(cmd, failed=True, error=exc)
+        else:
+            log_command_send_lifecycle(cmd, failed=False)
         sent.append(cmd)
     return sent
+
+
+def _batch_is_stale(batch: _OscBatch) -> bool:
+    if batch.run_id is None or batch.run_epoch is None:
+        return False
+    return not get_director_run_state().is_current(batch.run_id, batch.run_epoch)
+
+
+def _command_is_stale(cmd: OscCommand) -> bool:
+    if cmd.trace is None:
+        return False
+    return not get_director_run_state().is_current(cmd.trace.run_id, cmd.trace.run_epoch)
+
+
+def _log_stale_dropped(cmd: OscCommand, *, queue_batch_id: str | None = None) -> None:
+    active = get_director_run_state().current()
+    extra: dict[str, Any] = {
+        "active_run_id": active.run_id,
+        "active_run_epoch": active.run_epoch,
+    }
+    if queue_batch_id is not None:
+        extra["queue_batch_id"] = queue_batch_id
+    if cmd.trace:
+        extra["command_id"] = cmd.trace.command_id
+        extra["logical_signal_id"] = cmd.trace.logical_signal_id
+        extra["run_id"] = cmd.trace.run_id
+        extra["run_epoch"] = cmd.trace.run_epoch
+        extra["http_request_id"] = cmd.trace.http_request_id
+    emit_signal_trace_event(
+        "queue.stale_dropped",
+        status="stale_dropped",
+        command=cmd,
+        **extra,
+    )
 
 
 _queue: OscCommandQueue | None = None

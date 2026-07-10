@@ -197,9 +197,19 @@ class SoundMidiBridge:
 
     def _send(self, label: str, message: object, *, dry_run: bool) -> None:
         from app.director.outputs.midi_log import log_midi_command
+        from app.director.outputs.signal_trace import emit_signal_trace_event
 
         port = self._port_label()
         log_midi_command(port, label, dry_run=dry_run or self._is_dry_run())
+        channel = getattr(message, "channel", settings.sound_midi_channel - 1) + 1
+        emit_signal_trace_event(
+            "midi.send_logged",
+            status="midi_logged",
+            midi_port=port,
+            midi_channel=channel,
+            midi_message=label,
+            dry_run=dry_run or self._is_dry_run(),
+        )
         if dry_run or self._is_dry_run():
             return
         try:

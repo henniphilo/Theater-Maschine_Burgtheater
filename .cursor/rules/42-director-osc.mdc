@@ -1,0 +1,47 @@
+---
+description: Director pipeline, OSC output, and signal-trace conventions
+globs: backend/app/director/**/*,backend/app/api/routes/director.py,backend/app/schemas/director.py,frontend/lib/api/director.ts,frontend/lib/types/director.ts
+alwaysApply: false
+---
+
+# Director & OSC
+
+## Pipeline flow
+
+```
+DialogueEvent → DramaturgyEngine → CueScheduler → DirectorPipeline → Bridges
+```
+
+See [docs/architektur.md](docs/architektur.md) for layer diagram.
+
+## Key modules
+
+- Pipeline: `backend/app/director/pipeline.py`
+- OSC queue: `backend/app/director/outputs/osc_queue.py` (150ms stagger between cue types)
+- Signal trace: `backend/app/director/outputs/signal_trace.py`
+- Run state: `backend/app/director/run_state.py`
+- Safety: `SafetyState` (autopilot, bridge toggles, emergency stop, min gaps)
+
+## Signal trace fields
+
+Correlate events using: `run_epoch`, `frontend_run_id`, `run_id`, `cue_id`, `bridge`, `command_id`, `event`, `status`.
+
+Trace file: `logs/signal_trace.jsonl` (or `backend/logs/` depending on cwd).
+
+## Testing output changes
+
+Prefer fake receivers over real UDP sockets:
+
+- `backend/app/director/testing/fake_osc_receiver.py`
+
+Relevant tests:
+
+- `backend/tests/test_signal_trace.py`
+- `backend/tests/test_osc_queue_trace.py`
+- `backend/tests/test_run_epoch_queue.py`
+- `backend/tests/test_fake_receivers.py`
+
+## Avoid
+
+- Quick fixes that bypass the OSC queue without analyzing stagger/drop behavior
+- Enabling live OSC in tests without dry-run or fake receivers

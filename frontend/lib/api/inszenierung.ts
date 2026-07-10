@@ -7,7 +7,68 @@ import type {
 import type { PerformanceSpeaker } from "@/lib/types/director";
 import { apiBaseUrl, apiFetch, apiFetchJson } from "@/lib/api/base";
 
-const PREPARE_TIMEOUT_MS = 180_000;
+const PREPARE_POLL_MS = 2_000;
+const PREPARE_MAX_WAIT_MS = 600_000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function pollCorpusUntilReady(
+  corpusId: string,
+  options?: {
+    onUpdate?: (corpus: SceneCorpus) => void;
+    maxWaitMs?: number;
+    pollMs?: number;
+  }
+): Promise<SceneCorpus> {
+  const maxWaitMs = options?.maxWaitMs ?? PREPARE_MAX_WAIT_MS;
+  const pollMs = options?.pollMs ?? PREPARE_POLL_MS;
+  const started = Date.now();
+
+  while (Date.now() - started < maxWaitMs) {
+    const corpus = await fetchCorpus(corpusId);
+    options?.onUpdate?.(corpus);
+
+    if (corpus.prepare_error) {
+      throw new Error(corpus.prepare_error);
+    }
+    if (corpus.status === "ready" && corpus.teil2_plan?.sentences?.length) {
+      return corpus;
+    }
+    if (corpus.status !== "preparing") {
+      if (corpus.teil2_plan?.sentences?.length) {
+        return corpus;
+      }
+      throw new Error("Vorbereiten abgebrochen — kein Plan vorhanden");
+    }
+    await sleep(pollMs);
+  }
+  throw new Error("Vorbereiten dauert zu lange — bitte erneut versuchen.");
+}
+
+export async function prepareCorpus(
+  corpusId: string,
+  options?: {
+    openai_model?: string;
+    performance_speaker?: PerformanceSpeaker;
+    onUpdate?: (corpus: SceneCorpus) => void;
+  }
+): Promise<SceneCorpus> {
+  const initial = await apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}/prepare`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      openai_model: options?.openai_model ?? "gpt-4o-mini",
+      performance_speaker: options?.performance_speaker ?? "narrator"
+    })
+  });
+  options?.onUpdate?.(initial);
+  if (initial.status !== "preparing") {
+    return initial;
+  }
+  return pollCorpusUntilReady(corpusId, { onUpdate: options?.onUpdate });
+}
 
 export async function fetchScript(): Promise<Teil2ScriptResponse> {
   return apiFetchJson<Teil2ScriptResponse>("/inszenierung/script");
@@ -34,32 +95,6 @@ export async function patchCorpus(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-}
-
-export async function prepareCorpus(
-  corpusId: string,
-  options?: { openai_model?: string; performance_speaker?: PerformanceSpeaker }
-): Promise<SceneCorpus> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), PREPARE_TIMEOUT_MS);
-  try {
-    return await apiFetchJson<SceneCorpus>(`/inszenierung/${corpusId}/prepare`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        openai_model: options?.openai_model ?? "gpt-4o",
-        performance_speaker: options?.performance_speaker ?? "narrator"
-      }),
-      signal: controller.signal
-    });
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error("Vorbereiten dauert zu lange (>3 Min.) — bitte erneut versuchen.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeout);
-  }
 }
 
 export async function composeScript(corpusId: string): Promise<SceneCorpus> {

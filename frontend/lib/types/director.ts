@@ -1,5 +1,23 @@
 import type { VisualCue } from "@/lib/types/visual";
 
+export type CommandTraceMeta = {
+  logical_signal_id: string;
+  command_id: string;
+  run_id?: string | null;
+  run_epoch?: number | null;
+  http_request_id?: string | null;
+};
+
+export type TraceContext = {
+  frontend_run_id?: string;
+  frontend_generation?: number;
+  source?: string;
+  trigger?: string;
+  cue_point_key?: string;
+  segment_key?: string;
+  frontend_route?: string;
+};
+
 export type OscCommand = {
   bridge: string;
   host: string;
@@ -8,6 +26,7 @@ export type OscCommand = {
   args: unknown[];
   dry_run: boolean;
   mirror?: boolean;
+  trace?: CommandTraceMeta | null;
 };
 
 

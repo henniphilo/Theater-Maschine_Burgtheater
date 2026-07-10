@@ -16,7 +16,7 @@ COMPOSE_NATIVE := $(COMPOSE_BASE) -f docker-compose.native.yml
 
 .PHONY: help setup build up down stop ps logs \
         docker-native native-deps run native \
-        test test-backend test-frontend visualize-logs
+        test test-backend test-frontend visualize-logs analyze-signal-trace prepare-tryout
 
 help: ## Ziele anzeigen
 	@echo "Theatermaschine — make targets"
@@ -72,11 +72,30 @@ native: run ## Alias für make run
 
 test: test-backend test-frontend ## Backend- und Frontend-Tests
 
-visualize-logs: ## Timeline aus logs/osc.log (matplotlib, nutzt backend/.venv)
+visualize-logs: ## Sendereihenfolge letzter Durchlauf (signal_trace oder osc.log)
 	cd "$(ROOT)/backend" && .venv/bin/pip install -q -e ".[viz]"
-	cd "$(ROOT)/backend" && MPLCONFIGDIR="$(ROOT)/logs/.mplcache" .venv/bin/python scripts/visualize_show_logs.py \
+	cd "$(ROOT)/backend" && MPLCONFIGDIR="$(ROOT)/logs/.mplcache" MPLBACKEND=Agg .venv/bin/python scripts/visualize_show_logs.py \
+		--trace "$(ROOT)/logs/signal_trace.jsonl" \
 		--osc "$(ROOT)/logs/osc.log" \
-		-o "$(ROOT)/logs/show_timeline.png"
+		-o "$(ROOT)/logs/show_timeline.png" \
+		--report "$(ROOT)/logs/show_timeline.txt"
+
+analyze-signal-trace: ## Drop-Analyse aus logs/signal_trace.jsonl
+	@if [[ -s "$(ROOT)/logs/signal_trace.jsonl" ]]; then \
+		TRACE="$(ROOT)/logs/signal_trace.jsonl"; \
+	elif [[ -s "$(ROOT)/backend/logs/signal_trace.jsonl" ]]; then \
+		TRACE="$(ROOT)/backend/logs/signal_trace.jsonl"; \
+	else \
+		TRACE="$(ROOT)/logs/signal_trace.jsonl"; \
+	fi; \
+	cd "$(ROOT)/backend" && .venv/bin/python scripts/analyze_signal_trace.py --trace "$$TRACE"
+
+prepare-tryout: ## Logs archivieren, Director auf Probebetrieb, Trace leeren
+	cd "$(ROOT)/backend" && .venv/bin/python scripts/prepare_tryout_run.py
+
+run-tryout: prepare-tryout ## Probebetrieb: Script-Cues via API feuern + Analyse
+	cd "$(ROOT)/backend" && .venv/bin/python scripts/run_tryout_api.py --max-cues 12
+	@$(MAKE) analyze-signal-trace
 
 test-backend: ## pytest via backend/run-tests.sh (venv + deps)
 	cd "$(ROOT)/backend" && ./run-tests.sh -q

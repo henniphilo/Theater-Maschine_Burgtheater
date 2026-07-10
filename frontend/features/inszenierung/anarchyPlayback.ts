@@ -1,4 +1,4 @@
-import { armDirectorForPerformance, postDirectorExecuteLayered, stopDirectorPerformance } from "@/lib/api/director";
+import { armDirectorForPerformance, postDirectorExecuteLayered, startFrontendPlaybackTrace, stopDirectorPerformance } from "@/lib/api/director";
 import type { CompositionMoment, CompositionPlan, SceneCorpus } from "@/lib/types/inszenierung";
 import { getPlaybackRate, sleepWallMs, waitWhilePlaybackPaused } from "@/lib/api/client";
 import { firePerformanceEndCues } from "@/features/show/cuePlayback";
@@ -63,7 +63,7 @@ export function avatarBeatHoldMs(moment: CompositionMoment): number {
 
 export function stopAnarchyPlayback(): void {
   stopAllLayeredAudio();
-  stopDirectorPerformance();
+  void stopDirectorPerformance().catch(() => undefined);
 }
 
 export async function runAnarchyPlayback(
@@ -71,9 +71,17 @@ export async function runAnarchyPlayback(
   plan: CompositionPlan,
   ttsAvailable: boolean,
   onUpdate: (patch: Partial<AnarchyPlaybackState>) => void,
-  shouldAbort: () => boolean
+  shouldAbort: () => boolean,
+  options?: { playbackGeneration?: number }
 ): Promise<void> {
-  armDirectorForPerformance();
+  if (options?.playbackGeneration != null) {
+    startFrontendPlaybackTrace({
+      generation: options.playbackGeneration,
+      source: "teil2_anarchy",
+      route: "/auffuehrung"
+    });
+  }
+  await armDirectorForPerformance();
   const moments = [...plan.moments].sort((a, b) => a.order - b.order);
   const maxVoices = plan.max_concurrent_voices ?? 3;
   const needsTts = planRequiresTts(plan);

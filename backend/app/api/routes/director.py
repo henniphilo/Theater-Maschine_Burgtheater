@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 
 from app.core.config import settings
 from app.director.outputs.osc_queue import get_osc_command_queue
+from app.director.outputs.signal_trace import begin_request_trace, emit_signal_trace_event
 from app.director.pipeline import get_director_pipeline
 from app.director.recording import RecordingManager
 from app.schemas.director import (
@@ -25,6 +26,7 @@ from app.schemas.director import (
     TechnikStopRequest,
     LightDeskStatusResponse,
     LightSendRequest,
+    TraceContext,
 )
 
 router = APIRouter(prefix="/director", tags=["director"])
@@ -56,10 +58,13 @@ def _status_response() -> DirectorStatusResponse:
     state = _pipeline.state
     last = state.last_result
     queue_depth = get_osc_command_queue().depth if settings.director_osc_queue else 0
+    run_context = _pipeline.run_state.current()
     return DirectorStatusResponse(
         safety=_pipeline.safety.to_dict(),
         active_cues=list(_pipeline.scheduler.active_cues),
         osc_queue_depth=queue_depth,
+        run_id=run_context.run_id,
+        run_epoch=run_context.run_epoch,
         last_event=state.last_event,
         last_decision=state.last_decision,
         last_executed=last.executed if last else None,
@@ -75,13 +80,46 @@ def post_dialogue_event(payload: DialogueEventRequest) -> DirectorProcessRespons
     return _to_response(_pipeline.process(payload.to_event()))
 
 
+def _log_api_response_executed(
+    request_trace,
+    *,
+    executed: bool,
+    osc_commands_count: int,
+    blocked_reason: str | None = None,
+) -> None:
+    emit_signal_trace_event(
+        "api.response_executed",
+        status="executed" if executed else "not_executed",
+        request_trace=request_trace,
+        executed=executed,
+        osc_commands_count=osc_commands_count,
+        queue_mode=settings.director_osc_queue,
+        blocked_reason=blocked_reason,
+    )
+
+
 @router.post("/execute", response_model=ExecuteResponse)
 def post_execute(payload: ExecuteRequest) -> ExecuteResponse:
     _ensure_enabled()
+    request_trace = begin_request_trace(payload.trace)
+    emit_signal_trace_event(
+        "director.execute_received",
+        status="received",
+        request_trace=request_trace,
+        route="/director/execute",
+    )
     result = _pipeline.execute(
         payload.decision,
         force=payload.force,
         stagger=payload.stagger,
+        trace=payload.trace,
+        request_trace=request_trace,
+    )
+    _log_api_response_executed(
+        request_trace,
+        executed=result.executed,
+        osc_commands_count=len(result.osc_commands),
+        blocked_reason=result.blocked_reason,
     )
     return ExecuteResponse(
         executed=result.executed,
@@ -93,6 +131,13 @@ def post_execute(payload: ExecuteRequest) -> ExecuteResponse:
 @router.post("/execute-layered", response_model=ExecuteResponse)
 def post_execute_layered(payload: ExecuteLayeredRequest) -> ExecuteResponse:
     _ensure_enabled()
+    request_trace = begin_request_trace(payload.trace)
+    emit_signal_trace_event(
+        "director.execute_received",
+        status="received",
+        request_trace=request_trace,
+        route="/director/execute-layered",
+    )
     result = _pipeline.execute_layered(
         payload.decision,
         anarchy_level=payload.anarchy_level,
@@ -100,6 +145,14 @@ def post_execute_layered(payload: ExecuteLayeredRequest) -> ExecuteResponse:
         skip_interval_check=payload.skip_interval_check,
         stagger=payload.stagger,
         text_excerpt=payload.text_excerpt,
+        trace=payload.trace,
+        request_trace=request_trace,
+    )
+    _log_api_response_executed(
+        request_trace,
+        executed=result.executed,
+        osc_commands_count=len(result.osc_commands),
+        blocked_reason=result.blocked_reason,
     )
     return ExecuteResponse(
         executed=result.executed,
@@ -165,7 +218,27 @@ def post_osc_test(payload: OscTestRequest | None = None) -> OscTestResponse:
         ),
         reason="OSC Technik-Test",
     )
-    result = _pipeline.execute(decision, force=True, stagger=body.stagger)
+    osc_trace = TraceContext(source="osc_test")
+    request_trace = begin_request_trace(osc_trace)
+    emit_signal_trace_event(
+        "director.execute_received",
+        status="received",
+        request_trace=request_trace,
+        route="/director/osc-test",
+    )
+    result = _pipeline.execute(
+        decision,
+        force=True,
+        stagger=body.stagger,
+        trace=osc_trace,
+        request_trace=request_trace,
+    )
+    _log_api_response_executed(
+        request_trace,
+        executed=result.executed,
+        osc_commands_count=len(result.osc_commands),
+        blocked_reason=result.blocked_reason,
+    )
     dry_run = settings.osc_dry_run
     target = f"{settings.osc_host}:{settings.osc_port}"
     return OscTestResponse(

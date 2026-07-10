@@ -87,3 +87,23 @@ def test_align_numbers_unicode_separators_and_short_anchors():
     assert not warnings, warnings
     assert len(segments) == 4
     assert {s.csv_cue_ids[0] for s in segments} == {"bak1", "wo1", "bk6", "sch2"}
+    assert [s.csv_sequence_index for s in segments] == [0, 1, 2, 3]
+
+
+def test_align_preserves_csv_row_order():
+    script = (
+        "23. Der Delphin? Man hat mich dazu gezwungen.\n\n"
+        "24. Der Bärenklauer übernimmt.\n\n"
+        "25. Das Lamm Gottes,\n"
+    )
+    cues = [
+        _cue("DEL1", "23. Der Delphin? Man hat mich dazu gezwungen."),
+        _cue("BK1", "24. Der Bärenklauer übernimmt.", "baerenklau", "bk1"),
+        _cue("LG1", "25. Das Lamm Gottes,", "lamm", "lg1"),
+    ]
+    segments, warnings = align_avatar_csv_to_script(script, cues)
+    assert not warnings
+    assert [s.csv_sequence_index for s in segments] == [0, 1, 2]
+    assert segments[0].csv_cue_ids == ["DEL1"]
+    assert segments[1].csv_cue_ids == ["BK1"]
+    assert (segments[0].char_offset or 0) < (segments[1].char_offset or 0) < (segments[2].char_offset or 0)

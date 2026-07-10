@@ -1,0 +1,40 @@
+---
+description: Canonical dev commands and workflow for Theatermaschine
+alwaysApply: true
+---
+
+# Dev Workflow
+
+Use Makefile targets — do not invent ad-hoc commands.
+
+## Start / stop
+
+- Native backend (MIDI, macOS say): `make run`
+- Full Docker stack: `make up`
+- Stop everything: `make stop`
+- Env bootstrap: `make setup` (copies `backend/.env.example`)
+
+## Tests
+
+- All: `make test`
+- Backend only: `make test-backend` (pytest via `backend/run-tests.sh`, sets `OSC_DRY_RUN=true`)
+- Frontend only: `make test-frontend` (vitest)
+- After backend changes: run at least the affected test file under `backend/tests/`
+
+## Debug / probe
+
+- Signal drop analysis: `make analyze-signal-trace`
+- Timeline visualization: `make visualize-logs` → `logs/show_timeline.png`
+- Automated probe run: `make run-tryout` (requires running backend)
+
+## Environment
+
+- Secrets only in `backend/.env` — never commit
+- Tests must use `OSC_DRY_RUN=true` (set automatically by `run-tests.sh` and `conftest.py`)
+- Native backend uses repo-root `data/` and `logs/` (see `backend/run-native.sh`)
+
+## CI parity
+
+- Backend CI: ruff + pytest
+- Frontend CI: lint + build + vitest
+- Run frontend vitest locally even when only backend changed if Director/Teil2 timing is affected
