@@ -29,6 +29,8 @@ logs/
 # Large media assets (local / Docker volume only — not in Git)
 media/video/*
 !media/video/.gitkeep
+!media/video/OSCBefehllisteAvatare.txt
+!media/video/OSCBefehllisteOhneAvatare.txt
 media/recordings/*
 !media/recordings/.gitkeep
 *.mov
