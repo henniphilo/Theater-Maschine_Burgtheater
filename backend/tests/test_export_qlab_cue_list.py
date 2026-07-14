@@ -1,0 +1,42 @@
+"""Tests for export_qlab_cue_list.py."""
+
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SCRIPT = ROOT / "backend" / "scripts" / "export_qlab_cue_list.py"
+
+
+def _load_module():
+    spec = importlib.util.spec_from_file_location("export_qlab_cue_list", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_collect_rows_includes_all_osc_sources() -> None:
+    module = _load_module()
+    rows = module.collect_rows()
+    sources = {row["source"] for row in rows}
+    assert "database" in sources
+    assert "avatar" in sources
+    assert "atmosphere" in sources
+    assert len(rows) == 404
+
+
+def test_bak1_uses_alias_for_qlab_number() -> None:
+    module = _load_module()
+    rows = module.collect_rows()
+    match = next(row for row in rows if row["clip_part"] == "BAK1_NicolasPflanzen3" and row["projector"] == "rz21")
+    assert match["clip_id"] == "bak1_nicolaspflanzen3"
+    assert match["qlab_cue_number"] == "KI_RZ21.BAK1_Nicolas_Pflanzen"
+    assert match["source"] == "avatar"
+
+
+def test_rz21_subset_has_101_entries() -> None:
+    module = _load_module()
+    rows = [row for row in module.collect_rows() if row["projector"] == "rz21"]
+    assert len(rows) == 101

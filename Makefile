@@ -15,7 +15,7 @@ COMPOSE_NATIVE := $(COMPOSE_BASE) -f docker-compose.native.yml
 .DEFAULT_GOAL := help
 
 .PHONY: help setup build up down stop ps logs \
-        docker-native native-deps run native \
+        docker-native native-deps run native qlab-relay qlab-cue-list qlab-import qlab-stages \
         test test-backend test-frontend visualize-logs analyze-signal-trace prepare-tryout
 
 help: ## Ziele anzeigen
@@ -69,6 +69,46 @@ run: native-deps ## Docker-Infrastruktur + natives Backend (run-native.sh)
 	cd "$(ROOT)/backend" && ./run-native.sh
 
 native: run ## Alias für make run
+
+qlab-relay: ## Pixera-OSC → QLab-Relay (127.0.0.1:8990 → :53000) — siehe docs/qlab_setup.md
+	@if [[ ! -x "$(ROOT)/backend/.venv/bin/python" ]]; then \
+		echo "Backend-venv fehlt — zuerst: cd backend && ./run-native.sh (oder make run)" >&2; \
+		exit 1; \
+	fi
+	cd "$(ROOT)/backend" && .venv/bin/python ../tools/pixera_qlab_relay.py -v
+
+qlab-cue-list: ## QLab-Cue-CSV aus OSC-Listen (data/qlab_cue_list_*.csv)
+	@if [[ ! -x "$(ROOT)/backend/.venv/bin/python" ]]; then \
+		echo "Backend-venv fehlt — zuerst: cd backend && ./run-native.sh (oder make run)" >&2; \
+		exit 1; \
+	fi
+	cd "$(ROOT)/backend" && .venv/bin/python scripts/export_qlab_cue_list.py
+
+qlab-stages: ## QLab Preview-Stages setzen (RZ21→1, Adam→2, Eva→3, LED→4)
+	python3 "$(ROOT)/tools/qlab_assign_video_stages.py"
+
+qlab-import: ## QLab-Cues importieren — make qlab-import VIDEO_DIR=/pfad PROJECTOR=adam SOURCE=all
+	@if [[ -z "$(VIDEO_DIR)" ]]; then \
+		echo "VIDEO_DIR fehlt — z. B.: make qlab-import VIDEO_DIR=/pfad/zu/videos PROJECTOR=adam" >&2; \
+		exit 1; \
+	fi
+	@SRC="$(SOURCE)"; \
+	PROJ="$(PROJECTOR)"; \
+	CSV="$(ROOT)/data/qlab_cue_list_all.csv"; \
+	if [[ -n "$$PROJ" && "$$PROJ" != "all" ]]; then \
+		CMD="python3 \"$(ROOT)/tools/qlab_import_video_cues.py\" \"$(VIDEO_DIR)\" \"$$CSV\" --projector $$PROJ"; \
+		if [[ -n "$$SRC" && "$$SRC" != "all" ]]; then CMD="$$CMD --source $$SRC"; fi; \
+		$$CMD; \
+	elif [[ "$$SRC" == "all" ]]; then \
+		for s in avatar atmosphere database; do \
+			echo "=== Import $$s (alle Projektoren) ==="; \
+			python3 "$(ROOT)/tools/qlab_import_video_cues.py" "$(VIDEO_DIR)" "$$CSV" --source $$s || exit 1; \
+		done; \
+	else \
+		CMD="python3 \"$(ROOT)/tools/qlab_import_video_cues.py\" \"$(VIDEO_DIR)\" \"$$CSV\""; \
+		if [[ -n "$$SRC" ]]; then CMD="$$CMD --source $$SRC"; fi; \
+		$$CMD; \
+	fi
 
 test: test-backend test-frontend ## Backend- und Frontend-Tests
 
