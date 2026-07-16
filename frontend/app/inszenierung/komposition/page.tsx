@@ -4,12 +4,12 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { RegieCard } from "@/components/show/RegieCard";
 import { momentSpeechLabel } from "@/features/inszenierung/inszenierungBuffer";
 import { composeScript, fetchCorpus, streamKomposition } from "@/lib/api/inszenierung";
 import type { CompositionMoment, KompositionStreamEvent, SceneCorpus } from "@/lib/types/inszenierung";
 import type { DirectorPayload } from "@/lib/types/director";
+import { sessionGet } from "@/lib/browser/session";
 
 function projectorLabel(moment: CompositionMoment): string {
   if (moment.projector_mode === "all") return "alle Beamer";
@@ -23,7 +23,7 @@ function projectorLabel(moment: CompositionMoment): string {
 function KompositionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+  const corpusId = searchParams.get("id") ?? sessionGet("currentCorpusId") ?? "";
 
   useEffect(() => {
     if (corpusId) {
@@ -95,9 +95,8 @@ function KompositionContent() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Komposition</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Komposition</h1>
       </div>
       <p className="textMuted">
         Deterministische Timeline aus dem Avatar-Skript — Anarchie steigt über die CSV-Reihenfolge.

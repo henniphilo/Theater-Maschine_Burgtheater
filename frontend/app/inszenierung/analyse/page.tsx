@@ -4,14 +4,14 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { fetchCorpus, streamAnalyse } from "@/lib/api/inszenierung";
 import type { AnalyseStreamEvent, SceneCorpus } from "@/lib/types/inszenierung";
+import { sessionGet, sessionSet } from "@/lib/browser/session";
 
 function AnalyseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+  const corpusId = searchParams.get("id") ?? sessionGet("currentCorpusId") ?? "";
 
   useEffect(() => {
     if (corpusId) {
@@ -61,7 +61,7 @@ function AnalyseContent() {
           }
           if (event.type === "corpus_updated" && event.corpus) {
             setCorpus(event.corpus);
-            sessionStorage.setItem("currentCorpusId", event.corpus.id);
+            sessionSet("currentCorpusId", event.corpus.id);
           }
           if (event.type === "done") {
             setThinking(null);
@@ -83,9 +83,8 @@ function AnalyseContent() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Analyse — Gesamtkonzept</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Analyse — Gesamtkonzept</h1>
       </div>
       <p className="textMuted">
         Dramaturgen diskutieren den festen Avatar-Skriptablauf zum Thema Geld und formen ein Gesamtkonzept.

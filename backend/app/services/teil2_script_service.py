@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import uuid
 from dataclasses import dataclass
@@ -40,8 +41,23 @@ SCRIPT_SCENE_ID = "avatar-delfin-wolf"
 
 
 def _repo_roots() -> list[Path]:
-    module_root = Path(__file__).resolve()
-    return [module_root.parents[2], module_root.parents[3], Path.cwd()]
+    """Kandidaten für Repo-Root (nativ, Docker /app, cwd, DIRECTOR_DATA_DIR)."""
+    module_file = Path(__file__).resolve()
+    # …/backend/app/services/this.py → backend, repo
+    # Docker: /app/app/services/this.py → /app, /
+    roots: list[Path] = [module_file.parents[2], module_file.parents[3], Path.cwd()]
+    data_dir = os.environ.get("DIRECTOR_DATA_DIR", "").strip()
+    if data_dir:
+        # run-native.sh setzt DIRECTOR_DATA_DIR=$ROOT/data
+        roots.insert(0, Path(data_dir).expanduser().resolve().parent)
+    # Deduplizieren, Reihenfolge behalten
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for root in roots:
+        if root not in seen:
+            seen.add(root)
+            unique.append(root)
+    return unique
 
 
 def resolve_script_txt_path() -> Path | None:

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from app.director.cues.cue_models import OscCommand
-from app.director.outputs.osc_commands import send_osc_commands
+from app.director.outputs.osc_commands import apply_runtime_safety_dry_run, send_osc_commands
 from app.director.outputs.signal_trace import (
     emit_signal_trace_event,
     log_command_send_lifecycle,
@@ -159,6 +159,7 @@ def send_osc_batch(
         if _command_is_stale(cmd):
             _log_stale_dropped(cmd)
             continue
+        cmd = apply_runtime_safety_dry_run(cmd)
         if stagger and last_bridge is not None and cmd.bridge != last_bridge:
             time.sleep(CUE_STAGGER_SECONDS)
         last_bridge = cmd.bridge

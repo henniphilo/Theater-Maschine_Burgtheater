@@ -183,6 +183,7 @@ tests/test_media_inventory.py
 tests/test_media_mentions.py
 tests/test_media_selector.py
 tests/test_neutral_reset.py
+tests/test_osc_log_recent.py
 tests/test_osc_queue.py
 tests/test_osc_queue_trace.py
 tests/test_part1_selection_builder.py

@@ -16,7 +16,8 @@ COMPOSE_NATIVE := $(COMPOSE_BASE) -f docker-compose.native.yml
 
 .PHONY: help setup build up down stop ps logs \
         docker-native native-deps run native qlab-relay qlab-cue-list qlab-import qlab-stages \
-        test test-backend test-frontend visualize-logs analyze-signal-trace prepare-tryout
+        test test-backend test-frontend visualize-logs analyze-signal-trace prepare-tryout \
+        desktop-install
 
 help: ## Ziele anzeigen
 	@echo "Theatermaschine — make targets"
@@ -69,6 +70,9 @@ run: native-deps ## Docker-Infrastruktur + natives Backend (run-native.sh)
 	cd "$(ROOT)/backend" && ./run-native.sh
 
 native: run ## Alias für make run
+
+desktop-install: ## Start-/Stop-Apps auf dem macOS-Desktop installieren
+	"$(ROOT)/tools/desktop/install-desktop-apps.sh"
 
 qlab-relay: ## Pixera-OSC → QLab-Relay (127.0.0.1:8990 → :53000) — siehe docs/qlab_setup.md
 	@if [[ ! -x "$(ROOT)/backend/.venv/bin/python" ]]; then \

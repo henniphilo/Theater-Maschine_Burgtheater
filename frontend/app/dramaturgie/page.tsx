@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { RegieCard } from "@/components/show/RegieCard";
 import { loadDramaturgySession } from "@/features/dramaturgy/session";
 import {
@@ -106,9 +105,8 @@ export default function DramaturgiePage() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Teil 1</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Teil 1</h1>
       </div>
       <p className="textMuted">
         Claude und ChatGPT besprechen Thema, Zitate und Medienwahl. Du kannst während des Workshops zu anderen Seiten

@@ -4,17 +4,17 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
 import { fetchMediaCatalog } from "@/lib/api/media";
 import { fetchScript, patchScriptBeat } from "@/lib/api/script";
 import { buildMediaLookup, type MediaLookup } from "@/lib/types/media";
 import { isBaerenklauBeat, isPart1Beat } from "@/lib/show/baerenklauBeat";
 import type { ProductionScript, ScriptSpeaker } from "@/lib/types/script";
+import { sessionGet, sessionSet } from "@/lib/browser/session";
 
 function StueckContent() {
   const searchParams = useSearchParams();
-  const scriptId = searchParams.get("id") ?? sessionStorage.getItem("currentScriptId") ?? "";
+  const scriptId = searchParams.get("id") ?? sessionGet("currentScriptId") ?? "";
   const [script, setScript] = useState<ProductionScript | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ function StueckContent() {
     try {
       const data = await fetchScript(scriptId);
       setScript(data);
-      sessionStorage.setItem("currentScriptId", data.id);
+      sessionSet("currentScriptId", data.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Stück nicht gefunden");
     } finally {
@@ -59,9 +59,8 @@ function StueckContent() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Stücktext</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Stücktext</h1>
       </div>
       <p className="textMuted">Gesamter Text mit eingezeichneten Regieentscheidungen — ohne Wiedergabe.</p>
 

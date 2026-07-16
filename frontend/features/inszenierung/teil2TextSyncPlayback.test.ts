@@ -50,6 +50,7 @@ vi.mock("@/features/show/cuePlayback", () => ({
   fireSentenceCues: vi.fn(),
   fireStartCues: vi.fn(),
   fireTimeCues: vi.fn(),
+  markTimeCuesAsFired: vi.fn(),
   firePerformanceEndCues: vi.fn().mockResolvedValue(undefined)
 }));
 
@@ -248,5 +249,48 @@ describe("teil2TextSyncPlayback", () => {
     });
 
     expect(resolveSentenceSpeech).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks earlier avatar segments fired when seeking mid-show", async () => {
+    const { markAvatarSegmentsBeforeAsFired, nextUnfiredAvatarSegment, avatarSegmentKey } =
+      await import("@/features/inszenierung/avatarCuePlayback");
+    const plan = basePlan({
+      sentences: ["Eins.", "Zwei.", "Drei."],
+      sentence_char_starts: [0, 5, 10],
+      avatar_segments: [
+        {
+          csv_cue_ids: ["a"],
+          text_excerpt: "Eins.",
+          char_offset: 0,
+          start_sentence_index: 0,
+          end_sentence_index: 0,
+          avatar_layers: []
+        },
+        {
+          csv_cue_ids: ["b"],
+          text_excerpt: "Zwei.",
+          char_offset: 5,
+          start_sentence_index: 1,
+          end_sentence_index: 1,
+          avatar_layers: []
+        },
+        {
+          csv_cue_ids: ["c"],
+          text_excerpt: "Drei.",
+          char_offset: 10,
+          start_sentence_index: 2,
+          end_sentence_index: 2,
+          avatar_layers: []
+        }
+      ]
+    });
+    const fired = new Set<string>();
+    const marked = markAvatarSegmentsBeforeAsFired(plan, 10, fired, plan.sentence_char_starts);
+    expect(marked).toBe(2);
+    expect(fired.has(avatarSegmentKey(plan.avatar_segments[0]!))).toBe(true);
+    expect(fired.has(avatarSegmentKey(plan.avatar_segments[1]!))).toBe(true);
+    expect(nextUnfiredAvatarSegment(plan, 10, fired, plan.sentence_char_starts)).toMatchObject({
+      csv_cue_ids: ["c"]
+    });
   });
 });

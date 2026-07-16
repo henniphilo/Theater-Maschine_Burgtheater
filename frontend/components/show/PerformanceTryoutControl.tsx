@@ -3,18 +3,13 @@
 import { useEffect, useState } from "react";
 
 import { syncPerformanceTryoutToDirector } from "@/lib/api/director";
+import {
+  noteDesiredPerformanceTryout,
+  readPerformanceTryout,
+  writePerformanceTryout
+} from "@/lib/performanceTryout";
 
-const STORAGE_KEY = "teil2PerformanceTryout";
-
-export function readPerformanceTryout(): boolean {
-  if (typeof window === "undefined") return false;
-  return sessionStorage.getItem(STORAGE_KEY) === "1";
-}
-
-export function writePerformanceTryout(enabled: boolean): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(STORAGE_KEY, enabled ? "1" : "0");
-}
+export { readPerformanceTryout, writePerformanceTryout } from "@/lib/performanceTryout";
 
 type PerformanceTryoutControlProps = {
   disabled?: boolean;
@@ -27,6 +22,7 @@ export function PerformanceTryoutControl({ disabled }: PerformanceTryoutControlP
   useEffect(() => {
     const initial = readPerformanceTryout();
     setTryout(initial);
+    noteDesiredPerformanceTryout(initial);
     void syncPerformanceTryoutToDirector(initial).catch((err) => {
       console.warn("Probebetrieb konnte beim Laden nicht synchronisiert werden:", err);
     });

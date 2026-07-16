@@ -46,14 +46,6 @@ export function WorkshopStatusBar() {
     <div
       className={isError ? "workshopStatusBar workshopStatusBarError" : "workshopStatusBar"}
       role="status"
-      style={{
-        fontSize: "0.85rem",
-        padding: "0.35rem 0.75rem",
-        marginBottom: "0.5rem",
-        borderRadius: 6,
-        background: isError ? "rgba(200,60,60,0.12)" : "rgba(107,140,255,0.12)",
-        border: `1px solid ${isError ? "rgba(200,60,60,0.35)" : "rgba(107,140,255,0.35)"}`
-      }}
     >
       {phaseLabel && workshop.status === "running" ? (
         <span>

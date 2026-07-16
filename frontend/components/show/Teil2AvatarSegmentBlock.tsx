@@ -23,6 +23,7 @@ export function Teil2AvatarSegmentBlock({
   const content = (
     <>
       <header className="teil2SegmentHeader">
+        <span className="teil2SegmentIndex">{String(index + 1).padStart(2, "0")}</span>
         <strong>{label}</strong>
         {segment.avatar_layers.length > 1 ? (
           <span className="textMuted"> · Chorus ({segment.avatar_layers.length})</span>

@@ -1,4 +1,5 @@
 import type { DirectorPayload } from "@/lib/types/director";
+import { sessionGet, sessionSet, sessionRemove } from "@/lib/browser/session";
 
 export const DRAMATURGY_SESSION_KEY = "dramaturgySession";
 
@@ -22,7 +23,7 @@ export type DramaturgySession = {
 export function loadDramaturgySession(): DramaturgySession | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(DRAMATURGY_SESSION_KEY);
+    const raw = sessionGet(DRAMATURGY_SESSION_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as DramaturgySession;
   } catch {
@@ -32,10 +33,10 @@ export function loadDramaturgySession(): DramaturgySession | null {
 
 export function saveDramaturgySession(session: DramaturgySession): void {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(DRAMATURGY_SESSION_KEY, JSON.stringify(session));
+  sessionSet(DRAMATURGY_SESSION_KEY, JSON.stringify(session));
 }
 
 export function clearDramaturgySession(): void {
   if (typeof window === "undefined") return;
-  sessionStorage.removeItem(DRAMATURGY_SESSION_KEY);
+  sessionRemove(DRAMATURGY_SESSION_KEY);
 }

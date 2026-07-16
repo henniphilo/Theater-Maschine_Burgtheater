@@ -14,6 +14,7 @@ import type { DirectorPayload } from "@/lib/types/director";
 import type { Part1BaerenklauSelection, WorkshopPhase } from "@/lib/types/part1";
 import type { ProductionScript, WorkshopStreamEvent } from "@/lib/types/script";
 import { dramaturgSpeakerLabel } from "@/lib/types/script";
+import { sessionSet } from "@/lib/browser/session";
 
 export type WorkshopRunnerStatus = "idle" | "running" | "done" | "error";
 
@@ -158,7 +159,7 @@ function handleEvent(event: WorkshopStreamEvent): void {
   if (event.type === "script_updated" && event.script) {
     patch.script = event.script;
     patch.finalSelection = event.script.part1_selection ?? state.finalSelection;
-    sessionStorage.setItem("currentScriptId", event.script.id);
+    sessionSet("currentScriptId", event.script.id);
     maybeStartBuffer(event.script);
     emit(patch);
     return;
@@ -250,7 +251,7 @@ export async function startPart1Workshop(options: {
     if (generation !== runGeneration) return;
 
     emit({ script: created });
-    sessionStorage.setItem("currentScriptId", created.id);
+    sessionSet("currentScriptId", created.id);
 
     await streamDramaturgyWorkshop(
       created.id,

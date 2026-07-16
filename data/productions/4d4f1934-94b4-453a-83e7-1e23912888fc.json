@@ -1,0 +1,23 @@
+{
+  "id": "4d4f1934-94b4-453a-83e7-1e23912888fc",
+  "title": "Teststück",
+  "source_text": "Vielleicht ist Erinnerung nur eine technische Störung.\nEin zweiter Gedanke dazu.\nDritter Satz im Block.\nVierter Satz im Block.\n\n---\n\nDer Körper erinnert sich anders als der Geist.\nNoch ein Satz.\nUnd ein weiterer.\nAbschluss hier.",
+  "beats": [
+    {
+      "id": "52cb4e58-db6f-4445-b84b-b8188ebc2121",
+      "order": 0,
+      "text": "Vielleicht ist Erinnerung nur eine technische Störung.\nEin zweiter Gedanke dazu.\nDritter Satz im Block.\nVierter Satz im Block.\n\n---\n\nDer Körper erinnert sich anders als der Geist.\nNoch ein Satz.\nUnd ein weiterer.\nAbschluss hier.",
+      "scene_title": null,
+      "speaker": "AI_A",
+      "dramaturgy": null,
+      "planned_commands": [],
+      "discussion_turns": [],
+      "discussion_summary": null
+    }
+  ],
+  "status": "draft",
+  "has_rendered_audio": false,
+  "part1_selection": null,
+  "performance_part": null,
+  "teil2_corpus_id": null
+}

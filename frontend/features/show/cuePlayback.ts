@@ -118,6 +118,15 @@ export function fireStartCues(ctx: CuePlaybackContext): void {
   }
 }
 
+/** When seeking mid-show, skip time cues that would otherwise catch up from t=0. */
+export function markTimeCuesAsFired(ctx: CuePlaybackContext): void {
+  for (const point of normalizeCuePoints(ctx.dramaturgy)) {
+    if (point.trigger === "time") {
+      ctx.fired.add(cueKey(point));
+    }
+  }
+}
+
 export function fireTimeCues(ctx: CuePlaybackContext, currentTime: number): void {
   const timed = normalizeCuePoints(ctx.dramaturgy).filter(
     (p) => p.trigger === "time" && (p.time_offset_sec ?? 0) <= currentTime

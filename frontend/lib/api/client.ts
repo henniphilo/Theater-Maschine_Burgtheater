@@ -97,12 +97,17 @@ export async function fetchSpeechBlob(
 let currentAudio: HTMLAudioElement | null = null;
 let playbackPaused = false;
 let playbackRate = 1;
+let narratorVolume = 1;
+let narratorMuted = false;
 
 type PlaybackPauseListener = (paused: boolean) => void;
 const playbackPauseListeners = new Set<PlaybackPauseListener>();
 
 type PlaybackRateListener = (rate: number) => void;
 const playbackRateListeners = new Set<PlaybackRateListener>();
+
+type NarratorVolumeListener = (volume: number, muted: boolean) => void;
+const narratorVolumeListeners = new Set<NarratorVolumeListener>();
 
 export function onPlaybackPauseChange(listener: PlaybackPauseListener): () => void {
   playbackPauseListeners.add(listener);
@@ -114,12 +119,26 @@ export function onPlaybackRateChange(listener: PlaybackRateListener): () => void
   return () => playbackRateListeners.delete(listener);
 }
 
+export function onNarratorVolumeChange(listener: NarratorVolumeListener): () => void {
+  narratorVolumeListeners.add(listener);
+  return () => narratorVolumeListeners.delete(listener);
+}
+
 function notifyPlaybackPause(paused: boolean): void {
   for (const listener of playbackPauseListeners) listener(paused);
 }
 
 function notifyPlaybackRate(rate: number): void {
   for (const listener of playbackRateListeners) listener(rate);
+}
+
+function notifyNarratorVolume(): void {
+  for (const listener of narratorVolumeListeners) listener(narratorVolume, narratorMuted);
+}
+
+function applyNarratorGain(audio: HTMLAudioElement): void {
+  audio.muted = narratorMuted;
+  audio.volume = Math.max(0, Math.min(1, narratorVolume));
 }
 
 export function getPlaybackRate(): number {
@@ -130,6 +149,26 @@ export function setPlaybackRate(rate: number): void {
   playbackRate = Math.max(0.5, Math.min(2, rate));
   if (currentAudio) currentAudio.playbackRate = playbackRate;
   notifyPlaybackRate(playbackRate);
+}
+
+export function getNarratorVolume(): number {
+  return narratorVolume;
+}
+
+export function isNarratorMuted(): boolean {
+  return narratorMuted;
+}
+
+export function setNarratorVolume(volume: number): void {
+  narratorVolume = Math.max(0, Math.min(1, volume));
+  if (currentAudio) applyNarratorGain(currentAudio);
+  notifyNarratorVolume();
+}
+
+export function setNarratorMuted(muted: boolean): void {
+  narratorMuted = muted;
+  if (currentAudio) applyNarratorGain(currentAudio);
+  notifyNarratorVolume();
 }
 
 export function isPlaybackPaused(): boolean {
@@ -174,6 +213,7 @@ export function playBlob(
     const audio = new Audio(url);
     currentAudio = audio;
     audio.playbackRate = playbackRate;
+    applyNarratorGain(audio);
     audio.onplay = () => {
       hooks?.onPlay?.();
     };

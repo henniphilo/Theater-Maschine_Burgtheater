@@ -64,6 +64,8 @@ services:
       - ./media:/app/media:ro
       - ./docs:/app/docs:ro
       - ./logs:/app/logs
+      # Kanon-Vorlage für Teil 2 (/inszenierung/script)
+      - ./Stücktext:/app/Stücktext:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

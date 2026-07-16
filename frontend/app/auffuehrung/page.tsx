@@ -4,11 +4,9 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { PerformanceTransport, beatIndexFromProgress } from "@/components/show/PerformanceTransport";
-import { Teil2PerformanceBar } from "@/components/show/Teil2PerformanceBar";
-import { Teil2AvatarSegmentBlock } from "@/components/show/Teil2AvatarSegmentBlock";
-import { activeAvatarSegmentIndex } from "@/features/inszenierung/teil2AvatarSections";
+import { LiveShowDashboard } from "@/components/show/LiveShowDashboard";
+import { activeAvatarSegmentIndex, avatarSegmentLabel } from "@/features/inszenierung/teil2AvatarSections";
 import { readPerformanceTryout, PerformanceTryoutControl } from "@/components/show/PerformanceTryoutControl";
 import { ScriptBeatBlock } from "@/components/script/ScriptBeatBlock";
 import { fetchTTSStatus, setPlaybackPaused, stopPlayback } from "@/lib/api/client";
@@ -73,13 +71,14 @@ import type { MediaCatalog } from "@/lib/types/media";
 import { allowlistFromCatalog, buildMediaAliasIndex, type MediaAllowlist, type MediaAliasIndex } from "@/features/show/mediaMentions";
 import { buildMediaLookup, type MediaLookup } from "@/lib/types/media";
 import type { ProductionScript } from "@/lib/types/script";
+import { sessionGet, sessionSet } from "@/lib/browser/session";
 
 function AuffuehrungContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const scriptId = searchParams.get("id") ?? sessionStorage.getItem("currentScriptId") ?? "";
+  const scriptId = searchParams.get("id") ?? sessionGet("currentScriptId") ?? "";
   const corpusIdParam =
-    searchParams.get("corpus") ?? searchParams.get("corpus_id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+    searchParams.get("corpus") ?? searchParams.get("corpus_id") ?? sessionGet("currentCorpusId") ?? "";
   const importTeil2InputRef = useRef<HTMLInputElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
   const [script, setScript] = useState<ProductionScript | null>(null);
@@ -142,6 +141,39 @@ function AuffuehrungContent() {
   const teil2Only = Boolean(corpusIdParam && !scriptId);
   const activeTeil2Moment =
     anarchyPlayback.momentIndex >= 0 ? teil2Moments[anarchyPlayback.momentIndex] : undefined;
+  const activeTeil2Segment =
+    usesTextSync && teil2Plan && teil2ActiveSegmentIndex >= 0
+      ? teil2Plan.avatar_segments[teil2ActiveSegmentIndex]
+      : null;
+  const liveCurrentText = usesTextSync
+    ? (activeTeil2Segment?.text_excerpt ??
+      (teil2ProgressIndex >= 0 ? teil2Plan?.sentences[teil2ProgressIndex] ?? "" : ""))
+    : (activeTeil2Moment?.text_excerpt ?? "");
+  const liveCurrentLabel = usesTextSync
+    ? activeTeil2Segment
+      ? avatarSegmentLabel(activeTeil2Segment)
+      : teil2Plan
+        ? planSpeechLabel(teil2Plan)
+        : "Abschnitt"
+    : activeTeil2Moment
+      ? momentSpeechLabel(activeTeil2Moment)
+      : "Abschnitt";
+  const liveTimelineItems = usesTextSync
+    ? (teil2Plan?.avatar_segments.map((segment) => ({
+        id: segment.csv_cue_ids.join("-"),
+        label: avatarSegmentLabel(segment)
+      })) ?? [])
+    : teil2Moments.map((moment) => ({
+        id: moment.id,
+        label: momentSpeechLabel(moment)
+      }));
+  const liveCurrentIndex = usesTextSync
+    ? teil2ActiveSegmentIndex >= 0
+      ? teil2ActiveSegmentIndex + 1
+      : null
+    : teil2ProgressIndex >= 0
+      ? teil2ProgressIndex + 1
+      : null;
 
   const load = useCallback(async () => {
     if (!scriptId && !corpusIdParam) {
@@ -155,7 +187,7 @@ function AuffuehrungContent() {
     try {
       const data = await fetchScript(scriptId);
       setScript(data);
-      sessionStorage.setItem("currentScriptId", data.id);
+      sessionSet("currentScriptId", data.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Stück nicht gefunden");
     } finally {
@@ -201,7 +233,7 @@ function AuffuehrungContent() {
           setTeil2Speaker(data.teil2_plan.performance_speaker);
         }
         setCorpus(data);
-        sessionStorage.setItem("currentCorpusId", data.id);
+        sessionSet("currentCorpusId", data.id);
         if (script?.id && script.teil2_corpus_id !== data.id) {
           await patchScript(script.id, { teil2_corpus_id: data.id }).catch(() => undefined);
         }
@@ -328,17 +360,26 @@ function AuffuehrungContent() {
     [script, canPlayTeil1, playbackAudio, performancePart, part1OnlyBeats]
   );
 
-  const playTeil2 = useCallback(async (startSentenceIndex = 0, endSentenceIndex?: number) => {
-    if (!corpus || !canPlayTeil2) return;
-    if (teil2Running && teil2Paused) {
-      setPlaybackPaused(false);
-      if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
-      else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
-      return;
+  const playTeil2 = useCallback(async (
+    startSentenceIndex = 0,
+    endSentenceIndex?: number,
+    options?: { forceRestart?: boolean }
+  ) => {
+    if (!corpus) return;
+    if (!options?.forceRestart && !canPlayTeil2) return;
+    if (!options?.forceRestart) {
+      if (teil2Running && teil2Paused) {
+        setPlaybackPaused(false);
+        if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+        else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
+        return;
+      }
+      if (teil2Running) return;
     }
-    if (teil2Running) return;
-    const gen = ++playbackGenRef.current;
+
     abortRef.current = false;
+    const gen = ++playbackGenRef.current;
+    const shouldAbort = () => abortRef.current || gen !== playbackGenRef.current;
     setPlaybackPaused(false);
     if (script?.id) {
       await patchScript(script.id, { performance_part: "part2_delphin_to_mole" }).catch(() => undefined);
@@ -359,8 +400,13 @@ function AuffuehrungContent() {
         (patch) => {
           if (gen === playbackGenRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
         },
-        () => abortRef.current,
-        { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex, playbackGeneration: gen }
+        shouldAbort,
+        {
+          tryout: readPerformanceTryout(),
+          startSentenceIndex,
+          endSentenceIndex,
+          playbackGeneration: gen
+        }
       );
       return;
     }
@@ -386,8 +432,8 @@ function AuffuehrungContent() {
       (patch) => {
         if (gen === playbackGenRef.current) setAnarchyPlayback((prev) => ({ ...prev, ...patch }));
       },
-      () => abortRef.current,
-      { playbackGeneration: gen }
+      shouldAbort,
+      { playbackGeneration: gen, tryout: readPerformanceTryout() }
     );
     if (gen === playbackGenRef.current) {
       setAnarchyPlayback((prev) => ({ ...prev, running: false, completed: true }));
@@ -423,13 +469,38 @@ function AuffuehrungContent() {
   }
 
   function handleJumpToAvatarSegment(segmentIndex: number) {
-    if (!canPlayTeil2 || !usesTextSync || !teil2Plan) return;
+    if (!usesTextSync || !teil2Plan) return;
+    if (!canPlayTeil2 && !(teil2Running || teil2Paused)) return;
     const segment = teil2Plan.avatar_segments[segmentIndex];
     if (!segment) return;
-    if (teil2Running || teil2Paused) {
-      handleStop();
-    }
-    void playTeil2(segment.start_sentence_index, segment.end_sentence_index);
+
+    // Soft seek: bump generation + stop audio only. Do NOT emergency_stop here —
+    // that races with re-arm and can leave emergency_stop_active stuck or drop Probebetrieb.
+    abortRef.current = true;
+    playbackGenRef.current += 1;
+    stopPlayback();
+    setTextSyncPlayback((prev) => ({
+      ...prev,
+      running: false,
+      paused: true,
+      activeOscBridge: null
+    }));
+    setAnarchyPlayback((prev) => ({ ...prev, running: false, paused: true }));
+
+    const start = segment.start_sentence_index;
+    // Continue from this Abschnitt through the rest of the show (no endSentenceIndex).
+    window.setTimeout(() => {
+      void playTeil2(start, undefined, { forceRestart: true });
+    }, 0);
+  }
+
+  function handleSkipTeil2(delta: number) {
+    if (!usesTextSync || teil2SectionCount <= 0) return;
+    if (!canPlayTeil2 && !(teil2Running || teil2Paused)) return;
+    const base =
+      liveCurrentIndex != null && liveCurrentIndex > 0 ? liveCurrentIndex - 1 : 0;
+    const next = Math.max(0, Math.min(teil2SectionCount - 1, base + delta));
+    handleJumpToAvatarSegment(next);
   }
 
   function handlePause() {
@@ -508,7 +579,7 @@ function AuffuehrungContent() {
     setError("");
     try {
       const imported = (await importPerformance(file)) as ProductionScript;
-      sessionStorage.setItem("currentScriptId", imported.id);
+      sessionSet("currentScriptId", imported.id);
       router.push(`/auffuehrung?id=${imported.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import fehlgeschlagen");
@@ -540,7 +611,7 @@ function AuffuehrungContent() {
     try {
       const imported = await importTeil2(file);
       setCorpus(imported);
-      sessionStorage.setItem("currentCorpusId", imported.id);
+      sessionSet("currentCorpusId", imported.id);
       if (scriptId) {
         router.push(`/auffuehrung?id=${scriptId}&corpus=${imported.id}`);
       } else {
@@ -572,7 +643,7 @@ function AuffuehrungContent() {
         next = await prepareCorpus(next.id, { onUpdate: setCorpus });
       }
       setCorpus(next);
-      sessionStorage.setItem("currentCorpusId", next.id);
+      sessionSet("currentCorpusId", next.id);
       if (scriptId) {
         router.push(`/auffuehrung?id=${scriptId}&corpus=${next.id}`);
       } else {
@@ -590,11 +661,15 @@ function AuffuehrungContent() {
 
   return (
     <main
-      className={`container col${script || corpus ? " pageWithPerformanceTransport" : ""}`}
+      className={`container col livePage${
+        script && (playback.running || playback.paused || canPlayTeil1) ? " pageWithPerformanceTransport" : ""
+      }`}
     >
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Aufführung</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Aufführung</h1>
+        {playback.running || teil2Running ? (
+          <span className="liveBadge">{playback.paused || teil2Paused ? "Pausiert" : "Live"}</span>
+        ) : null}
       </div>
       <p className="textMuted">
         Teil 1 und Teil 2 laufen unabhängig: ▶ Teil 1 = Dramaturgen-Diskussion, dann Stücktext mit Cues. Teil 2 =
@@ -607,7 +682,7 @@ function AuffuehrungContent() {
           Teil 1: <code>.zip</code> mit Stück und Stimmen · Teil 2: <code>.tmteil2.zip</code> mit Korpus und
           Timeline
         </p>
-        <div className="row" style={{ flexWrap: "wrap", gap: "0.5rem" }}>
+        <div className="row liveActionRow" style={{ flexWrap: "wrap", gap: "0.5rem" }}>
           <button type="button" onClick={() => importInputRef.current?.click()} disabled={importing}>
             {importing ? "Import läuft …" : "Teil 1 importieren (.zip)"}
           </button>
@@ -695,7 +770,7 @@ function AuffuehrungContent() {
                 Stimmen bereit — Play startet ohne Wartezeit.
               </p>
             ) : null}
-            <div className="row" style={{ gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+            <div className="row liveActionRow" style={{ gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
               <PerformanceTryoutControl />
               <button
                 type="button"
@@ -829,126 +904,47 @@ function AuffuehrungContent() {
 
       {corpus && (teil2Only || !script) ? (
         <>
-          <section className="card col">
-            <h2>{corpus.title || "Teil 2 — Anarchie"}</h2>
-            <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-              {teil2SectionCount > 0
-                ? usesTextSync
-                  ? `${teil2SectionCount} Avatar-Abschnitte · Text-Sync`
-                  : `${teil2SectionCount} Beats · Avatar-Video parallel zu Anarchie-OSC`
-                : "Noch kein Plan — Text auf /inszenierung hochladen und vorbereiten."}
-            </p>
-            <div className="row" style={{ gap: "0.75rem", flexWrap: "wrap" }}>
-              {teil2BeatCount > 0 ? (
-                <button
-                  type="button"
-                  className="machineStartBtn"
-                  onClick={() => handlePlayTeil2()}
-                  disabled={!canPlayTeil2 || (teil2Running && !teil2Paused)}
-                >
-                  {teil2Running
-                    ? teil2Paused
-                      ? "▶ Fortsetzen"
-                      : "Teil 2 läuft …"
-                    : "▶ Teil 2 starten"}
-                </button>
-              ) : (
-                <Link className="machineStartBtn" href="/inszenierung">
-                  Teil 2 vorbereiten →
-                </Link>
-              )}
-              <Link href={`/inszenierung?id=${corpus.id}`}>Inszenierung bearbeiten</Link>
-            </div>
-            {activeTeil2Moment ? (
-              <p className="textMuted" style={{ fontSize: "0.9rem" }}>
-                Aktiv: {momentSpeechLabel(activeTeil2Moment)}
-              </p>
-            ) : null}
-            {teil2BlockedReason && !teil2Running ? (
-              <p className="textMuted">{teil2BlockedReason}</p>
-            ) : null}
-          </section>
-
           {teil2SectionCount > 0 ? (
-            <section className="card col scriptDocument">
-              <h2>{usesTextSync ? "Avatar-Abschnitte" : "Teil-2-Beats"}</h2>
-              {usesTextSync ? (
-                <p className="textMuted" style={{ fontSize: "0.9rem", marginTop: 0 }}>
-                  Wie in der CSV — Klick testet Stimme und Signale für diesen Abschnitt.
-                </p>
-              ) : null}
-              {usesTextSync && teil2Plan ? (
-                <ul className="teil2SentenceList">
-                  {teil2Plan.avatar_segments.map((segment, index) => (
-                    <li key={segment.csv_cue_ids.join("-")}>
-                      <Teil2AvatarSegmentBlock
-                        segment={segment}
-                        index={index}
-                        active={teil2ActiveSegmentIndex === index && (teil2Running || teil2Paused)}
-                        clickable={canPlayTeil2}
-                        onSelect={() => handleJumpToAvatarSegment(index)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ol style={{ margin: 0, paddingLeft: "1.25rem" }}>
-                  {teil2Moments.map((moment, index) => (
-                    <li
-                      key={moment.id}
-                      style={{
-                        marginBottom: "0.5rem",
-                        opacity: teil2ProgressIndex === index && teil2Running ? 1 : 0.85
-                      }}
-                    >
-                      <strong>{momentSpeechLabel(moment)}</strong>
-                      <span className="textMuted" style={{ fontSize: "0.85rem" }}>
-                        {" "}
-                        · Anarchie {(moment.anarchy_level * 100).toFixed(0)}%
-                        {moment.avatar_layers?.length
-                          ? ` · ${moment.projector_mode === "all" ? "alle Beamer" : moment.avatar_layers.map((l) => l.projector).join(", ")}`
-                          : ""}
-                      </span>
-                      {moment.text_excerpt ? (
-                        <p className="textMuted" style={{ fontSize: "0.85rem", margin: "0.15rem 0 0" }}>
-                          {moment.text_excerpt}
-                        </p>
-                      ) : null}
-                    </li>
-                  ))}
-                </ol>
-              )}
+            <LiveShowDashboard
+              title={corpus.title || "Teil 2 — Aufführung"}
+              subtitle={
+                usesTextSync
+                  ? `${teil2SectionCount} Avatar-Abschnitte · Text-Sync`
+                  : `${teil2SectionCount} Beats · Anarchie`
+              }
+              running={teil2Running}
+              paused={teil2Paused}
+              completed={teil2Completed}
+              canPlay={canPlayTeil2}
+              blockedReason={teil2BlockedReason}
+              currentIndex={liveCurrentIndex}
+              totalCount={teil2SectionCount}
+              currentText={liveCurrentText}
+              currentLabel={liveCurrentLabel}
+              items={liveTimelineItems}
+              mediaCatalog={mediaCatalog}
+              editHref={`/inszenierung?id=${corpus.id}`}
+              onPlay={() => handlePlayTeil2(0)}
+              onPause={handlePause}
+              onStop={handleStop}
+              onSkipNext={usesTextSync ? () => handleSkipTeil2(1) : undefined}
+              onSkipPrev={usesTextSync ? () => handleSkipTeil2(-1) : undefined}
+              onJumpToIndex={
+                usesTextSync
+                  ? (index) => handleJumpToAvatarSegment(index)
+                  : undefined
+              }
+            />
+          ) : (
+            <section className="card col">
+              <h2>{corpus.title || "Teil 2 — Anarchie"}</h2>
+              <p className="textMuted">Noch kein Plan — Text auf /inszenierung hochladen und vorbereiten.</p>
+              <Link className="machineStartBtn" href="/inszenierung">
+                Teil 2 vorbereiten →
+              </Link>
             </section>
-          ) : null}
+          )}
         </>
-      ) : null}
-
-      {corpus && teil2SectionCount > 0 &&
-      (teil2Only || !script || teil2Running || teil2Paused) ? (
-        <Teil2PerformanceBar
-          positionLabel={
-            usesTextSync
-              ? `Abschnitt ${teil2ActiveSegmentIndex >= 0 ? teil2ActiveSegmentIndex + 1 : "—"} / ${teil2SectionCount}`
-              : `Beat ${teil2ProgressIndex >= 0 ? teil2ProgressIndex + 1 : "—"} / ${teil2SectionCount}`
-          }
-          detail={
-            teil2Completed
-              ? "Beendet"
-              : teil2Running
-                ? teil2Paused
-                  ? "Pausiert"
-                  : usesTextSync
-                    ? `${planSpeechLabel(teil2Plan!)} · Anarchie ${(teil2AnarchyLevel * 100).toFixed(0)}%`
-                    : `${activeTeil2Moment ? momentSpeechLabel(activeTeil2Moment) : "Läuft"} · Anarchie ${(teil2AnarchyLevel * 100).toFixed(0)}%`
-                : teil2BlockedReason ?? "Bereit"
-          }
-          running={teil2Running}
-          paused={teil2Paused}
-          canPlay={canPlayTeil2}
-          onPlay={() => handlePlayTeil2(0)}
-          onPause={handlePause}
-          onStop={handleStop}
-        />
       ) : null}
     </main>
   );

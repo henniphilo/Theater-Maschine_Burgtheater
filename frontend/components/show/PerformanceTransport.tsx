@@ -98,8 +98,53 @@ export function PerformanceTransport({
   return (
     <footer className="performanceTransport" aria-label="Aufführungs-Zeitspur">
       <div className="performanceTransportInner">
-        <div className="performanceTransportMeta">
-          <strong>{formatTimelineLabel(safeBeatIndex, beatCount)}</strong>
+        <div className="performanceTransportControls performanceTransportLeft">
+          <div className="performanceTransportPlayGroup">
+            {showPlay ? (
+              <button
+                type="button"
+                className="machineStartBtn transportBtn transportBtnPlay"
+                disabled={!canPlay}
+                onClick={onPlay}
+                aria-label={paused ? "Fortsetzen" : "Abspielen"}
+              >
+                ▶
+              </button>
+            ) : null}
+            {showPause ? (
+              <button
+                type="button"
+                className="transportBtn transportBtnPause"
+                disabled={!canPlay}
+                onClick={onPause}
+                aria-label="Pause"
+              >
+                ⏸
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="machineStopBtn transportBtn transportBtnStop"
+              disabled={!canPlay || (!running && !paused && beatIndex < 0)}
+              onClick={onStop}
+              aria-label="Stoppen"
+            >
+              ⏹
+            </button>
+          </div>
+        </div>
+
+        <div className="performanceTransportMeta liveTransportCounter">
+          <strong aria-label={formatTimelineLabel(safeBeatIndex, beatCount)}>
+            {beatCount > 0 ? (
+              <>
+                {running || paused || completed ? safeBeatIndex + 1 : "—"}{" "}
+                <span>/ {beatCount}</span>
+              </>
+            ) : (
+              formatTimelineLabel(safeBeatIndex, beatCount)
+            )}
+          </strong>
           <span className="textMuted performanceTransportDetail">
             {completed
               ? "Beendet"
@@ -140,35 +185,6 @@ export function PerformanceTransport({
           </div>
         </div>
 
-        <div className="performanceTransportControls performanceTransportLeft">
-          <div className="performanceTransportPlayGroup">
-            {showPlay ? (
-              <button
-                type="button"
-                className="machineStartBtn"
-                disabled={!canPlay}
-                onClick={onPlay}
-                aria-label={paused ? "Fortsetzen" : "Abspielen"}
-              >
-                {paused ? "▶ Fortsetzen" : "▶ Play"}
-              </button>
-            ) : null}
-            {showPause ? (
-              <button type="button" disabled={!canPlay} onClick={onPause} aria-label="Pause">
-                ⏸
-              </button>
-            ) : null}
-            <button
-              type="button"
-              className="machineStopBtn"
-              disabled={!canPlay || (!running && !paused && beatIndex < 0)}
-              onClick={onStop}
-              aria-label="Stoppen"
-            >
-              ⏹ Stop
-            </button>
-          </div>
-        </div>
         <div className="performanceTransportRight">
           <PlaybackSpeedControl compact disabled={!canPlay} />
         </div>

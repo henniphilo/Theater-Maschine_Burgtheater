@@ -249,190 +249,217 @@ export function OscTestPanel() {
 
   return (
     <section className="card col oscTestPanel">
-      <h2>Technik-Test</h2>
       <p className="textMuted" style={{ marginTop: 0 }}>
         Video, Sound und Licht jeweils einzeln testen — wie am Licht-Pult: Signal senden, halten oder stoppen.
         {dryRun ? <span className="oscTestWarn"> · DRY-RUN aktiv</span> : null}
       </p>
 
-      <h3 style={{ margin: "0 0 0.5rem" }}>Video</h3>
-      <p className="textMuted" style={{ marginTop: 0 }}>
-        Ziel: <code>{videoTarget}</code>
-        {videoUsesPixera ? " · Testclip auf allen Beamern (RZ21, Adam, Eva, LED)" : null}
-      </p>
-
-      <p className={videoHolding ? "oscTestActive" : "textMuted"} role="status">
-        <strong>Status:</strong>{" "}
-        {videoHolding ? `halten · Clip ${holdStatus?.clip_id}` : "inaktiv"}
-      </p>
-
-      <label className="oscTestChannel">
-        <span>Clip</span>
-        <select value={clipId} onChange={(e) => setClipId(e.target.value)} disabled={videoLoading}>
-          {(catalog?.videos ?? []).map((v) => (
-            <option key={v.id} value={v.id}>{v.id}</option>
-          ))}
-        </select>
-      </label>
-
-      <div className="row oscTestActions">
-        <button type="button" disabled={videoLoading} onClick={() => void sendVideo()}>
-          Signal senden
-        </button>
-        <button type="button" className="machineStartBtn" disabled={videoLoading} onClick={() => void holdVideo()}>
-          Signal halten
-        </button>
-        <button type="button" className="oscTestStopBtn" disabled={videoLoading} onClick={() => void stopVideo()}>
-          Signal stoppen
-        </button>
-      </div>
-
-      <hr style={{ width: "100%", border: "none", borderTop: "1px solid var(--border)", margin: "1.25rem 0" }} />
-
-      <h3 style={{ margin: "0 0 0.5rem" }}>Sound</h3>
-      <p className="textMuted" style={{ marginTop: 0 }}>
-        Ziel: <code>{soundTarget}</code>
-        {catalog?.sound?.output === "midi" ? " · Note On/Off an Ableton" : null}
-      </p>
-
-      <p className={soundHolding ? "oscTestActive" : "textMuted"} role="status">
-        <strong>Status:</strong>{" "}
-        {soundHolding ? `halten · ${holdStatus?.sound_cue_id}` : "inaktiv"}
-      </p>
-
-      <label className="oscTestChannel">
-        <span>Sound-Cue</span>
-        <select value={soundId} onChange={(e) => setSoundId(e.target.value)} disabled={soundLoading}>
-          {(catalog?.sounds ?? []).map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.soundname || s.label || s.id}
-              {s.action && s.action !== "play" ? ` [${s.action}]` : ""}
-              {s.midi_note != null
-                ? ` · ${formatMidiTrigger(s.midi_note, s.channel ?? catalog?.sound?.midi_channel ?? 1)}`
-                : ""}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="row oscTestActions">
-        <button type="button" disabled={soundLoading} onClick={() => void sendSound()}>
-          Signal senden
-        </button>
-        <button type="button" className="machineStartBtn" disabled={soundLoading} onClick={() => void holdSound()}>
-          Signal halten
-        </button>
-        <button type="button" className="oscTestStopBtn" disabled={soundLoading} onClick={() => void stopSound()}>
-          Signal stoppen
-        </button>
-      </div>
-
-      <hr style={{ width: "100%", border: "none", borderTop: "1px solid var(--border)", margin: "1.25rem 0" }} />
-
-      <h3 style={{ margin: "0 0 0.5rem" }}>Licht</h3>
-      <p className="textMuted" style={{ marginTop: 0 }}>
-        EOS TCP <code>{lightTcpTarget}</code>: Socket verbinden, dann binäres OSC (4-Byte-Längenpräfix) auf
-        derselben Verbindung — <code>/eos/chan/N/full</code> oder <code>/eos/chan/N</code> mit Prozent-Argument (0–100&nbsp;%) · Stopp: <code>/eos/key/out</code>
-      </p>
-
-      <p className={lightConnected ? "oscTestActive" : "textMuted"} role="status">
-        <strong>TCP:</strong> {lightConnected ? "verbunden" : "nicht verbunden"}
-        {lightStatus?.scene_id ? (
-          <span> · Signal: {formatLightChannelLabel(
-            catalog?.lights.find((l) => l.id === lightStatus.scene_id) ?? {
-              id: lightStatus.scene_id,
-              description: "",
-              moods: [],
-              fade_time: 0
-            }
-          )}{lightStatus.hold_active ? " (halten)" : ""}
-            {lightStatus.intensity != null ? (
-              <span> · {Math.round(lightStatus.intensity * 100)}&nbsp;%</span>
-            ) : null}
-          </span>
-        ) : null}
-      </p>
-
-      <div className="row oscTestActions">
-        <button type="button" className="machineStartBtn" disabled={lightLoading || lightConnected} onClick={() => void connectLight()}>
-          1. Verbindung aufbauen
-        </button>
-        <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void disconnectLight()}>
-          Verbindung trennen
-        </button>
-      </div>
-
-      <label className="oscTestChannel" style={{ marginTop: "0.75rem" }}>
-        <span>2. Licht-Szene</span>
-        <select
-          value={lightId}
-          onChange={(e) => setLightId(e.target.value)}
-          disabled={lightLoading || !lightConnected}
-        >
-          {(catalog?.lights ?? []).filter((l) => l.id !== "blackout").map((l) => (
-            <option key={l.id} value={l.id}>{formatLightChannelLabel(l)}</option>
-          ))}
-        </select>
-      </label>
-
-      <label className="oscTestChannel oscTestIntensity">
-        <span className="oscTestIntensityHeader">
-          <span>Intensität testen</span>
-          <label className="oscTestIntensityToggle">
-            <input
-              type="checkbox"
-              checked={useLightIntensity}
-              onChange={(e) => setUseLightIntensity(e.target.checked)}
-              disabled={lightLoading || !lightConnected}
-            />
-            Teilhelligkeit
+      <div className="oscTestGrid">
+        <div className={`oscTestGroup${videoHolding ? " oscTestGroupActive" : ""}`}>
+          <div className="oscTestGroupHead">
+            <span className="oscTestGroupIcon oscTestGroupIconVideo" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <rect x="3" y="6" width="13" height="12" rx="2" />
+                <path d="M16 10l5-3v10l-5-3" />
+              </svg>
+            </span>
+            <div>
+              <h3>Video</h3>
+              <p className={videoHolding ? "oscTestActive" : "oscTestIdle"} role="status">
+                {videoHolding ? `halten · Clip ${holdStatus?.clip_id}` : "inaktiv"}
+              </p>
+            </div>
+          </div>
+          <p className="textMuted oscTestTarget">
+            Ziel: <code>{videoTarget}</code>
+            {videoUsesPixera ? " · Testclip auf allen Beamern (RZ21, Adam, Eva, LED)" : null}
+          </p>
+          <label className="oscTestChannel">
+            <span>Clip</span>
+            <select value={clipId} onChange={(e) => setClipId(e.target.value)} disabled={videoLoading}>
+              {(catalog?.videos ?? []).map((v) => (
+                <option key={v.id} value={v.id}>{v.id}</option>
+              ))}
+            </select>
           </label>
-        </span>
-        <input
-          type="range"
-          min={1}
-          max={100}
-          step={1}
-          value={lightIntensityPercent}
-          onChange={(e) => setLightIntensityPercent(Number(e.target.value))}
-          disabled={lightLoading || !lightConnected || !useLightIntensity}
-          aria-valuemin={1}
-          aria-valuemax={100}
-          aria-valuenow={lightIntensityPercent}
-          aria-label="Lichtintensität in Prozent"
-        />
-        <div className="oscTestIntensityMeta">
-          <strong>{useLightIntensity ? `${lightIntensityPercent} %` : "Full (100 %)"}</strong>
-          <span className="textMuted">
-            {useLightIntensity
-              ? `→ /eos/chan/N ${lightIntensityPercent}`
-              : "→ /eos/chan/N/full"}
-          </span>
-        </div>
-        <div className="row oscTestIntensityPresets">
-          {[25, 50, 75, 100].map((pct) => (
-            <button
-              key={pct}
-              type="button"
-              disabled={lightLoading || !lightConnected || !useLightIntensity}
-              onClick={() => setLightIntensityPercent(pct)}
-            >
-              {pct}%
+          <div className="row oscTestActions">
+            <button type="button" disabled={videoLoading} onClick={() => void sendVideo()}>
+              Signal senden
             </button>
-          ))}
+            <button type="button" className="machineStartBtn" disabled={videoLoading} onClick={() => void holdVideo()}>
+              Signal halten
+            </button>
+            <button type="button" className="oscTestStopBtn" disabled={videoLoading} onClick={() => void stopVideo()}>
+              Signal stoppen
+            </button>
+          </div>
         </div>
-      </label>
 
-      <div className="row oscTestActions">
-        <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void sendLight()}>
-          Signal senden
-        </button>
-        <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void holdLight()}>
-          Signal halten
-        </button>
-        <button type="button" className="oscTestStopBtn" disabled={lightLoading || !lightConnected} onClick={() => void stopLight()}>
-          Signal aus (/eos/key/out)
-        </button>
+        <div className={`oscTestGroup${soundHolding ? " oscTestGroupActive" : ""}`}>
+          <div className="oscTestGroupHead">
+            <span className="oscTestGroupIcon oscTestGroupIconSound" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                <path d="M18 6a8 8 0 0 1 0 12" />
+              </svg>
+            </span>
+            <div>
+              <h3>Sound</h3>
+              <p className={soundHolding ? "oscTestActive" : "oscTestIdle"} role="status">
+                {soundHolding ? `halten · ${holdStatus?.sound_cue_id}` : "inaktiv"}
+              </p>
+            </div>
+          </div>
+          <p className="textMuted oscTestTarget">
+            Ziel: <code>{soundTarget}</code>
+            {catalog?.sound?.output === "midi" ? " · Note On/Off an Ableton" : null}
+          </p>
+          <label className="oscTestChannel">
+            <span>Sound-Cue</span>
+            <select value={soundId} onChange={(e) => setSoundId(e.target.value)} disabled={soundLoading}>
+              {(catalog?.sounds ?? []).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.soundname || s.label || s.id}
+                  {s.action && s.action !== "play" ? ` [${s.action}]` : ""}
+                  {s.midi_note != null
+                    ? ` · ${formatMidiTrigger(s.midi_note, s.channel ?? catalog?.sound?.midi_channel ?? 1)}`
+                    : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="row oscTestActions">
+            <button type="button" disabled={soundLoading} onClick={() => void sendSound()}>
+              Signal senden
+            </button>
+            <button type="button" className="machineStartBtn" disabled={soundLoading} onClick={() => void holdSound()}>
+              Signal halten
+            </button>
+            <button type="button" className="oscTestStopBtn" disabled={soundLoading} onClick={() => void stopSound()}>
+              Signal stoppen
+            </button>
+          </div>
+        </div>
+
+        <div className={`oscTestGroup${lightConnected ? " oscTestGroupActive" : ""}`}>
+          <div className="oscTestGroupHead">
+            <span className="oscTestGroupIcon oscTestGroupIconLight" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M9 18h6" />
+                <path d="M10 21h4" />
+                <path d="M12 3a6 6 0 0 1 4 10c-.7.7-1 1.5-1 2.5v.5H9v-.5c0-1-.3-1.8-1-2.5A6 6 0 0 1 12 3Z" />
+              </svg>
+            </span>
+            <div>
+              <h3>Licht</h3>
+              <p className={lightConnected ? "oscTestActive" : "oscTestIdle"} role="status">
+                {lightConnected ? "verbunden" : "nicht verbunden"}
+                {lightStatus?.scene_id ? (
+                  <span>
+                    {" "}
+                    · Signal:{" "}
+                    {formatLightChannelLabel(
+                      catalog?.lights.find((l) => l.id === lightStatus.scene_id) ?? {
+                        id: lightStatus.scene_id,
+                        description: "",
+                        moods: [],
+                        fade_time: 0
+                      }
+                    )}
+                    {lightStatus.hold_active ? " (halten)" : ""}
+                    {lightStatus.intensity != null ? (
+                      <span> · {Math.round(lightStatus.intensity * 100)}&nbsp;%</span>
+                    ) : null}
+                  </span>
+                ) : null}
+              </p>
+            </div>
+          </div>
+          <p className="textMuted oscTestTarget">
+            EOS TCP <code>{lightTcpTarget}</code>: Socket verbinden, dann binäres OSC (4-Byte-Längenpräfix) auf
+            derselben Verbindung — <code>/eos/chan/N/full</code> oder <code>/eos/chan/N</code> mit Prozent-Argument
+            (0–100&nbsp;%) · Stopp: <code>/eos/key/out</code>
+          </p>
+          <div className="row oscTestActions">
+            <button type="button" className="machineStartBtn" disabled={lightLoading || lightConnected} onClick={() => void connectLight()}>
+              1. Verbindung aufbauen
+            </button>
+            <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void disconnectLight()}>
+              Verbindung trennen
+            </button>
+          </div>
+          <label className="oscTestChannel">
+            <span>2. Licht-Szene</span>
+            <select
+              value={lightId}
+              onChange={(e) => setLightId(e.target.value)}
+              disabled={lightLoading || !lightConnected}
+            >
+              {(catalog?.lights ?? []).filter((l) => l.id !== "blackout").map((l) => (
+                <option key={l.id} value={l.id}>{formatLightChannelLabel(l)}</option>
+              ))}
+            </select>
+          </label>
+          <label className="oscTestChannel oscTestIntensity">
+            <span className="oscTestIntensityHeader">
+              <span>Intensität testen</span>
+              <label className="oscTestIntensityToggle">
+                <input
+                  type="checkbox"
+                  checked={useLightIntensity}
+                  onChange={(e) => setUseLightIntensity(e.target.checked)}
+                  disabled={lightLoading || !lightConnected}
+                />
+                Teilhelligkeit
+              </label>
+            </span>
+            <input
+              type="range"
+              min={1}
+              max={100}
+              step={1}
+              value={lightIntensityPercent}
+              onChange={(e) => setLightIntensityPercent(Number(e.target.value))}
+              disabled={lightLoading || !lightConnected || !useLightIntensity}
+              aria-valuemin={1}
+              aria-valuemax={100}
+              aria-valuenow={lightIntensityPercent}
+              aria-label="Lichtintensität in Prozent"
+            />
+            <div className="oscTestIntensityMeta">
+              <strong>{useLightIntensity ? `${lightIntensityPercent} %` : "Full (100 %)"}</strong>
+              <span className="textMuted">
+                {useLightIntensity
+                  ? `→ /eos/chan/N ${lightIntensityPercent}`
+                  : "→ /eos/chan/N/full"}
+              </span>
+            </div>
+            <div className="row oscTestIntensityPresets">
+              {[25, 50, 75, 100].map((pct) => (
+                <button
+                  key={pct}
+                  type="button"
+                  disabled={lightLoading || !lightConnected || !useLightIntensity}
+                  onClick={() => setLightIntensityPercent(pct)}
+                >
+                  {pct}%
+                </button>
+              ))}
+            </div>
+          </label>
+          <div className="row oscTestActions">
+            <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void sendLight()}>
+              Signal senden
+            </button>
+            <button type="button" disabled={lightLoading || !lightConnected} onClick={() => void holdLight()}>
+              Signal halten
+            </button>
+            <button type="button" className="oscTestStopBtn" disabled={lightLoading || !lightConnected} onClick={() => void stopLight()}>
+              Signal aus (/eos/key/out)
+            </button>
+          </div>
+        </div>
       </div>
 
       {error ? <div className="textError" role="alert">{error}</div> : null}

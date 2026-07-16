@@ -427,3 +427,24 @@ export function countUnfiredAvatarSegments(
 ): number {
   return plan.avatar_segments.filter((segment) => !fired.has(avatarSegmentKey(segment))).length;
 }
+
+/** Mark segments before a seek position as already fired so jump-in does not catch up OSC. */
+export function markAvatarSegmentsBeforeAsFired(
+  plan: Teil2PerformancePlan,
+  beforeCharPos: number,
+  fired: Set<string>,
+  sentenceCharStarts: number[],
+  scriptText?: string
+): number {
+  let marked = 0;
+  for (const segment of plan.avatar_segments) {
+    const key = avatarSegmentKey(segment);
+    if (fired.has(key)) continue;
+    const offset = effectiveCharOffset(segment, sentenceCharStarts, scriptText);
+    if (offset < beforeCharPos) {
+      fired.add(key);
+      marked += 1;
+    }
+  }
+  return marked;
+}

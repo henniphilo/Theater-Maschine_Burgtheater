@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { Teil2ScriptCueOverview } from "@/components/show/Teil2ScriptCueOverview";
 import {
   createCorpus,
@@ -15,6 +14,7 @@ import {
 } from "@/lib/api/inszenierung";
 import type { PerformanceSpeaker } from "@/lib/types/director";
 import type { SceneCorpus, ScriptBeatPreview, Teil2ScriptResponse } from "@/lib/types/inszenierung";
+import { sessionGet, sessionSet, sessionRemove } from "@/lib/browser/session";
 
 export default function InszenierungPage() {
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
@@ -28,8 +28,28 @@ export default function InszenierungPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    void fetchScript().then(setScript).catch(() => setError("Vorlage konnte nicht geladen werden"));
-    const id = sessionStorage.getItem("currentCorpusId");
+    let cancelled = false;
+    async function loadTemplate() {
+      let lastError: unknown;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        try {
+          const data = await fetchScript();
+          if (!cancelled) {
+            setScript(data);
+            setError("");
+          }
+          return;
+        } catch (err) {
+          lastError = err;
+          await new Promise((r) => setTimeout(r, 750 * (attempt + 1)));
+        }
+      }
+      if (!cancelled && lastError) {
+        setError("Vorlage konnte nicht geladen werden");
+      }
+    }
+    void loadTemplate();
+    const id = sessionGet("currentCorpusId");
     if (id) {
       void fetchCorpus(id)
         .then((data) => {
@@ -46,8 +66,11 @@ export default function InszenierungPage() {
               .finally(() => setPreparing(false));
           }
         })
-        .catch(() => sessionStorage.removeItem("currentCorpusId"));
+        .catch(() => sessionRemove("currentCorpusId"));
     }
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleCreate() {
@@ -56,7 +79,7 @@ export default function InszenierungPage() {
     try {
       const created = await createCorpus(title);
       setCorpus(created);
-      sessionStorage.setItem("currentCorpusId", created.id);
+      sessionSet("currentCorpusId", created.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler");
     } finally {
@@ -134,9 +157,8 @@ export default function InszenierungPage() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Teil 2 — Inszenierung</h1>
-        <AppNav />
+      <div className="pageHeader">
+        <h1>Teil 2 — Inszenierung</h1>
       </div>
       <p className="textMuted">
         Aufführungstext hochladen, einmal vorbereiten (Analyse + OSC-Regie + Avatar-Anker), dann mit gewählter Stimme

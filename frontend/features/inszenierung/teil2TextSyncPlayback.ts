@@ -7,13 +7,15 @@ import {
   firePerformanceEndCues,
   fireSentenceCues,
   fireStartCues,
-  fireTimeCues
+  fireTimeCues,
+  markTimeCuesAsFired
 } from "@/features/show/cuePlayback";
 import { textPositionForPlayback } from "@/features/show/mediaMentions";
 import {
   countUnfiredAvatarSegments,
   fireInitialAvatarSegments,
   fireRemainingSentenceSegments,
+  markAvatarSegmentsBeforeAsFired,
   resolveSentenceCharStarts,
   scheduleAvatarSegmentsAtPosition,
   sentenceSpanLength
@@ -119,6 +121,14 @@ export async function runTextSyncPlayback(
     cueCtx.onCommands,
     shouldAbort
   );
+
+  // Jump mid-show: skip all signals that belong before the seek point (no catch-up burst).
+  if (startIndex > 0) {
+    const startChar = sentenceCharStarts[startIndex] ?? 0;
+    markAvatarSegmentsBeforeAsFired(plan, startChar, firedSegments, sentenceCharStarts, scriptText);
+    markTimeCuesAsFired(cueCtx);
+    markTimeCuesAsFired(atmosphereCtx);
+  }
 
   const fireTimedCues = (elapsedSec: number) => {
     fireTimeCues(cueCtx, elapsedSec);

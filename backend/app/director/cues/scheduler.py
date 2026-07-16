@@ -36,7 +36,7 @@ class CueScheduler:
         if decision.sound and not self.safety.sound_enabled:
             return False, "sound_disabled"
 
-        if decision.light and not self.safety.lights_enabled:
+        if decision.light and (not self.safety.lights_enabled or self.safety.performance_tryout):
             return False, "lights_disabled"
 
         if skip_interval_check:

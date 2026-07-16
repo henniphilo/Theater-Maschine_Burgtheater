@@ -24,6 +24,26 @@ from app.services.video_scope import VideoScope
 _osc_fail_logger = logging.getLogger("theatermaschine.osc")
 
 
+def apply_runtime_safety_dry_run(cmd: OscCommand) -> OscCommand:
+    """Re-evaluate dry_run at send time for Probebetrieb / lights-off.
+
+    Commands may sit in the OSC queue for seconds; safety can change after they were planned.
+    Light must never hit the desk when tryout is on or lights are disabled.
+    (Global OSC_DRY_RUN stays on the planned command / bridge layer — do not re-apply here.)
+    """
+    from app.director.cues.safety import get_safety_state
+
+    safety = get_safety_state()
+    dry = bool(cmd.dry_run)
+    if safety.performance_tryout:
+        dry = True
+    if cmd.bridge == "light" and (safety.performance_tryout or not safety.lights_enabled):
+        dry = True
+    if dry == cmd.dry_run:
+        return cmd
+    return cmd.model_copy(update={"dry_run": True})
+
+
 def _light_osc_target(osc_host: str, osc_port: int) -> tuple[str, int]:
     del osc_host, osc_port
     return settings.light_desk_host(), settings.light_desk_port()
@@ -466,6 +486,7 @@ def send_osc_commands(commands: list[OscCommand], bridges: dict[str, Any]) -> li
     lighting = bridges["lighting"]
 
     for cmd in commands:
+        cmd = apply_runtime_safety_dry_run(cmd)
         if cmd.bridge == "pixera" and pixera is not None:
             if cmd.address == "/pixera/args/cue/apply" and cmd.args:
                 pixera.apply_cue(str(cmd.args[0]))

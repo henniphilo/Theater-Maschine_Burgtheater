@@ -4,7 +4,6 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import { AppNav } from "@/components/layout/AppNav";
 import { Teil2PerformanceBar } from "@/components/show/Teil2PerformanceBar";
 import { Teil2AvatarSegmentBlock } from "@/components/show/Teil2AvatarSegmentBlock";
 import { activeAvatarSegmentIndex } from "@/features/inszenierung/teil2AvatarSections";
@@ -34,10 +33,11 @@ import {
   subscribeInszenierungBuffer
 } from "@/features/inszenierung/inszenierungBuffer";
 import type { SceneCorpus } from "@/lib/types/inszenierung";
+import { sessionGet } from "@/lib/browser/session";
 
 function AuffuehrungContent() {
   const searchParams = useSearchParams();
-  const corpusId = searchParams.get("id") ?? sessionStorage.getItem("currentCorpusId") ?? "";
+  const corpusId = searchParams.get("id") ?? sessionGet("currentCorpusId") ?? "";
   const [corpus, setCorpus] = useState<SceneCorpus | null>(null);
   const [textSyncPlayback, setTextSyncPlayback] = useState<TextSyncPlaybackState>(INITIAL_TEXT_SYNC_STATE);
   const [anarchyPlayback, setAnarchyPlayback] = useState<AnarchyPlaybackState>(INITIAL_ANARCHY_STATE);
@@ -85,17 +85,20 @@ function AuffuehrungContent() {
   }, [speaker, corpus, usesTextSync, ttsAvailable]);
 
   const play = useCallback(
-    async (startSentenceIndex = 0, endSentenceIndex?: number) => {
-      if (!corpus || !canPlay) return;
-      if (paused && running) {
-        setPlaybackPaused(false);
-        if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
-        else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
-        return;
+    async (startSentenceIndex = 0, endSentenceIndex?: number, options?: { forceRestart?: boolean }) => {
+      if (!corpus || (!canPlay && !options?.forceRestart)) return;
+      if (!options?.forceRestart) {
+        if (paused && running) {
+          setPlaybackPaused(false);
+          if (usesTextSync) setTextSyncPlayback((prev) => ({ ...prev, paused: false }));
+          else setAnarchyPlayback((prev) => ({ ...prev, paused: false }));
+          return;
+        }
+        if (running) return;
       }
-      if (running) return;
       const gen = ++genRef.current;
       abortRef.current = false;
+      const shouldAbort = () => abortRef.current || gen !== genRef.current;
       setPlaybackPaused(false);
 
       if (usesTextSync && plan) {
@@ -113,7 +116,7 @@ function AuffuehrungContent() {
           (patch) => {
             if (gen === genRef.current) setTextSyncPlayback((prev) => ({ ...prev, ...patch }));
           },
-          () => abortRef.current,
+          shouldAbort,
           { tryout: readPerformanceTryout(), startSentenceIndex, endSentenceIndex, playbackGeneration: gen }
         );
         return;
@@ -128,8 +131,8 @@ function AuffuehrungContent() {
         (patch) => {
           if (gen === genRef.current) setAnarchyPlayback((prev) => ({ ...prev, ...patch }));
         },
-        () => abortRef.current,
-        { playbackGeneration: gen }
+        shouldAbort,
+        { playbackGeneration: gen, tryout: readPerformanceTryout() }
       );
     },
     [corpus, canPlay, ttsAvailable, usesTextSync, plan, speaker, paused, running]
@@ -170,8 +173,15 @@ function AuffuehrungContent() {
     if (!canPlay || !usesTextSync || !plan) return;
     const segment = plan.avatar_segments[segmentIndex];
     if (!segment) return;
-    if (running || paused) stop();
-    void play(segment.start_sentence_index, segment.end_sentence_index);
+    // Soft seek — no emergency_stop (races with Probebetrieb re-arm).
+    abortRef.current = true;
+    genRef.current += 1;
+    stopPlayback();
+    setTextSyncPlayback((prev) => ({ ...prev, running: false, paused: true }));
+    setAnarchyPlayback((prev) => ({ ...prev, running: false, paused: true }));
+    window.setTimeout(() => {
+      void play(segment.start_sentence_index, undefined, { forceRestart: true });
+    }, 0);
   }
 
   const sectionCount = plan?.avatar_segments.length ?? 0;
@@ -202,10 +212,10 @@ function AuffuehrungContent() {
         : "Bereit";
 
   return (
-    <main className={`container col${corpus ? " pageWithPerformanceTransport" : ""}`}>
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Teil 2 — Aufführung</h1>
-        <AppNav />
+    <main className={`container col livePage${corpus ? " pageWithPerformanceTransport" : ""}`}>
+      <div className="pageHeader">
+        <h1>Teil 2 — Aufführung</h1>
+        {running ? <span className="liveBadge">{paused ? "Pausiert" : "Live"}</span> : null}
       </div>
 
       {corpus ? (
@@ -249,7 +259,7 @@ function AuffuehrungContent() {
           <p className="textMuted" style={{ fontSize: "0.9rem", marginTop: 0 }}>
             Wie in der CSV — Klick testet Stimme und Signale für diesen Abschnitt.
           </p>
-          <ul className="teil2SentenceList">
+          <ul className="teil2SentenceList liveSectionList">
             {plan.avatar_segments.map((segment, index) => (
               <li key={segment.csv_cue_ids.join("-")}>
                 <Teil2AvatarSegmentBlock
@@ -272,6 +282,16 @@ function AuffuehrungContent() {
               ? `Abschnitt ${activeSegmentIndex >= 0 ? activeSegmentIndex + 1 : "—"} / ${sectionCount}`
               : `Beat ${progressIndex >= 0 ? progressIndex + 1 : "—"} / ${corpus.composition?.moments.length ?? 0}`
           }
+          currentIndex={
+            usesTextSync
+              ? activeSegmentIndex >= 0
+                ? activeSegmentIndex + 1
+                : null
+              : progressIndex >= 0
+                ? progressIndex + 1
+                : null
+          }
+          totalCount={usesTextSync ? sectionCount : corpus.composition?.moments.length ?? 0}
           detail={statusDetail}
           running={running}
           paused={paused}

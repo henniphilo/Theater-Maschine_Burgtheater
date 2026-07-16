@@ -131,8 +131,8 @@ export default function DirectorPage() {
 
   return (
     <main className="container col">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ margin: 0 }}>Live-Regie Operator</h1>
+      <div className="pageHeader">
+        <h1>Live-Regie Operator</h1>
         <Link href="/">← Zur Debatte</Link>
       </div>
       <p className="textMuted">

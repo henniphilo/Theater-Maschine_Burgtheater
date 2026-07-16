@@ -9,8 +9,20 @@ from app.services.teil2_script_service import (
     build_beat_previews,
     build_timeline_from_csv,
     group_catalog_cues_into_beats,
+    resolve_script_txt_path,
     validate_cues_against_script,
 )
+
+
+def test_resolve_script_txt_via_director_data_dir(monkeypatch, tmp_path):
+    stueck = tmp_path / "Stücktext"
+    stueck.mkdir()
+    script = stueck / "AVATAR Text Delfin bis Wolf.txt"
+    script.write_text("Kanon.", encoding="utf-8")
+    monkeypatch.setenv("DIRECTOR_DATA_DIR", str(tmp_path / "data"))
+    (tmp_path / "data").mkdir()
+    assert resolve_script_txt_path() == script
+
 
 
 def _cue(

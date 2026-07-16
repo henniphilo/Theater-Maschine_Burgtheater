@@ -510,6 +510,39 @@ async def director_events() -> StreamingResponse:
     )
 
 
+def _read_osc_log_tail(limit: int) -> list[str]:
+    """Return the last ``limit`` lines from the configured OSC/MIDI log file."""
+    from pathlib import Path
+
+    path = Path(settings.osc_log_path)
+    if not path.is_file():
+        return []
+    try:
+        # Bound read size so a huge log cannot blow memory.
+        with path.open("rb") as handle:
+            handle.seek(0, 2)
+            size = handle.tell()
+            block = min(size, max(16_384, limit * 256))
+            handle.seek(max(0, size - block))
+            raw = handle.read().decode("utf-8", errors="replace")
+    except OSError:
+        return []
+    lines = [line for line in raw.splitlines() if line.strip()]
+    return lines[-limit:]
+
+
+@router.get("/osc-log/recent")
+def get_osc_log_recent(limit: int = 150) -> dict[str, object]:
+    """Tail of logs/osc.log — same lines as the terminal OSC/MIDI output."""
+    _ensure_enabled()
+    capped = max(1, min(int(limit), 500))
+    return {
+        "lines": _read_osc_log_tail(capped),
+        "path": settings.osc_log_path,
+        "limit": capped,
+    }
+
+
 def process_debate_turn_if_enabled(
     *,
     speaker: str,

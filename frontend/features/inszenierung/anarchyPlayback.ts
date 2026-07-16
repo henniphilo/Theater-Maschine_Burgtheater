@@ -72,7 +72,7 @@ export async function runAnarchyPlayback(
   ttsAvailable: boolean,
   onUpdate: (patch: Partial<AnarchyPlaybackState>) => void,
   shouldAbort: () => boolean,
-  options?: { playbackGeneration?: number }
+  options?: { tryout?: boolean; playbackGeneration?: number }
 ): Promise<void> {
   if (options?.playbackGeneration != null) {
     startFrontendPlaybackTrace({
@@ -81,7 +81,7 @@ export async function runAnarchyPlayback(
       route: "/auffuehrung"
     });
   }
-  await armDirectorForPerformance();
+  await armDirectorForPerformance({ tryout: options?.tryout });
   const moments = [...plan.moments].sort((a, b) => a.order - b.order);
   const maxVoices = plan.max_concurrent_voices ?? 3;
   const needsTts = planRequiresTts(plan);

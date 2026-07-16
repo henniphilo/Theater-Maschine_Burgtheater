@@ -6,43 +6,81 @@ import {
   logSignalTraceEvent,
   startFrontendPlaybackTrace
 } from "@/lib/debug/signalTrace";
+import {
+  noteDesiredPerformanceTryout,
+  peekDesiredPerformanceTryout
+} from "@/lib/performanceTryout";
 
 export { buildTraceContext, logSignalTraceEvent, startFrontendPlaybackTrace };
 
 let performanceOscAbort: AbortController | null = null;
+
+/** Serializes safety patches so a late mount-sync(false) cannot overwrite Probebetrieb. */
+let safetyPatchTail: Promise<unknown> = Promise.resolve();
+
+/** In-flight emergency stops — arm waits so a late stop cannot undo Probebetrieb. */
+let stopTail: Promise<unknown> = Promise.resolve();
 
 export function isDirectorPerformanceAborted(): boolean {
   return performanceOscAbort?.signal.aborted ?? false;
 }
 
 export async function syncPerformanceTryoutToDirector(tryout: boolean): Promise<DirectorStatus> {
-  return patchDirectorSafety({
-    lights_enabled: !tryout,
-    performance_tryout: tryout
+  noteDesiredPerformanceTryout(tryout);
+  const run = safetyPatchTail.then(async () => {
+    // Re-read desired value: an older in-flight call must not apply a stale false.
+    const desired = peekDesiredPerformanceTryout();
+    return patchDirectorSafety({
+      lights_enabled: !desired,
+      performance_tryout: desired
+    });
   });
+  safetyPatchTail = run.then(
+    () => undefined,
+    () => undefined
+  );
+  return run;
 }
 
 /** Re-enable director outputs and reset abort handle before a performance run. */
 export async function armDirectorForPerformance(options?: { tryout?: boolean }): Promise<void> {
+  // Finish any Stop/emergency before clearing — otherwise a late emergency_stop
+  // leaves emergency_stop_active stuck and can race Probebetrieb off.
+  await stopTail;
   performanceOscAbort?.abort();
   performanceOscAbort = new AbortController();
-  const tryout = Boolean(options?.tryout);
+  if (options?.tryout != null) {
+    noteDesiredPerformanceTryout(options.tryout);
+  } else {
+    noteDesiredPerformanceTryout(peekDesiredPerformanceTryout());
+  }
+  const tryout = peekDesiredPerformanceTryout();
   logSignalTraceEvent(
     "frontend.playback_started",
     { source: "armDirectorForPerformance", tryout },
     { status: "arm" }
   );
   await postDirectorEmergencyClear();
-  try {
-    await patchDirectorSafety({
+  const run = safetyPatchTail.then(async () => {
+    const desired = peekDesiredPerformanceTryout();
+    return patchDirectorSafety({
       autopilot_enabled: true,
       visuals_enabled: true,
       sound_enabled: true,
-      lights_enabled: !tryout,
-      performance_tryout: tryout
+      lights_enabled: !desired,
+      performance_tryout: desired
     });
-  } catch (err) {
-    console.warn("Director Probebetrieb konnte nicht gesetzt werden:", err);
+  });
+  safetyPatchTail = run.then(
+    () => undefined,
+    () => undefined
+  );
+  const status = await run;
+  const desired = peekDesiredPerformanceTryout();
+  if (status.safety.performance_tryout !== desired || status.safety.lights_enabled !== !desired) {
+    throw new Error(
+      `Probebetrieb am Director nicht gesetzt (tryout=${status.safety.performance_tryout}, lights=${status.safety.lights_enabled})`
+    );
   }
 }
 
@@ -51,7 +89,12 @@ export async function stopDirectorPerformance(): Promise<void> {
   logSignalTraceEvent("frontend.stop_requested", {}, { status: "stop_requested" });
   performanceOscAbort?.abort();
   performanceOscAbort = null;
-  await postDirectorEmergencyStop();
+  const run = stopTail.then(() => postDirectorEmergencyStop());
+  stopTail = run.then(
+    () => undefined,
+    () => undefined
+  );
+  await run;
 }
 
 function directorPerformanceSignal(): AbortSignal | undefined {
@@ -439,4 +482,17 @@ export function streamDirectorEvents(onUpdate: (update: DirectorStreamUpdate) =>
     }
   };
   return () => source.close();
+}
+
+export type OscLogRecentResponse = {
+  lines: string[];
+  path: string;
+  limit: number;
+};
+
+/** Last lines from backend logs/osc.log (same text as the terminal OSC/MIDI feed). */
+export async function fetchOscLogRecent(limit = 150): Promise<OscLogRecentResponse> {
+  const res = await apiFetch(`/director/osc-log/recent?limit=${Math.max(1, Math.min(limit, 500))}`);
+  if (!res.ok) throw new Error("OSC-Log nicht erreichbar");
+  return res.json();
 }
